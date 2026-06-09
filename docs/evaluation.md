@@ -42,6 +42,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Scenario Dataset catalog coverage and Eval Coverage Pack export under `data/scenario_packs/`
 - Evidence Retention audit for trace, approval, outbox, audit-event, artifact, SHA-256 hash coverage, dashboard wiring, demo output, and pack export under `data/evidence_packs/`
 - Capacity Planning queue load, required/available FTE, staffing gaps, dashboard wiring, demo/eval output, and Staffing Plan export under `data/capacity_plans/`
+- Data Residency and PII Exposure audit for local PII, restricted-region, regulated-segment, approval, outbox exposure, dashboard wiring, demo output, and pack export under `data/data_residency_packs/`
 - Dashboard Smoke source wiring for Streamlit views, endpoint references, generated artifact tabs, and UI Verification Pack export under `data/ui_verification/`
 - metrics aggregation
 - auth behavior
@@ -55,6 +56,24 @@ Use `sample_data/tickets.json` as seed cases:
 - Billing invoice question should classify as billing, retrieve billing KB, draft customer reply, and pause for approval.
 - API/webhook latency should retrieve API KB and draft an engineering escalation for enterprise impact.
 - SSO outage, webhook regression, billing dispute, privacy export, and API key rotation tickets should rank the matching local playbook near the top with concrete match reasons.
+
+## Data Residency Eval
+
+```powershell
+curl http://localhost:8000/compliance/data-residency-audit `
+  -H "x-api-key: demo-control-tower-key"
+
+curl -X POST http://localhost:8000/compliance/data-residency-pack `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- audit returns `mode=local-deterministic-data-residency-audit` and `local_mock_only=true`
+- account exposure rows include region, segment, PII signal types, approval state, outbox exposure, severity, reasons, and recommended action
+- EU or regulated-segment fixtures are surfaced for compliance review
+- pack writes Markdown and JSON under `data/data_residency_packs/`
+- no DLP, CRM, storage, Azure, OpenAI, Zendesk, Jira, Slack, GitHub, or external compliance system is called
 
 ## Scenario Dataset Eval
 

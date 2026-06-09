@@ -219,6 +219,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /capacity/staffing-plan`
   Writes Markdown and JSON under the ignored capacity planning folder, normally `data/capacity_plans/`. The plan includes demand summary, queue forecast, staffing gaps, owner assignments, remediation actions, acceptance criteria, local verification commands, JD skills, interviewer talking points, artifact paths, and local/mock limitations.
 
+- `GET /compliance/data-residency-audit`
+  Returns a local deterministic Data Residency and PII Exposure audit across support tickets, workflow drafts, approval records, outbox payloads, account region/segment metadata, and fake fixture rules. The response includes readiness status, residency score, account exposure queue, data-flow map, control checks, owner actions, endpoint list, local commands, and limitations. It does not call DLP, CRM, storage, Azure, OpenAI, Zendesk, Jira, Slack, GitHub, or external compliance systems.
+
+- `POST /compliance/data-residency-pack`
+  Writes Markdown and JSON under the ignored data residency folder, normally `data/data_residency_packs/`. The pack includes executive summary, review queue, control owner actions, acceptance criteria, local verification commands, and local/mock limitations.
+
 - `POST /ops/runbook-qa`
   Evaluates operator handoff completeness for a supplied `run_id`, the latest local run, or a deterministic sample fallback when no run exists. The response includes score, pass/fail status, missing sections, warnings, linked artifact paths, and recommended fixes for ticket summary, classification, SLA risk, customer impact, KB context, drafts, approval state, trace ID, outbox, failure drill, remediation owners, SLO budget, optimization recommendations, and customer/account health.
 

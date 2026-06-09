@@ -67,6 +67,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Audits local trace, approval, outbox, audit, artifact, and SHA-256 custody coverage for escalation evidence review.",
     },
+    {
+        "name": "Data Residency and PII Exposure Pack",
+        "directory": "data/data_residency_packs",
+        "producer": "POST /compliance/data-residency-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Audits local support tickets, drafts, approvals, outbox payloads, and account regions for PII and residency review risk.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -102,6 +109,7 @@ REVIEWER_PURPOSES = {
     "data/runbook_gap_packs": EXTRA_ARTIFACTS[4]["reviewer_purpose"],
     "data/evidence_packs": EXTRA_ARTIFACTS[5]["reviewer_purpose"],
     "data/capacity_plans": "Support capacity forecast proof with queue load, staffing gaps, owners, and local remediation actions.",
+    "data/data_residency_packs": EXTRA_ARTIFACTS[6]["reviewer_purpose"],
 }
 
 

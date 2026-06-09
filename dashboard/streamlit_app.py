@@ -72,6 +72,7 @@ tabs = st.tabs(
         "Runbook Coverage",
         "Evidence Retention",
         "Capacity Planning",
+        "Data Residency",
     ]
 )
 
@@ -2375,3 +2376,59 @@ with tabs[39]:
         st.markdown(plan["markdown"])
         with st.expander("Capacity Staffing Plan JSON"):
             st.json(plan["plan"])
+
+with tabs[40]:
+    left, right = st.columns(2)
+    if left.button("Refresh Data Residency Audit", type="primary", use_container_width=True):
+        st.session_state["data_residency_audit"] = api("GET", "/compliance/data-residency-audit")
+    if right.button("Export Data Residency Pack", use_container_width=True):
+        pack = api("POST", "/compliance/data-residency-pack")
+        st.session_state["data_residency_pack"] = pack
+        st.session_state["data_residency_audit"] = pack["pack"]["audit"]
+        st.success(f"Data Residency Pack exported: {pack['markdown_path']}")
+
+    audit = st.session_state.get("data_residency_audit") or api("GET", "/compliance/data-residency-audit")
+    st.session_state["data_residency_audit"] = audit
+    summary = audit["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Residency score", audit["residency_score"])
+    c2.metric("Status", audit["readiness_status"])
+    c3.metric("Critical", summary["critical_count"])
+    c4.metric("High", summary["high_count"])
+
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("PII tickets", summary["pii_signal_ticket_count"])
+    c6.metric("Restricted region", summary["restricted_region_ticket_count"])
+    c7.metric("Regulated segment", summary["regulated_segment_ticket_count"])
+    c8.metric("Outbox exposure", summary["outbox_exposure_ticket_count"])
+
+    st.subheader("Account Exposure Queue")
+    st.dataframe(audit["account_exposure"], use_container_width=True, hide_index=True)
+
+    st.subheader("Data Flow Map")
+    st.dataframe(audit["data_flow_map"], use_container_width=True, hide_index=True)
+
+    st.subheader("Control Checks")
+    st.dataframe(audit["control_checks"], use_container_width=True, hide_index=True)
+
+    st.subheader("Owner Actions")
+    st.dataframe(audit["owner_actions"], use_container_width=True, hide_index=True)
+
+    st.subheader("Policy Rules and Limitations")
+    st.json({"policy_rules": audit["policy_rules"], "limitations": audit["limitations"]})
+
+    pack = st.session_state.get("data_residency_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Data Residency Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Review Queue")
+        st.dataframe(pack["pack"]["review_queue"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Data Residency Pack JSON"):
+            st.json(pack["pack"])

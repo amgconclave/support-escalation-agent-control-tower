@@ -139,6 +139,10 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /runtime/demo-pack` writes Markdown and JSON under `data/runtime_packs/`. The Runtime Demo Server Pack includes the embedded readiness report, exact start and manual stop commands, health checks, demo flow order, screenshot checklist placeholders, troubleshooting, recruiter explanation, and engineer explanation. It remains local/mock only, never kills processes, and does not call Azure, OpenAI, Zendesk, Jira, Slack, GitHub, or external services.
 
+`GET /compliance/data-residency-audit` is the local data residency and PII exposure check before production adapter expansion. It reviews tickets, workflow drafts, approvals, outbox payloads, customer region/segment fixtures, and `sample_data/data_residency_rules.json` for email, invoice, tenant, request ID, credential, privacy deletion, EU-region, regulated-segment, and outbox exposure signals.
+
+`POST /compliance/data-residency-pack` writes Markdown and JSON under `data/data_residency_packs/`. The pack includes the review queue, executive summary, control checks, owner actions, acceptance criteria, local commands, and local/mock limitations. It does not call DLP, CRM, contract, storage, Azure, OpenAI, Zendesk, Jira, Slack, GitHub, or external compliance systems.
+
 ## Final Handoff and README Consistency
 
 `GET /handoff/final-audit` is the README Consistency final audit. It compares local README endpoint mentions and `docs/api.md` coverage against implemented FastAPI routes, verifies architecture/evaluation/workflow coverage, confirms demo output claims, checks required scripts and the Dashboard Smoke script, verifies generated artifact directory docs for `data/final_handoff/`, and checks local/mock Azure limitation clarity.

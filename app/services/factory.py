@@ -11,6 +11,7 @@ from app.services.audit import AuditService
 from app.services.briefs import IncidentBriefService
 from app.services.capacity_planning import CapacityPlanningService
 from app.services.customers import CustomerHealthService
+from app.services.data_residency import DataResidencyService
 from app.services.demo import DemoService
 from app.services.drills import DrillService
 from app.services.evidence_retention import EvidenceRetentionService
@@ -293,4 +294,12 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "capacity_plans",
+        )
+        self.data_residency = DataResidencyService(
+            self.store,
+            self.tickets,
+            self.audit,
+            Path("sample_data/customers.json"),
+            Path("sample_data/data_residency_rules.json"),
+            settings.state_file.parent / "data_residency_packs",
         )

@@ -57,6 +57,7 @@ EXPECTED_VIEWS = [
     "Runbook Coverage",
     "Evidence Retention",
     "Capacity Planning",
+    "Data Residency",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -312,6 +313,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /compliance/data-residency-audit",
+        "purpose": "Data residency and PII exposure audit across local support evidence.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /compliance/data-residency-pack",
+        "purpose": "Data Residency and PII Exposure Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -449,6 +462,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Capacity Planning",
         "producer_endpoint": "POST /capacity/staffing-plan",
         "artifact_directory": "data/capacity_plans",
+    },
+    {
+        "tab_label": "Data Residency",
+        "producer_endpoint": "POST /compliance/data-residency-pack",
+        "artifact_directory": "data/data_residency_packs",
     },
 ]
 
@@ -766,6 +784,11 @@ class UIVerificationService:
                 "view": "Capacity Planning",
                 "placeholder": "screenshots/capacity-planning-staffing-plan.png",
                 "what_to_capture": "Capacity score, staffing gaps, queue forecast, owner actions, and generated pack paths.",
+            },
+            {
+                "view": "Data Residency",
+                "placeholder": "screenshots/data-residency-review-queue.png",
+                "what_to_capture": "Residency score, PII exposure queue, local data flow map, owner actions, and generated pack paths.",
             },
         ]
 

@@ -398,6 +398,16 @@ async def capacity_staffing_plan(request: Request):
     return await get_container(request).capacity_planning.export_staffing_plan()
 
 
+@router.get("/compliance/data-residency-audit", dependencies=[Depends(require_api_key)])
+async def data_residency_audit(request: Request):
+    return await get_container(request).data_residency.audit_residency()
+
+
+@router.post("/compliance/data-residency-pack", dependencies=[Depends(require_api_key)])
+async def data_residency_pack(request: Request):
+    return await get_container(request).data_residency.export_pack()
+
+
 @router.get("/ui/dashboard-smoke", dependencies=[Depends(require_api_key)])
 async def ui_dashboard_smoke(request: Request):
     return await get_container(request).ui_verification.dashboard_smoke()

@@ -1,0 +1,11 @@
+{
+  "default_processing_region": "local-dev",
+  "restricted_regions": ["EU"],
+  "sensitive_segments": ["Healthcare", "Financial Services"],
+  "review_required_categories": ["security_privacy", "authentication"],
+  "external_action_policy": "human_approval_required",
+  "notes": [
+    "Fixture rules are fake local portfolio controls.",
+    "They surface where production DLP, data residency, and compliance gates would be wired."
+  ]
+}

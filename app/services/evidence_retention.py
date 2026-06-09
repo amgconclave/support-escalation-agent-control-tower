@@ -52,6 +52,7 @@ EVIDENCE_ARTIFACT_DIRECTORIES = [
     "api_contracts",
     "runtime_packs",
     "scenario_packs",
+    "data_residency_packs",
 ]
 
 

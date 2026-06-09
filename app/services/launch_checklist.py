@@ -224,6 +224,12 @@ EXPECTED_ARTIFACTS = [
         "producer": "POST /capacity/staffing-plan",
         "formats": ["markdown", "json"],
     },
+    {
+        "name": "Data Residency and PII Exposure Pack",
+        "directory": "data/data_residency_packs",
+        "producer": "POST /compliance/data-residency-pack",
+        "formats": ["markdown", "json"],
+    },
 ]
 
 
@@ -337,6 +343,8 @@ class LaunchChecklistService:
             self._row("POST", "/evidence/retention-pack", True, "Writes the Evidence Retention and Chain-of-Custody Pack.", True, "data/evidence_packs"),
             self._row("GET", "/capacity/forecast", True, "Returns local support load and staffing capacity forecast.", False),
             self._row("POST", "/capacity/staffing-plan", True, "Writes the Capacity Forecast and Staffing Plan.", True, "data/capacity_plans"),
+            self._row("GET", "/compliance/data-residency-audit", True, "Returns local data residency and PII exposure audit.", False),
+            self._row("POST", "/compliance/data-residency-pack", True, "Writes the Data Residency and PII Exposure Pack.", True, "data/data_residency_packs"),
             self._row("POST", "/tickets/ingest-samples", True, "Loads sample tickets for manual demos.", False),
             self._row("GET", "/tickets", True, "Confirms authenticated ticket listing works.", False),
             self._row("POST", "/demo/evidence-pack", True, "Runs the complete demo and writes evidence.", True, "data/demo_packs plus linked artifacts"),
