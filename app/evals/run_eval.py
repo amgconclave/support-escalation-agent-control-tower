@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 async def run_eval() -> None:
     dataset = json.loads((ROOT / "sample_data" / "eval_dataset.json").read_text(encoding="utf-8"))
-    state_file = ROOT / "eval_control_tower_state.json"
+    state_file = ROOT / "data" / "eval_control_tower_state.db"
     if state_file.exists():
         state_file.unlink()
     settings = Settings(
@@ -53,11 +53,15 @@ async def run_eval() -> None:
     estimated_cost = metrics.get("estimated_cost_usd", 0.0)
     scenario_pack = await container.scenarios.export_eval_pack()
     scenario_summary = scenario_pack["eval_summary"]
+    runbook_audit = await container.runbook_coverage.coverage_audit()
+    runbook_gap_pack = await container.runbook_coverage.export_gap_pack()
     passed = (
         correct_classification == total
         and correct_routing == total
         and approval_pauses >= total
         and scenario_summary["status"] == "pass"
+        and runbook_audit["coverage_score"] >= 50
+        and runbook_audit["runbook_gaps"]
     )
 
     print(f"Number of eval tickets: {total}")
@@ -80,6 +84,9 @@ async def run_eval() -> None:
         f"{scenario_summary['sla_routing']['total']}"
     )
     print(f"Scenario Dataset Eval Pack: {scenario_pack['markdown_path']}")
+    print(f"Runbook Coverage score: {runbook_audit['coverage_score']}")
+    print(f"Runbook Coverage gaps: {len(runbook_audit['runbook_gaps'])}")
+    print(f"Runbook Gap Pack: {runbook_gap_pack['markdown_path']}")
     print(f"Pass/fail summary: {'PASS' if passed else 'FAIL'}")
     if not passed:
         raise SystemExit(1)

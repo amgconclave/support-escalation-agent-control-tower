@@ -96,6 +96,20 @@ def run_with_http_server() -> dict | None:
         )
         kb_plan_response.raise_for_status()
         result["kb_refresh_plan"] = kb_plan_response.json()
+        runbook_coverage_response = requests.get(
+            f"{BASE}/runbooks/coverage-audit",
+            headers=headers,
+            timeout=60,
+        )
+        runbook_coverage_response.raise_for_status()
+        result["runbook_coverage_audit"] = runbook_coverage_response.json()
+        runbook_gap_response = requests.post(
+            f"{BASE}/runbooks/gap-pack",
+            headers=headers,
+            timeout=60,
+        )
+        runbook_gap_response.raise_for_status()
+        result["runbook_gap_pack"] = runbook_gap_response.json()
         smoke_response = requests.get(
             f"{BASE}/ops/smoke-matrix",
             headers=headers,
@@ -374,6 +388,12 @@ def run_in_process() -> dict:
         kb_plan_response = client.post("/knowledge/refresh-plan", headers={"x-api-key": token})
         kb_plan_response.raise_for_status()
         result["kb_refresh_plan"] = kb_plan_response.json()
+        runbook_coverage_response = client.get("/runbooks/coverage-audit", headers={"x-api-key": token})
+        runbook_coverage_response.raise_for_status()
+        result["runbook_coverage_audit"] = runbook_coverage_response.json()
+        runbook_gap_response = client.post("/runbooks/gap-pack", headers={"x-api-key": token})
+        runbook_gap_response.raise_for_status()
+        result["runbook_gap_pack"] = runbook_gap_response.json()
         smoke_response = client.get("/ops/smoke-matrix", headers={"x-api-key": token})
         smoke_response.raise_for_status()
         result["smoke_matrix"] = smoke_response.json()
@@ -491,6 +511,8 @@ def main():
     leadership_review = result["leadership_review_pack"]
     kb_audit = result["knowledge_quality_audit"]
     kb_plan = result["kb_refresh_plan"]
+    runbook_coverage = result["runbook_coverage_audit"]
+    runbook_gap_pack = result["runbook_gap_pack"]
     smoke = result["smoke_matrix"]
     checklist = result["launch_checklist"]
     portfolio_evidence = result["portfolio_evidence_index"]
@@ -560,6 +582,14 @@ def main():
     )
     print("KB refresh plan:", kb_plan["markdown_path"])
     print("KB refresh JSON:", kb_plan["json_path"])
+    print(
+        "Runbook coverage:",
+        runbook_coverage["coverage_score"],
+        runbook_coverage["readiness_status"],
+        f"gaps={len(runbook_coverage['runbook_gaps'])}",
+    )
+    print("Runbook Gap Pack:", runbook_gap_pack["markdown_path"])
+    print("Runbook Gap JSON:", runbook_gap_pack["json_path"])
     print(
         "Launch readiness:",
         smoke["readiness_summary"]["status"],

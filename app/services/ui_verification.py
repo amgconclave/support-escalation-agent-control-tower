@@ -54,6 +54,7 @@ EXPECTED_VIEWS = [
     "Runtime Demo",
     "Scenario Dataset",
     "Finance Impact",
+    "Runbook Coverage",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -156,6 +157,18 @@ EXPECTED_ENDPOINTS = [
     {
         "endpoint": "POST /knowledge/refresh-plan",
         "purpose": "Knowledge Quality refresh plan export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "GET /runbooks/coverage-audit",
+        "purpose": "Runbook Coverage audit across tickets, KB articles, playbooks, and scenarios.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /runbooks/gap-pack",
+        "purpose": "Runbook Coverage Gap Pack export.",
         "dashboard_reference_required": True,
         "route_required": True,
     },
@@ -313,6 +326,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Knowledge Quality",
         "producer_endpoint": "POST /knowledge/refresh-plan",
         "artifact_directory": "data/kb_refresh_plans",
+    },
+    {
+        "tab_label": "Runbook Coverage",
+        "producer_endpoint": "POST /runbooks/gap-pack",
+        "artifact_directory": "data/runbook_gap_packs",
     },
     {
         "tab_label": "Launch Checklist",

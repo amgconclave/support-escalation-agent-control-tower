@@ -11,3 +11,4 @@ data/
 debug_eval_state.json
 eval_control_tower_state.json
 eval_control_tower.db
+runbook_gap_packs/

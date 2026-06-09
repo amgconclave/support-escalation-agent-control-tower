@@ -13,6 +13,7 @@ The control tower is organized as an async FastAPI application with explicit ser
 - **TraceService** persists node transitions, tool calls, latency, and failures.
 - **MetricsService** aggregates node counts, latency, token use, and estimated cost.
 - **RunbookQaService** evaluates operator handoff readiness across run state, traces, approvals, outbox records, drills, SLOs, and generated artifacts, then exports readiness packs.
+- **RunbookCoverageService** maps tickets and scenario fixtures to KB/runbook coverage, detects missing dedicated runbook categories, assigns owners, and exports local gap packs.
 - **LaunchChecklistService** packages reviewer setup, smoke checks, demo commands, eval commands, artifacts, troubleshooting, JD skills, and talking points into a local launch checklist.
 - **PortfolioService** builds the Portfolio Evidence Index and writes the Interview Pack that maps JD skills to features, endpoints, tests/evals, artifacts, commands, and proof paths.
 - **ReleaseService** builds the Release Candidate quality gate and writes the GitHub Publish Pack that combines release gate status, coverage, verification commands, expected outputs, endpoint inventory, artifact inventory, screenshot placeholders, commit/push notes, recruiter notes, and known limitations.
@@ -77,6 +78,8 @@ All business endpoints require `x-api-key` or `Authorization: Bearer`. `/health`
 Every request gets an `x-trace-id`. Workflow runs get their own durable trace ID and trace events for node starts, node completions, tool calls, errors, latency, token use, cost, final action, and failure state.
 
 Runbook QA is an observability consumer rather than another external integration. It reads local state and generated artifacts, can bootstrap a deterministic sample when no run exists, and never calls real Zendesk, Jira, Slack, Azure, or OpenAI services.
+
+Runbook Coverage is a governance layer over the local playbook and KB fixtures. It compares active/sample tickets and scenario tickets against `sample_data/playbooks.json` and `sample_data/kb_articles.json`, then writes gap packs under ignored `data/runbook_gap_packs/` without contacting external systems.
 
 Replay Lab follows the same local-only boundary. It clones saved run state, applies scenario modifiers for SLA pressure, KB context, adapter health, confidence, and approval policy, then compares original and replay outcomes without invoking adapters or external providers.
 

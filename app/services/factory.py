@@ -31,6 +31,7 @@ from app.services.portfolio import PortfolioService
 from app.services.replay_lab import ReplayLabService
 from app.services.release import ReleaseService
 from app.services.reviewer import ReviewerService
+from app.services.runbook_coverage import RunbookCoverageService
 from app.services.runbook_qa import RunbookQaService
 from app.services.runtime_demo import RuntimeDemoService
 from app.services.scenarios import ScenarioCatalogService
@@ -188,6 +189,14 @@ class ServiceContainer:
             self.customers,
             self.ops,
             settings.state_file.parent / "operator_packs",
+        )
+        self.runbook_coverage = RunbookCoverageService(
+            self.tickets,
+            self.playbooks,
+            self.audit,
+            Path("sample_data/kb_articles.json"),
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "runbook_gap_packs",
         )
         self.leadership = LeadershipScorecardService(
             self.store,

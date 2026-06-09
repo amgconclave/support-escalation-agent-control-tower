@@ -117,6 +117,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Runbook Coverage Gap Pack",
+        "directory": "data/runbook_gap_packs",
+        "producer": "POST /runbooks/gap-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Incident narrative",
         "directory": "data/incident_narratives",
         "producer": "POST /incidents/executive-narrative",

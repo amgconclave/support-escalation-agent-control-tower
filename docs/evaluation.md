@@ -31,6 +31,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Escalation Finance Impact estimates for support cost, SLA penalty exposure, engineering effort, ARR at risk, dashboard wiring, demo output, and pack export under `data/finance_impact_packs/`
 - Leadership Scorecard calculation, risk flags, endpoint behavior, and review pack export under `data/leadership_reviews/`
 - Knowledge Quality Auditor coverage score, missing citation detection, conflict detection, workflow retrieval evidence, endpoint behavior, and KB refresh plan export under `data/kb_refresh_plans/`
+- Runbook Coverage audit ticket-to-KB/runbook mapping, missing dedicated runbook gaps, owner assignments, endpoint evidence, and Gap Pack export under `data/runbook_gap_packs/`
 - Smoke Matrix endpoint shape and Launch Checklist Markdown/JSON export under `data/launch_checklists/`
 - Portfolio Evidence Index skill coverage and Interview Pack Markdown/JSON export under `data/portfolio_packs/`
 - Release Candidate quality gate coverage and GitHub Publish Pack Markdown/JSON export under `data/release_packs/`
@@ -1034,3 +1035,31 @@ Expected evidence:
 - Markdown and JSON files are written under `data/operator_packs/`
 - pack includes Runbook QA result, critical metrics, endpoint list, local demo command, JD skills demonstrated, and five interviewer talking points
 - a fresh clone can omit the body; the service will use the latest run or bootstrap a deterministic local sample
+
+## Runbook Coverage Gap Eval
+
+Review runbook coverage:
+
+```bash
+curl http://localhost:8000/runbooks/coverage-audit \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- response includes `coverage_score`, `coverage_summary`, `ticket_mappings`, `runbook_gaps`, `owner_assignments`, and `endpoint_list`
+- scenario webhook/API tickets map to `pb_webhook_regression` and `KB-309`
+- missing dedicated runbook categories such as incident or general support are surfaced as owner-assigned gaps
+
+Export the Runbook Coverage Gap Pack:
+
+```bash
+curl -X POST http://localhost:8000/runbooks/gap-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- Markdown and JSON files are written under `data/runbook_gap_packs/`
+- pack includes remediation tasks, affected ticket IDs, owner assignments, acceptance criteria, endpoint list, local commands, JD skills demonstrated, and five interviewer talking points
+- `scripts/demo_run.py` prints Runbook Coverage score, gap count, and Gap Pack Markdown/JSON paths

@@ -91,6 +91,12 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /ops/operator-readiness-pack` writes Markdown and JSON under `data/operator_packs/`. The pack includes the Runbook QA result, critical metrics, endpoint list, local demo command, JD skills demonstrated, and five interviewer talking points. It remains local/mock only and reuses existing artifacts instead of calling external systems.
 
+## Runbook Coverage and Gap Pack
+
+`GET /runbooks/coverage-audit` maps active tickets plus scenario fixtures to local KB articles and playbook recommendations. It reports coverage score, readiness status, per-ticket KB/runbook mapping, missing dedicated runbook gaps, owner assignments, endpoint evidence, verification commands, and local-only limitations.
+
+`POST /runbooks/gap-pack` writes Markdown and JSON under `data/runbook_gap_packs/`. The pack turns missing or partial runbook coverage into owner-ready remediation tasks with affected ticket IDs, suggested playbook outlines, acceptance criteria, local commands, JD skills demonstrated, and interviewer talking points. It remains local/mock only and does not call external KB, Zendesk, Jira, Slack, Azure, OpenAI, or GitHub systems.
+
 ## Local Launch Checklist and Smoke Matrix
 
 `GET /ops/smoke-matrix` is the reviewer-facing smoke surface. It lists the key local endpoints, whether they require an API key, expected status codes, sample `curl.exe` and PowerShell commands, artifact expectations, and a launch readiness summary.

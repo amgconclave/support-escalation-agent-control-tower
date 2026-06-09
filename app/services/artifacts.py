@@ -53,6 +53,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Quantifies local support cost, SLA penalty exposure, engineering effort, and ARR at risk for executive escalation review.",
     },
+    {
+        "name": "Runbook Coverage Gap Pack",
+        "directory": "data/runbook_gap_packs",
+        "producer": "POST /runbooks/gap-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Maps tickets and scenarios to KB/runbook coverage, missing runbook gaps, owners, and remediation tasks.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -84,6 +91,7 @@ REVIEWER_PURPOSES = {
     "data/runtime_packs": "Runtime Demo Server Pack proof with exact local FastAPI and Streamlit commands, health checks, port checks, troubleshooting, and screenshot placeholders.",
     "data/scenario_packs": "Scenario Dataset Eval Coverage Pack proof for classification, SLA, approval, escalation, low-confidence, and failure coverage.",
     "data/finance_impact_packs": EXTRA_ARTIFACTS[3]["reviewer_purpose"],
+    "data/runbook_gap_packs": EXTRA_ARTIFACTS[4]["reviewer_purpose"],
 }
 
 

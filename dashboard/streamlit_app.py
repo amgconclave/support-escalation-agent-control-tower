@@ -67,6 +67,7 @@ tabs = st.tabs(
         "On-Call Handoff",
         "Postmortem RCA",
         "Finance Impact",
+        "Runbook Coverage",
     ]
 )
 
@@ -2126,4 +2127,78 @@ with tabs[36]:
         st.dataframe(pack["pack"]["executive_decision_table"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Finance Impact JSON"):
+            st.json(pack["pack"])
+
+with tabs[37]:
+    left, right = st.columns(2)
+    if left.button("Refresh Runbook Coverage", type="primary", use_container_width=True):
+        st.session_state["runbook_coverage_audit"] = api("GET", "/runbooks/coverage-audit")
+    if right.button("Export Runbook Gap Pack", use_container_width=True):
+        pack = api("POST", "/runbooks/gap-pack")
+        st.session_state["runbook_gap_pack"] = pack
+        st.session_state["runbook_coverage_audit"] = {
+            "coverage_score": pack["coverage_score"],
+            "readiness_status": pack["readiness_status"],
+            "coverage_summary": pack["pack"]["coverage_summary"],
+            "ticket_mappings": pack["pack"]["ticket_mappings"],
+            "runbook_gaps": pack["pack"]["runbook_gaps"],
+            "owner_assignments": pack["pack"]["owner_assignments"],
+            "endpoint_list": pack["pack"]["endpoint_list"],
+        }
+        st.success(f"Runbook Gap Pack exported: {pack['markdown_path']}")
+
+    audit = st.session_state.get("runbook_coverage_audit") or api("GET", "/runbooks/coverage-audit")
+    st.session_state["runbook_coverage_audit"] = audit
+    summary = audit["coverage_summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Coverage score", audit["coverage_score"])
+    c2.metric("Status", audit["readiness_status"])
+    c3.metric("Open gaps", summary["open_runbook_gap_count"])
+    c4.metric("Tickets mapped", summary["ticket_count"])
+
+    st.subheader("Ticket Coverage Map")
+    st.dataframe(
+        [
+            {
+                "ticket": item["ticket_id"],
+                "type": item["ticket_type"],
+                "status": item["coverage_status"],
+                "runbook": item["runbook_coverage"]["top_runbook_id"],
+                "confidence": item["runbook_coverage"]["confidence"],
+                "kb_articles": ", ".join(item["kb_coverage"]["article_ids"]),
+                "owner": item["owner"],
+            }
+            for item in audit["ticket_mappings"]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Runbook Gaps")
+    st.dataframe(audit["runbook_gaps"], use_container_width=True, hide_index=True)
+
+    st.subheader("Owner Assignments")
+    st.dataframe(audit["owner_assignments"], use_container_width=True, hide_index=True)
+
+    st.subheader("Endpoint Coverage")
+    st.dataframe(
+        [{"endpoint": endpoint} for endpoint in audit["endpoint_list"]],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    pack = st.session_state.get("runbook_gap_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Runbook Gap Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Remediation Tasks")
+        st.dataframe(pack["pack"]["remediation_tasks"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Runbook Gap Pack JSON"):
             st.json(pack["pack"])

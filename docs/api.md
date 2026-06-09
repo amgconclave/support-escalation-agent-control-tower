@@ -78,6 +78,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /knowledge/refresh-plan`
   Writes Markdown and JSON under the ignored KB refresh folder, normally `data/kb_refresh_plans/`. The plan includes article refresh tasks, owners, acceptance criteria, impacted workflows, local verification commands, JD skills demonstrated, and five interviewer talking points. It remains fully local/mock and does not call an external knowledge-base system.
 
+- `GET /runbooks/coverage-audit`
+  Returns the Runbook Coverage audit across active tickets, scenario fixtures, local KB articles, and the playbook library. The response includes coverage score, readiness status, per-ticket KB/runbook mapping, missing dedicated runbook gaps, owner assignments, endpoint list, local commands, and local-only limitations.
+
+- `POST /runbooks/gap-pack`
+  Writes Markdown and JSON under the ignored runbook gap folder, normally `data/runbook_gap_packs/`. The pack includes the ticket coverage map, missing runbook gaps, owner-ready remediation tasks, acceptance criteria, endpoint evidence, local verification commands, JD skills demonstrated, and five interviewer talking points.
+
 - `POST /playbooks/recommend`
   Accepts either `ticket_id` or an inline `ticket` payload plus optional `top_n`. Returns ranked playbooks with match reasons, confidence, checklist steps, owner roles, escalation policy, and customer update template. If a stored ticket has already been analyzed, the recommender uses its classification and SLA risk context.
 
@@ -415,6 +421,16 @@ curl -X POST http://localhost:8000/ops/operator-readiness-pack \
   -H "content-type: application/json" \
   -H "x-api-key: demo-control-tower-key" \
   -d '{"run_id": "{run_id}"}'
+```
+
+Review Runbook Coverage and export a gap pack:
+
+```bash
+curl http://localhost:8000/runbooks/coverage-audit \
+  -H "x-api-key: demo-control-tower-key"
+
+curl -X POST http://localhost:8000/runbooks/gap-pack \
+  -H "x-api-key: demo-control-tower-key"
 ```
 
 Review the Smoke Matrix and export the Launch Checklist:
