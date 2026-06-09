@@ -55,6 +55,7 @@ EXPECTED_VIEWS = [
     "Scenario Dataset",
     "Finance Impact",
     "Runbook Coverage",
+    "Evidence Retention",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -286,6 +287,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /evidence/retention-audit",
+        "purpose": "Evidence retention readiness across traces, approvals, outbox, audit events, artifacts, and hashes.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /evidence/retention-pack",
+        "purpose": "Evidence Retention and Chain-of-Custody Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -413,6 +426,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Scenario Dataset",
         "producer_endpoint": "POST /scenarios/eval-pack",
         "artifact_directory": "data/scenario_packs",
+    },
+    {
+        "tab_label": "Evidence Retention",
+        "producer_endpoint": "POST /evidence/retention-pack",
+        "artifact_directory": "data/evidence_packs",
     },
 ]
 
@@ -720,6 +738,11 @@ class UIVerificationService:
                 "view": "Finance Impact",
                 "placeholder": "screenshots/finance-impact-exposure-rollup.png",
                 "what_to_capture": "Financial exposure, direct cost, ARR at risk, support minutes, engineering hours, and generated pack paths.",
+            },
+            {
+                "view": "Evidence Retention",
+                "placeholder": "screenshots/evidence-retention-custody-manifest.png",
+                "what_to_capture": "Evidence score, run completeness, artifact custody, hash manifest, and generated pack paths.",
             },
         ]
 

@@ -70,6 +70,7 @@ tabs = st.tabs(
         "Postmortem RCA",
         "Finance Impact",
         "Runbook Coverage",
+        "Evidence Retention",
     ]
 )
 
@@ -2246,4 +2247,65 @@ with tabs[37]:
         st.dataframe(pack["pack"]["remediation_tasks"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Runbook Gap Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[38]:
+    left, right = st.columns(2)
+    if left.button("Refresh Evidence Retention", type="primary", use_container_width=True):
+        st.session_state["evidence_retention_audit"] = api("GET", "/evidence/retention-audit")
+    if right.button("Export Evidence Retention Pack", use_container_width=True):
+        pack = api("POST", "/evidence/retention-pack")
+        st.session_state["evidence_retention_pack"] = pack
+        st.session_state["evidence_retention_audit"] = pack["pack"]["retention_audit"]
+        st.success(f"Evidence Retention Pack exported: {pack['markdown_path']}")
+
+    audit = st.session_state.get("evidence_retention_audit") or api("GET", "/evidence/retention-audit")
+    st.session_state["evidence_retention_audit"] = audit
+    counts = audit["state_counts"]
+    artifacts = audit["artifact_summary"]
+    hashes = audit["hash_manifest"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Evidence score", audit["readiness_score"])
+    c2.metric("Status", audit["status"])
+    c3.metric("Runs", counts["run_count"])
+    c4.metric("Hashed files", hashes["file_count"])
+
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("Trace events", counts["trace_event_count"])
+    c6.metric("Approvals", counts["approval_count"])
+    c7.metric("Outbox events", counts["outbox_event_count"])
+    c8.metric("Audit events", counts["audit_event_count"])
+
+    st.subheader("Recent Run Evidence")
+    st.dataframe(audit["run_evidence_map"], use_container_width=True, hide_index=True)
+
+    st.subheader("Artifact Custody")
+    st.dataframe(artifacts["directories"], use_container_width=True, hide_index=True)
+
+    st.subheader("Hash Manifest")
+    st.dataframe(hashes["files"], use_container_width=True, hide_index=True)
+
+    st.subheader("Findings")
+    st.dataframe(audit["findings"], use_container_width=True, hide_index=True)
+
+    st.subheader("Recommended Actions")
+    st.dataframe(audit["recommended_actions"], use_container_width=True, hide_index=True)
+
+    st.subheader("Controls and Limitations")
+    st.json({"controls": audit["retention_controls"], "limitations": audit["limitations"]})
+
+    pack = st.session_state.get("evidence_retention_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Evidence Retention Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Custody Review Table")
+        st.dataframe(pack["pack"]["custody_review_table"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Evidence Retention JSON"):
             st.json(pack["pack"])

@@ -12,6 +12,7 @@ from app.services.briefs import IncidentBriefService
 from app.services.customers import CustomerHealthService
 from app.services.demo import DemoService
 from app.services.drills import DrillService
+from app.services.evidence_retention import EvidenceRetentionService
 from app.services.final_handoff import FinalHandoffService
 from app.services.finance_impact import FinanceImpactService
 from app.services.git_readiness import GitReadinessService
@@ -279,4 +280,9 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/scenarios.json"),
             Path("data/scenario_packs"),
+        )
+        self.evidence_retention = EvidenceRetentionService(
+            self.store,
+            self.audit,
+            settings.state_file.parent / "evidence_packs",
         )

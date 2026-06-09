@@ -163,6 +163,12 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /finance/impact-pack` writes Markdown and JSON under `data/finance_impact_packs/`. The pack includes the finance summary, executive decision table, finance controls, local proof commands, assumptions, and limitations. It remains local/mock only and does not call CRM, billing, finance, Azure, OpenAI, Zendesk, Jira, Slack, or external systems.
 
+## Evidence Retention and Chain of Custody
+
+`GET /evidence/retention-audit` inspects local state and generated artifacts to verify that recent escalation runs have trace, approval, outbox, audit-event, and generated-pack evidence. It also computes a SHA-256 manifest for the latest Markdown/JSON artifacts under local `data/` proof directories.
+
+`POST /evidence/retention-pack` writes Markdown and JSON under `data/evidence_packs/`. The pack includes a custody review table, recent run evidence map, artifact custody summary, hash manifest sample, findings, owner actions, local verification commands, and explicit local-only limitations. It does not call external archive, CRM, billing, GitHub, Azure, OpenAI, Zendesk, Jira, Slack, or SaaS systems.
+
 ## Git Readiness and Branch Hygiene
 
 `GET /git/readiness` is the local GitHub Push Readiness gate. It uses only read-only git inspection to report repo detection, current branch, tracked/untracked/modified/ignored summary, generated artifact directories that should stay ignored, source/doc/test/dashboard files changed, suspicious large/generated files, GitHub Actions workflow presence, README final handoff mention, `.env.example`, dirty-worktree guidance, and recommended commit groups.

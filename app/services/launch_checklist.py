@@ -135,6 +135,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Evidence Retention and Chain-of-Custody Pack",
+        "directory": "data/evidence_packs",
+        "producer": "POST /evidence/retention-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Incident brief",
         "directory": "data/briefs",
         "producer": "POST /runs/{run_id}/incident-brief",
@@ -321,6 +327,8 @@ class LaunchChecklistService:
             self._row("POST", "/runtime/demo-pack", True, "Writes the Runtime Demo Server Pack.", True, "data/runtime_packs"),
             self._row("GET", "/scenarios/catalog", True, "Returns the scenario catalog and coverage summary.", False),
             self._row("POST", "/scenarios/eval-pack", True, "Writes the Scenario Dataset Eval Coverage Pack.", True, "data/scenario_packs"),
+            self._row("GET", "/evidence/retention-audit", True, "Returns evidence retention and custody readiness.", False),
+            self._row("POST", "/evidence/retention-pack", True, "Writes the Evidence Retention and Chain-of-Custody Pack.", True, "data/evidence_packs"),
             self._row("POST", "/tickets/ingest-samples", True, "Loads sample tickets for manual demos.", False),
             self._row("GET", "/tickets", True, "Confirms authenticated ticket listing works.", False),
             self._row("POST", "/demo/evidence-pack", True, "Runs the complete demo and writes evidence.", True, "data/demo_packs plus linked artifacts"),

@@ -207,6 +207,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /scenarios/eval-pack`
   Runs deterministic local checks over the Scenario Dataset and writes Markdown plus JSON under the ignored local scenario pack folder, normally `data/scenario_packs/`. The pack includes classification accuracy, SLA routing, approval pause coverage, escalation coverage, low-confidence review coverage, failure/tool-retry coverage, generated artifact paths, and gaps/warnings.
 
+- `GET /evidence/retention-audit`
+  Returns local evidence retention readiness across recent runs, traces, approvals, outbox records, audit events, generated Markdown/JSON artifacts, and SHA-256 hash manifest coverage. It is source/local-state only and does not call external archive, CRM, billing, GitHub, Azure, OpenAI, Zendesk, Jira, or Slack systems.
+
+- `POST /evidence/retention-pack`
+  Writes Markdown and JSON under the ignored evidence pack folder, normally `data/evidence_packs/`. The pack includes custody review table, owner actions, findings, local verification commands, artifact hash sample, and local-only chain-of-custody limitations.
+
 - `POST /ops/runbook-qa`
   Evaluates operator handoff completeness for a supplied `run_id`, the latest local run, or a deterministic sample fallback when no run exists. The response includes score, pass/fail status, missing sections, warnings, linked artifact paths, and recommended fixes for ticket summary, classification, SLA risk, customer impact, KB context, drafts, approval state, trace ID, outbox, failure drill, remediation owners, SLO budget, optimization recommendations, and customer/account health.
 
@@ -535,5 +541,15 @@ curl http://localhost:8000/scenarios/catalog \
   -H "x-api-key: demo-control-tower-key"
 
 curl -X POST http://localhost:8000/scenarios/eval-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Review evidence retention and export the chain-of-custody pack:
+
+```bash
+curl http://localhost:8000/evidence/retention-audit \
+  -H "x-api-key: demo-control-tower-key"
+
+curl -X POST http://localhost:8000/evidence/retention-pack \
   -H "x-api-key: demo-control-tower-key"
 ```

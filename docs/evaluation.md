@@ -40,6 +40,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - GitHub Push Readiness and Branch Hygiene checks plus Push Plan Markdown/JSON export under `data/git_packs/`
 - Runtime Demo readiness endpoint, source-only `scripts/runtime_check.py`, dashboard tab wiring, and Runtime Demo Server Pack export under `data/runtime_packs/`
 - Scenario Dataset catalog coverage and Eval Coverage Pack export under `data/scenario_packs/`
+- Evidence Retention audit for trace, approval, outbox, audit-event, artifact, SHA-256 hash coverage, dashboard wiring, demo output, and pack export under `data/evidence_packs/`
 - Dashboard Smoke source wiring for Streamlit views, endpoint references, generated artifact tabs, and UI Verification Pack export under `data/ui_verification/`
 - metrics aggregation
 - auth behavior
@@ -72,6 +73,31 @@ Expected evidence:
 - `POST /scenarios/eval-pack` writes Markdown and JSON under `data/scenario_packs/`.
 - the pack reports classification accuracy, SLA routing, approval pause coverage, escalation coverage, low-confidence review coverage, failure/tool-retry coverage, and gaps/warnings.
 - one forced KB failure fixture proves retry exhaustion and human review without calling external systems.
+
+## Evidence Retention Eval
+
+Review local evidence retention readiness:
+
+```bash
+curl http://localhost:8000/evidence/retention-audit \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Export the Evidence Retention and Chain-of-Custody Pack:
+
+```bash
+curl -X POST http://localhost:8000/evidence/retention-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected evidence:
+
+- response includes local state counts for tickets, runs, trace events, approvals, outbox events, audit events, and metrics
+- recent run rows show required evidence coverage for ticket, trace, classification, SLA risk, QA, approval, audit, and completed-run outbox dispatch
+- generated artifact summary covers local `data/` proof directories and the pack includes a SHA-256 manifest for latest Markdown/JSON files
+- Markdown and JSON files are written under `data/evidence_packs/`
+- dashboard includes an `Evidence Retention` tab with score, state counts, run completeness, artifact custody, findings, and hash manifest
+- `scripts/demo_run.py` prints evidence retention status, score, hash count, and pack Markdown/JSON paths
 
 ## Tool Failure Eval
 

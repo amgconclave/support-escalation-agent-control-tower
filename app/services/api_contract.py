@@ -72,6 +72,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /runtime/demo-pack",
     "GET /scenarios/catalog",
     "POST /scenarios/eval-pack",
+    "GET /evidence/retention-audit",
+    "POST /evidence/retention-pack",
 ]
 
 LOCAL_ONLY_LIMITATIONS = [

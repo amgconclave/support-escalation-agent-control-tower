@@ -378,6 +378,16 @@ async def artifact_readme_checklist(request: Request):
     return await get_container(request).artifacts.export_readme_checklist()
 
 
+@router.get("/evidence/retention-audit", dependencies=[Depends(require_api_key)])
+async def evidence_retention_audit(request: Request):
+    return await get_container(request).evidence_retention.retention_audit()
+
+
+@router.post("/evidence/retention-pack", dependencies=[Depends(require_api_key)])
+async def evidence_retention_pack(request: Request):
+    return await get_container(request).evidence_retention.export_retention_pack()
+
+
 @router.get("/ui/dashboard-smoke", dependencies=[Depends(require_api_key)])
 async def ui_dashboard_smoke(request: Request):
     return await get_container(request).ui_verification.dashboard_smoke()

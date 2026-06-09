@@ -60,6 +60,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Maps tickets and scenarios to KB/runbook coverage, missing runbook gaps, owners, and remediation tasks.",
     },
+    {
+        "name": "Evidence Retention and Chain-of-Custody Pack",
+        "directory": "data/evidence_packs",
+        "producer": "POST /evidence/retention-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Audits local trace, approval, outbox, audit, artifact, and SHA-256 custody coverage for escalation evidence review.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -93,6 +100,7 @@ REVIEWER_PURPOSES = {
     "data/scenario_packs": "Scenario Dataset Eval Coverage Pack proof for classification, SLA, approval, escalation, low-confidence, and failure coverage.",
     "data/finance_impact_packs": EXTRA_ARTIFACTS[3]["reviewer_purpose"],
     "data/runbook_gap_packs": EXTRA_ARTIFACTS[4]["reviewer_purpose"],
+    "data/evidence_packs": EXTRA_ARTIFACTS[5]["reviewer_purpose"],
 }
 
 
