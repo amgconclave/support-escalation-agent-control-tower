@@ -68,10 +68,11 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Autonomy Governance and Tool Trust Pack under `data/autonomy_governance_packs/`, auditing autonomous loop budgets, trusted tool usage, HITL dispatch boundaries, token/cost visibility, findings, and owner actions
 - Durable Workflow Recovery Pack under `data/workflow_recovery_packs/`, auditing persisted node checkpoints, resume tokens, HITL recovery readiness, and operator recovery queues
 - Autonomous Support Operations Pack under `data/support_ops_packs/`, building role crews, delegated task boards, process modes, review gates, run transparency, and artifact handoffs for support leaders, account teams, and engineering escalation owners
+- Support Ops Worker Sandbox Pack under `data/support_ops_sandbox/`, simulating delegated task execution with local workers, task budgets, tool transcripts, worker scale-out decisions, verification gates, and dispatch guardrails
 - Tool Governance and Marketplace Trust Pack under `data/tool_governance_packs/`, auditing local tool manifests, owners, risk tiers, data exposure, HITL boundaries, failure modes, unknown tools, and tool intake gates
 - Local mock LLM provider behind an interface
 - API key auth, structured logs, request trace IDs, audit events, token/latency/cost metrics
-- Streamlit dashboard for queue, approvals, trace timeline, outbox payloads, reliability drills, SLA simulation, incident briefs, incident narratives, Postmortem RCA, Finance Impact, Evidence Retention, Capacity Planning, Data Residency, Access Control, Risk Register, Provider Readiness, Executive Daily Ops Brief, Autonomy Governance, Durable Workflows, Support Ops Crews, playbooks/remediation, customer health/account briefs, ops analytics, SLO optimization, Replay Lab, Policy Guardrails, Policy Change Simulation, Operator QA / Readiness Pack, Leadership Scorecard, Knowledge Quality, Runbook Coverage, Portfolio Pack, Release Pack, CI Doctor / Audit Pack, Reviewer Quickstart, Artifact Inventory, UI Verification, Final Handoff, On-Call Handoff, Git Readiness, API Contract, Runtime Demo, Scenario Dataset, and metrics
+  - Streamlit dashboard for queue, approvals, trace timeline, outbox payloads, reliability drills, SLA simulation, incident briefs, incident narratives, Postmortem RCA, Finance Impact, Evidence Retention, Capacity Planning, Data Residency, Access Control, Risk Register, Provider Readiness, Executive Daily Ops Brief, Autonomy Governance, Durable Workflows, Support Ops Crews, Support Ops Sandbox, playbooks/remediation, customer health/account briefs, ops analytics, SLO optimization, Replay Lab, Policy Guardrails, Policy Change Simulation, Operator QA / Readiness Pack, Leadership Scorecard, Knowledge Quality, Runbook Coverage, Portfolio Pack, Release Pack, CI Doctor / Audit Pack, Reviewer Quickstart, Artifact Inventory, UI Verification, Final Handoff, On-Call Handoff, Git Readiness, API Contract, Runtime Demo, Scenario Dataset, and metrics
 - Sample tickets, scenario catalog, playbooks, and KB fixtures
 - Docker Compose, GitHub Actions CI, `.env.example`, Makefile, pytest suite
 
@@ -183,7 +184,9 @@ The command calls `POST /demo/evidence-pack`, `POST /ops/operator-readiness-pack
 20b. Export `POST /ops/daily-brief-pack` to write the Executive Daily Ops Brief Pack under `data/daily_ops_briefs/`.
 20c. Review `GET /ops/crew-plan` for role crews, delegated task boards, process modes, review gates, run transparency, and artifact handoffs.
 20d. Export `POST /ops/crew-pack` to write the Autonomous Support Operations Pack under `data/support_ops_packs/`.
-21. Run `POST /runs/{run_id}/replay-lab` or `POST /replay-lab/run` to compare original vs replay outcomes under changed risk conditions.
+20e. Review `GET /ops/crew-sandbox` for deterministic local worker assignment, task budgets, tool transcripts, worker scale-out, and dispatch-boundary gates.
+20f. Export `POST /ops/crew-sandbox-pack` to write the Support Ops Worker Sandbox Pack under `data/support_ops_sandbox/`.
+ 21. Run `POST /runs/{run_id}/replay-lab` or `POST /replay-lab/run` to compare original vs replay outcomes under changed risk conditions.
 22. Export `POST /replay-lab/report` to write a Markdown/JSON Change Risk / Escalation Replay report under `data/replay_reports/`.
 23. Run `POST /policies/simulate` to preview the approval policy decision for replies, Jira, Slack, and engineering escalation actions.
 24. Export `POST /policies/export` to write a Markdown/JSON Policy Guardrail Pack under `data/policy_packs/`.
@@ -302,6 +305,8 @@ Important variables:
 - `POST /ops/daily-brief-pack`: writes Markdown and JSON under `data/daily_ops_briefs/` with the daily command-center brief, decision table, local evidence links, verification commands, and limitations.
 - `GET /ops/crew-plan`: returns the Autonomous Support Operations crew plan with support leader, account team, engineering owner, and operations commander crews, delegated tasks, selected process mode, review gates, run transparency, scenario coverage, and limitations.
 - `POST /ops/crew-pack`: writes Markdown and JSON under `data/support_ops_packs/` with the crew plan, delegation board, review-gate summary, artifact handoff packet, local proof commands, and local/mock limitations.
+- `GET /ops/crew-sandbox`: runs a deterministic local worker sandbox over the delegated support-ops tasks, returning worker assignments, tool transcripts, budget checks, scale-out decisions, issue-to-handoff loop stages, and verification gates.
+- `POST /ops/crew-sandbox-pack`: writes Markdown and JSON under `data/support_ops_sandbox/` with the sandbox run, worker assignment board, transcript summary, verification summary, local proof commands, and local/mock limitations.
 - `GET /tools/registry`: returns the Tool Governance Registry with manifest owners, risk tiers, data exposure, approval boundaries, failure modes, observed usage, unknown tool references, marketplace intake policy, owner actions, and limitations.
 - `POST /tools/governance-pack`: writes Markdown and JSON under `data/tool_governance_packs/` with the registry, approval matrix, production acceptance criteria, local commands, and local/mock limitations.
 - `POST /ops/runbook-qa`: scores required operator handoff sections and returns pass/fail, missing sections, warnings, artifact paths, and recommended fixes. If no `run_id` is supplied, it uses the latest local run or bootstraps a deterministic sample.

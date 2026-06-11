@@ -49,6 +49,11 @@ VERIFY_COMMANDS = [
         r'role crews|task delegation|process modes" app dashboard docs README.md tests scripts'
     ),
     (
+        r'rg "ops/crew-sandbox|ops/crew-sandbox-pack|Support Ops Sandbox|'
+        r'support_ops_sandbox|task sandbox|worker scale-out|tool transcripts" '
+        r"app dashboard docs README.md tests scripts"
+    ),
+    (
         r'rg "tools/registry|tools/governance-pack|Tool Governance|tool_governance_packs|'
         r'tool manifest|tool registry" app dashboard docs README.md tests scripts'
     ),
@@ -102,6 +107,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /workflows/durability-pack",
     "GET /ops/crew-plan",
     "POST /ops/crew-pack",
+    "GET /ops/crew-sandbox",
+    "POST /ops/crew-sandbox-pack",
     "GET /tools/registry",
     "POST /tools/governance-pack",
     "GET /ops/daily-brief",

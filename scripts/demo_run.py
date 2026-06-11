@@ -264,6 +264,20 @@ def run_with_http_server() -> dict | None:
         )
         support_ops_pack_response.raise_for_status()
         result["support_ops_pack"] = support_ops_pack_response.json()
+        support_ops_sandbox_response = requests.get(
+            f"{BASE}/ops/crew-sandbox",
+            headers=headers,
+            timeout=60,
+        )
+        support_ops_sandbox_response.raise_for_status()
+        result["support_ops_sandbox"] = support_ops_sandbox_response.json()
+        support_ops_sandbox_pack_response = requests.post(
+            f"{BASE}/ops/crew-sandbox-pack",
+            headers=headers,
+            timeout=60,
+        )
+        support_ops_sandbox_pack_response.raise_for_status()
+        result["support_ops_sandbox_pack"] = support_ops_sandbox_pack_response.json()
         tool_registry_response = requests.get(
             f"{BASE}/tools/registry",
             headers=headers,
@@ -634,6 +648,12 @@ def run_in_process() -> dict:
         support_ops_pack_response = client.post("/ops/crew-pack", headers={"x-api-key": token})
         support_ops_pack_response.raise_for_status()
         result["support_ops_pack"] = support_ops_pack_response.json()
+        support_ops_sandbox_response = client.get("/ops/crew-sandbox", headers={"x-api-key": token})
+        support_ops_sandbox_response.raise_for_status()
+        result["support_ops_sandbox"] = support_ops_sandbox_response.json()
+        support_ops_sandbox_pack_response = client.post("/ops/crew-sandbox-pack", headers={"x-api-key": token})
+        support_ops_sandbox_pack_response.raise_for_status()
+        result["support_ops_sandbox_pack"] = support_ops_sandbox_pack_response.json()
         tool_registry_response = client.get("/tools/registry", headers={"x-api-key": token})
         tool_registry_response.raise_for_status()
         result["tool_registry"] = tool_registry_response.json()
@@ -784,6 +804,8 @@ def main():
     communication_quality_pack = result["communication_quality_pack"]
     support_ops_crew_plan = result["support_ops_crew_plan"]
     support_ops_pack = result["support_ops_pack"]
+    support_ops_sandbox = result["support_ops_sandbox"]
+    support_ops_sandbox_pack = result["support_ops_sandbox_pack"]
     tool_registry = result["tool_registry"]
     tool_governance_pack = result["tool_governance_pack"]
     git_readiness = result["git_readiness"]
@@ -934,6 +956,15 @@ def main():
     )
     print("Support Ops Pack:", support_ops_pack["markdown_path"])
     print("Support Ops JSON:", support_ops_pack["json_path"])
+    print(
+        "Support Ops Sandbox:",
+        support_ops_sandbox["benchmark_discipline"]["status"],
+        f"score={support_ops_sandbox['benchmark_discipline']['score']}",
+        f"workers={support_ops_sandbox['worker_scale_out']['assigned_worker_count']}",
+        f"transcripts={sum(len(run['transcript']) for run in support_ops_sandbox['task_runs'])}",
+    )
+    print("Support Ops Sandbox Pack:", support_ops_sandbox_pack["markdown_path"])
+    print("Support Ops Sandbox JSON:", support_ops_sandbox_pack["json_path"])
     print(
         "Tool Governance:",
         tool_registry["readiness_status"],

@@ -578,6 +578,22 @@ async def support_ops_crew_pack(request: Request, run_id: str | None = None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
 
 
+@router.get("/ops/crew-sandbox", dependencies=[Depends(require_api_key)])
+async def support_ops_crew_sandbox(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).support_ops_sandbox.sandbox_run(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/ops/crew-sandbox-pack", dependencies=[Depends(require_api_key)])
+async def support_ops_crew_sandbox_pack(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).support_ops_sandbox.export_sandbox_pack(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
 @router.get("/tools/registry", dependencies=[Depends(require_api_key)])
 async def tool_registry(request: Request):
     return await get_container(request).tool_governance.registry()

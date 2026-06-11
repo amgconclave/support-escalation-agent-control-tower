@@ -165,6 +165,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /ops/crew-pack`
   Writes Markdown and JSON under the ignored local support ops folder, normally `data/support_ops_packs/`. The pack includes the crew plan, delegation board, review-gate summary, artifact handoff packet, local proof commands, and limitations. It never dispatches customer or engineering actions.
 
+- `GET /ops/crew-sandbox`
+  Runs a deterministic local worker sandbox over the selected/latest/sample support-ops plan. The response includes worker assignments, dry-run task executions, local tool transcripts, token/tool budgets, scale-out decisions, issue-to-handoff loop stages, verification gates, proof commands, and local/mock limitations.
+
+- `POST /ops/crew-sandbox-pack`
+  Writes Markdown and JSON under the ignored local support ops sandbox folder, normally `data/support_ops_sandbox/`. The pack includes the sandbox run, worker assignment board, transcript summary, verification summary, local proof commands, and limitations. It never calls external workers, providers, customer systems, or engineering systems.
+
 - `GET /tools/registry`
   Returns the Tool Governance Registry. The response includes local tool manifests, owners, risk tiers, data exposure, approval boundaries, failure modes, observed usage, unknown tool references, marketplace intake policy, owner actions, proof commands, and local/mock limitations.
 

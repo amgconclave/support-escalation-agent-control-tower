@@ -117,6 +117,13 @@ EXTRA_ARTIFACTS = [
         "reviewer_purpose": "Builds role crews, delegated task plans, process modes, review gates, run transparency, and artifact handoffs for support escalation operations.",
     },
     {
+        "name": "Support Ops Worker Sandbox Pack",
+        "directory": "data/support_ops_sandbox",
+        "producer": "POST /ops/crew-sandbox-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Simulates local worker execution for delegated support tasks with budgets, tool transcripts, scale-out decisions, and dispatch guardrails.",
+    },
+    {
         "name": "Tool Governance and Marketplace Trust Pack",
         "directory": "data/tool_governance_packs",
         "producer": "POST /tools/governance-pack",
@@ -166,7 +173,8 @@ REVIEWER_PURPOSES = {
     "data/workflow_recovery_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
     "data/communication_quality_packs": EXTRA_ARTIFACTS[11]["reviewer_purpose"],
     "data/support_ops_packs": EXTRA_ARTIFACTS[12]["reviewer_purpose"],
-    "data/tool_governance_packs": EXTRA_ARTIFACTS[13]["reviewer_purpose"],
+    "data/support_ops_sandbox": EXTRA_ARTIFACTS[13]["reviewer_purpose"],
+    "data/tool_governance_packs": EXTRA_ARTIFACTS[14]["reviewer_purpose"],
 }
 
 

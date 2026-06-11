@@ -81,6 +81,7 @@ tabs = st.tabs(
         "Durable Workflows",
         "Communication Quality",
         "Support Ops Crews",
+        "Support Ops Sandbox",
         "Tool Governance",
     ]
 )
@@ -2919,6 +2920,80 @@ with tabs[48]:
             st.json(pack["pack"])
 
 with tabs[49]:
+    run_id = st.text_input("Sandbox run ID", value=st.session_state.get("run_id", ""))
+    sandbox_path = f"/ops/crew-sandbox?run_id={run_id}" if run_id else "/ops/crew-sandbox"
+    pack_path = f"/ops/crew-sandbox-pack?run_id={run_id}" if run_id else "/ops/crew-sandbox-pack"
+    left, right = st.columns(2)
+    if left.button("Refresh Worker Sandbox", type="primary", use_container_width=True):
+        sandbox = api("GET", sandbox_path)
+        st.session_state["support_ops_sandbox"] = sandbox
+        st.session_state["run_id"] = sandbox["run_id"]
+    if right.button("Export Sandbox Pack", use_container_width=True):
+        pack = api("POST", pack_path)
+        st.session_state["support_ops_sandbox_pack"] = pack
+        st.session_state["support_ops_sandbox"] = pack["pack"]["sandbox_run"]
+        st.session_state["run_id"] = pack["pack"]["sandbox_run"]["run_id"]
+        st.success(f"Support Ops Sandbox Pack exported: {pack['markdown_path']}")
+
+    sandbox = st.session_state.get("support_ops_sandbox") or api("GET", sandbox_path)
+    st.session_state["support_ops_sandbox"] = sandbox
+    benchmark = sandbox["benchmark_discipline"]
+    scale = sandbox["worker_scale_out"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Sandbox score", benchmark["score"])
+    c2.metric("Status", benchmark["status"])
+    c3.metric("Workers", scale["assigned_worker_count"])
+    c4.metric("Transcript events", sum(len(run["transcript"]) for run in sandbox["task_runs"]))
+
+    st.subheader("Worker Assignment Board")
+    st.dataframe(
+        [
+            {
+                "task": run["task_id"],
+                "worker": run["worker_id"],
+                "owner": run["owner_role"],
+                "status": run["status"],
+                "tools used": run["budget"]["tool_calls_used"],
+                "tokens": run["budget"]["estimated_tokens_used"],
+            }
+            for run in sandbox["task_runs"]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Sandbox Policy")
+    st.json(sandbox["sandbox_policy"])
+
+    st.subheader("Verification Gates")
+    st.dataframe(sandbox["verification_gates"], use_container_width=True, hide_index=True)
+
+    st.subheader("Worker Scale-Out")
+    st.json(sandbox["worker_scale_out"])
+
+    st.subheader("Tool Transcripts")
+    selected = st.selectbox("Task transcript", [run["task_id"] for run in sandbox["task_runs"]])
+    selected_run = next(run for run in sandbox["task_runs"] if run["task_id"] == selected)
+    st.json(selected_run["transcript"])
+
+    st.subheader("Issue-to-Handoff Loop")
+    st.dataframe(sandbox["issue_to_handoff_loop"], use_container_width=True, hide_index=True)
+
+    pack = st.session_state.get("support_ops_sandbox_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Support Ops Sandbox Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(pack["markdown"])
+        with st.expander("Support Ops Sandbox Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[50]:
     left, right = st.columns(2)
     if left.button("Refresh Tool Governance", type="primary", use_container_width=True):
         st.session_state["tool_governance_registry"] = api("GET", "/tools/registry")

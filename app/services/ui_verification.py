@@ -66,6 +66,7 @@ EXPECTED_VIEWS = [
     "Durable Workflows",
     "Communication Quality",
     "Support Ops Crews",
+    "Support Ops Sandbox",
     "Tool Governance",
 ]
 
@@ -431,6 +432,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "GET /ops/crew-sandbox",
+        "purpose": "Local worker sandbox run with task transcripts and budget gates.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /ops/crew-sandbox-pack",
+        "purpose": "Support Ops Worker Sandbox Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "GET /tools/registry",
         "purpose": "Tool manifest registry with owners, risk tiers, data exposure, approval boundaries, and usage evidence.",
         "dashboard_reference_required": True,
@@ -624,6 +637,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Support Ops Crews",
         "producer_endpoint": "POST /ops/crew-pack",
         "artifact_directory": "data/support_ops_packs",
+    },
+    {
+        "tab_label": "Support Ops Sandbox",
+        "producer_endpoint": "POST /ops/crew-sandbox-pack",
+        "artifact_directory": "data/support_ops_sandbox",
     },
     {
         "tab_label": "Tool Governance",

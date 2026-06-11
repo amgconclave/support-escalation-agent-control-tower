@@ -45,6 +45,7 @@ from app.services.runbook_qa import RunbookQaService
 from app.services.runtime_demo import RuntimeDemoService
 from app.services.scenarios import ScenarioCatalogService
 from app.services.support_ops import SupportOperationsService
+from app.services.support_ops_sandbox import SupportOpsSandboxService
 from app.services.tickets import TicketService
 from app.services.tool_governance import ToolGovernanceService
 from app.services.trace import TraceService
@@ -378,6 +379,11 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "support_ops_packs",
+        )
+        self.support_ops_sandbox = SupportOpsSandboxService(
+            self.support_ops,
+            self.audit,
+            settings.state_file.parent / "support_ops_sandbox",
         )
         self.tool_governance = ToolGovernanceService(
             self.store,
