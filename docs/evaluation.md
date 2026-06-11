@@ -1037,6 +1037,30 @@ Expected:
 - dashboard includes a `Finance Impact` tab with exposure, direct cost, ARR at risk, support minutes, engineering hours, and export controls
 - one-command demo output includes finance exposure and Finance Impact Pack paths
 
+## Enterprise Risk Register Eval
+
+Review the consolidated register:
+
+```bash
+curl http://localhost:8000/risk/register \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Export the owner action pack:
+
+```bash
+curl -X POST http://localhost:8000/risk/register-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- register includes risk score, readiness status, risk rows, owner action plan, control signal summary, endpoints, local commands, and limitations
+- risks are sourced from local finance, evidence, capacity, data residency, access, KB, runbook, leadership, release, and SLO controls
+- Markdown and JSON files are written under `data/risk_registers/`
+- dashboard includes a `Risk Register` tab with risk score, open risk counts, owner actions, control signals, and export controls
+- one-command demo output includes Risk Register status/score/open risk count and Risk Register Pack paths
+
 ## Change Risk and Escalation Replay Eval
 
 Run a counterfactual replay:

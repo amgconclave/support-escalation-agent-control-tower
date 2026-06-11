@@ -231,6 +231,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /security/access-review-pack`
   Writes Markdown and JSON under the ignored access review folder, normally `data/access_review_packs/`. The pack includes the access matrix, least-privilege acceptance criteria, production authorization backlog, reviewer walkthrough, local verification commands, and local/mock limitations.
 
+- `GET /risk/register`
+  Returns the Enterprise Risk Register with risk score, open risk counts, owner action plan, control signal summary, endpoint evidence, and local/mock limitations across finance, evidence, capacity, data residency, access, KB, runbook, leadership, release, and SLO controls.
+
+- `POST /risk/register-pack`
+  Writes Markdown and JSON under the ignored risk register folder, normally `data/risk_registers/`. The pack includes an executive summary, owner actions, control signals, risk acceptance criteria, review cadence, local commands, artifact paths, and local/mock limitations.
+
 - `POST /ops/runbook-qa`
   Evaluates operator handoff completeness for a supplied `run_id`, the latest local run, or a deterministic sample fallback when no run exists. The response includes score, pass/fail status, missing sections, warnings, linked artifact paths, and recommended fixes for ticket summary, classification, SLA risk, customer impact, KB context, drafts, approval state, trace ID, outbox, failure drill, remediation owners, SLO budget, optimization recommendations, and customer/account health.
 
@@ -550,6 +556,16 @@ curl http://localhost:8000/security/access-matrix \
   -H "x-api-key: demo-control-tower-key"
 
 curl -X POST http://localhost:8000/security/access-review-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Review the Enterprise Risk Register and export the owner action pack:
+
+```bash
+curl http://localhost:8000/risk/register \
+  -H "x-api-key: demo-control-tower-key"
+
+curl -X POST http://localhost:8000/risk/register-pack \
   -H "x-api-key: demo-control-tower-key"
 ```
 

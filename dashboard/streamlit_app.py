@@ -74,6 +74,7 @@ tabs = st.tabs(
         "Capacity Planning",
         "Data Residency",
         "Access Control",
+        "Risk Register",
     ]
 )
 
@@ -2500,4 +2501,59 @@ with tabs[41]:
         st.dataframe(pack["pack"]["production_authz_backlog"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Access Review Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[42]:
+    left, right = st.columns(2)
+    if left.button("Refresh Risk Register", type="primary", use_container_width=True):
+        st.session_state["risk_register"] = api("GET", "/risk/register")
+    if right.button("Export Risk Register Pack", use_container_width=True):
+        pack = api("POST", "/risk/register-pack")
+        st.session_state["risk_register_pack"] = pack
+        st.session_state["risk_register"] = pack["pack"]["risk_register"]
+        st.success(f"Risk Register Pack exported: {pack['markdown_path']}")
+
+    register = st.session_state.get("risk_register") or api("GET", "/risk/register")
+    st.session_state["risk_register"] = register
+    summary = register["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Risk score", register["risk_score"])
+    c2.metric("Status", register["readiness_status"])
+    c3.metric("Open risks", summary["open_risk_count"])
+    c4.metric("Critical / High", f"{summary['critical_count']} / {summary['high_count']}")
+
+    st.subheader("Risk Register")
+    st.dataframe(register["risk_register"], use_container_width=True, hide_index=True)
+
+    st.subheader("Owner Action Plan")
+    st.dataframe(register["owner_action_plan"], use_container_width=True, hide_index=True)
+
+    st.subheader("Control Signal Summary")
+    st.dataframe(register["control_signal_summary"], use_container_width=True, hide_index=True)
+
+    st.subheader("Endpoint Coverage")
+    st.dataframe(
+        [{"endpoint": endpoint} for endpoint in register["endpoint_list"]],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Limitations")
+    for limitation in register["limitations"]:
+        st.markdown(f"- {limitation}")
+
+    pack = st.session_state.get("risk_register_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Risk Register Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Acceptance Criteria")
+        st.markdown("\n".join(f"- {item}" for item in pack["pack"]["risk_acceptance_criteria"]))
+        st.markdown(pack["markdown"])
+        with st.expander("Risk Register Pack JSON"):
             st.json(pack["pack"])

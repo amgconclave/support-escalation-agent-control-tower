@@ -54,6 +54,7 @@ EVIDENCE_ARTIFACT_DIRECTORIES = [
     "scenario_packs",
     "data_residency_packs",
     "access_review_packs",
+    "risk_registers",
 ]
 
 

@@ -377,6 +377,20 @@ def run_with_http_server() -> dict | None:
         )
         access_pack_response.raise_for_status()
         result["access_review_pack"] = access_pack_response.json()
+        risk_register_response = requests.get(
+            f"{BASE}/risk/register",
+            headers=headers,
+            timeout=60,
+        )
+        risk_register_response.raise_for_status()
+        result["risk_register"] = risk_register_response.json()
+        risk_register_pack_response = requests.post(
+            f"{BASE}/risk/register-pack",
+            headers=headers,
+            timeout=60,
+        )
+        risk_register_pack_response.raise_for_status()
+        result["risk_register_pack"] = risk_register_pack_response.json()
         result["mode"] = "http"
         return result
     except Exception:
@@ -581,6 +595,12 @@ def run_in_process() -> dict:
         access_pack_response = client.post("/security/access-review-pack", headers={"x-api-key": token})
         access_pack_response.raise_for_status()
         result["access_review_pack"] = access_pack_response.json()
+        risk_register_response = client.get("/risk/register", headers={"x-api-key": token})
+        risk_register_response.raise_for_status()
+        result["risk_register"] = risk_register_response.json()
+        risk_register_pack_response = client.post("/risk/register-pack", headers={"x-api-key": token})
+        risk_register_pack_response.raise_for_status()
+        result["risk_register_pack"] = risk_register_pack_response.json()
         result["mode"] = "in-process"
         return result
 
@@ -637,6 +657,8 @@ def main():
     data_residency_pack = result["data_residency_pack"]
     access_matrix = result["access_matrix"]
     access_review_pack = result["access_review_pack"]
+    risk_register = result["risk_register"]
+    risk_register_pack = result["risk_register_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
 
@@ -823,6 +845,16 @@ def main():
     )
     print("Access Review Pack:", access_review_pack["markdown_path"])
     print("Access Review JSON:", access_review_pack["json_path"])
+    print(
+        "Risk register:",
+        risk_register["readiness_status"],
+        f"score={risk_register['risk_score']}",
+        f"open={risk_register['summary']['open_risk_count']}",
+        f"critical={risk_register['summary']['critical_count']}",
+        f"high={risk_register['summary']['high_count']}",
+    )
+    print("Risk Register Pack:", risk_register_pack["markdown_path"])
+    print("Risk Register JSON:", risk_register_pack["json_path"])
     print("Incident impact status:", metrics["incident_impact_status"])
     print("Incident narrative:", metrics["incident_narrative_path"])
     print("Finance impact artifact:", metrics["finance_impact_path"])

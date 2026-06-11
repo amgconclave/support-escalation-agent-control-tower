@@ -59,6 +59,7 @@ EXPECTED_VIEWS = [
     "Capacity Planning",
     "Data Residency",
     "Access Control",
+    "Risk Register",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -338,6 +339,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /risk/register",
+        "purpose": "Enterprise Risk Register across finance, compliance, capacity, access, evidence, and release controls.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /risk/register-pack",
+        "purpose": "Enterprise Risk Register Pack export with owner action plan and acceptance criteria.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -485,6 +498,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Access Control",
         "producer_endpoint": "POST /security/access-review-pack",
         "artifact_directory": "data/access_review_packs",
+    },
+    {
+        "tab_label": "Risk Register",
+        "producer_endpoint": "POST /risk/register-pack",
+        "artifact_directory": "data/risk_registers",
     },
 ]
 
@@ -807,6 +825,11 @@ class UIVerificationService:
                 "view": "Data Residency",
                 "placeholder": "screenshots/data-residency-review-queue.png",
                 "what_to_capture": "Residency score, PII exposure queue, local data flow map, owner actions, and generated pack paths.",
+            },
+            {
+                "view": "Risk Register",
+                "placeholder": "screenshots/risk-register-owner-actions.png",
+                "what_to_capture": "Risk score, open risks, owner action plan, control signals, and generated pack paths.",
             },
         ]
 

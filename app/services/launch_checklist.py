@@ -236,6 +236,12 @@ EXPECTED_ARTIFACTS = [
         "producer": "POST /security/access-review-pack",
         "formats": ["markdown", "json"],
     },
+    {
+        "name": "Enterprise Risk Register Pack",
+        "directory": "data/risk_registers",
+        "producer": "POST /risk/register-pack",
+        "formats": ["markdown", "json"],
+    },
 ]
 
 
@@ -353,6 +359,8 @@ class LaunchChecklistService:
             self._row("POST", "/compliance/data-residency-pack", True, "Writes the Data Residency and PII Exposure Pack.", True, "data/data_residency_packs"),
             self._row("GET", "/security/access-matrix", True, "Returns local least-privilege role and scope mapping.", False),
             self._row("POST", "/security/access-review-pack", True, "Writes the Access Control Review Pack.", True, "data/access_review_packs"),
+            self._row("GET", "/risk/register", True, "Returns the Enterprise Risk Register.", False),
+            self._row("POST", "/risk/register-pack", True, "Writes the Enterprise Risk Register Pack.", True, "data/risk_registers"),
             self._row("POST", "/tickets/ingest-samples", True, "Loads sample tickets for manual demos.", False),
             self._row("GET", "/tickets", True, "Confirms authenticated ticket listing works.", False),
             self._row("POST", "/demo/evidence-pack", True, "Runs the complete demo and writes evidence.", True, "data/demo_packs plus linked artifacts"),

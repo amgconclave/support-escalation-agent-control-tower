@@ -468,6 +468,16 @@ async def security_access_review_pack(request: Request):
     return await get_container(request).access_control.export_review_pack(request.app)
 
 
+@router.get("/risk/register", dependencies=[Depends(require_api_key)])
+async def enterprise_risk_register(request: Request):
+    return await get_container(request).risk_register.register(request.app)
+
+
+@router.post("/risk/register-pack", dependencies=[Depends(require_api_key)])
+async def enterprise_risk_register_pack(request: Request):
+    return await get_container(request).risk_register.export_pack(request.app)
+
+
 @router.get("/runtime/demo-readiness")
 async def runtime_demo_readiness(request: Request):
     return await get_container(request).runtime_demo.readiness()

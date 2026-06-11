@@ -35,6 +35,7 @@ from app.services.portfolio import PortfolioService
 from app.services.replay_lab import ReplayLabService
 from app.services.release import ReleaseService
 from app.services.reviewer import ReviewerService
+from app.services.risk_register import EnterpriseRiskRegisterService
 from app.services.runbook_coverage import RunbookCoverageService
 from app.services.runbook_qa import RunbookQaService
 from app.services.runtime_demo import RuntimeDemoService
@@ -306,4 +307,18 @@ class ServiceContainer:
             Path("sample_data/customers.json"),
             Path("sample_data/data_residency_rules.json"),
             settings.state_file.parent / "data_residency_packs",
+        )
+        self.risk_register = EnterpriseRiskRegisterService(
+            self.finance_impact,
+            self.evidence_retention,
+            self.capacity_planning,
+            self.data_residency,
+            self.access_control,
+            self.knowledge_quality,
+            self.runbook_coverage,
+            self.leadership,
+            self.release,
+            self.ops,
+            self.audit,
+            settings.state_file.parent / "risk_registers",
         )

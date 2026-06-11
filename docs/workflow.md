@@ -167,6 +167,12 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /finance/impact-pack` writes Markdown and JSON under `data/finance_impact_packs/`. The pack includes the finance summary, executive decision table, finance controls, local proof commands, assumptions, and limitations. It remains local/mock only and does not call CRM, billing, finance, Azure, OpenAI, Zendesk, Jira, Slack, or external systems.
 
+## Enterprise Risk Register
+
+`GET /risk/register` consolidates existing local control outputs into an owner-prioritized Enterprise Risk Register. It reads finance impact, evidence retention, capacity planning, data residency, access control, KB quality, runbook coverage, leadership scorecard, release gate, and SLO budget signals, then returns a risk score, readiness status, risk rows, owner action plan, control signal summary, endpoint evidence, commands, and limitations.
+
+`POST /risk/register-pack` writes Markdown and JSON under `data/risk_registers/`. The pack includes executive summary, owner action plan, control signals, risk acceptance criteria, review cadence, local verification commands, and local/mock limitations. It remains local-only and does not call CRM, billing, GRC, HR, Zendesk, Jira, Slack, GitHub, Azure, OpenAI, or external systems.
+
 ## Evidence Retention and Chain of Custody
 
 `GET /evidence/retention-audit` inspects local state and generated artifacts to verify that recent escalation runs have trace, approval, outbox, audit-event, and generated-pack evidence. It also computes a SHA-256 manifest for the latest Markdown/JSON artifacts under local `data/` proof directories.
