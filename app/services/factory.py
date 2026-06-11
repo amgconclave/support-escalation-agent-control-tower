@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from app.adapters.fake import FakeKnowledgeBaseAdapter
+from app.adapters.llm import build_llm_provider
 from app.core.config import Settings
 from app.core.storage import JsonStateStore
 from app.services.analytics import AnalyticsService
@@ -88,6 +89,7 @@ class ServiceContainer:
             self.playbooks,
             settings.low_confidence_threshold,
             settings.sla_high_risk_threshold,
+            build_llm_provider(settings),
         )
         self.drills = DrillService(
             self.store,

@@ -16,6 +16,16 @@ class Settings(BaseSettings):
     low_confidence_threshold: float = 0.62
     sla_high_risk_threshold: float = 0.70
     llm_provider: str = "local"
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+    openai_base_url: str = "https://api.openai.com/v1"
+    azure_openai_endpoint: str = ""
+    azure_openai_api_key: str = ""
+    azure_openai_deployment: str = ""
+    azure_openai_api_version: str = "2024-10-21"
+    llm_timeout_seconds: float = 12.0
+    llm_max_tokens: int = 700
+    llm_fallback_enabled: bool = True
 
     @property
     def allowed_api_keys(self) -> set[str]:

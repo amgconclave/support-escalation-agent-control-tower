@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from app.adapters.llm import provider_runtime_class
 from app.core.config import Settings
 from app.models import AuditEvent
 from app.services.audit import AuditService
@@ -34,12 +35,15 @@ OPTIONAL_PROVIDER_ENV = {
     "openai": [
         "OPENAI_API_KEY",
         "CONTROL_TOWER_OPENAI_API_KEY",
+        "CONTROL_TOWER_OPENAI_MODEL",
     ],
     "azure_openai": [
         "AZURE_OPENAI_ENDPOINT",
         "AZURE_OPENAI_API_KEY",
+        "AZURE_OPENAI_DEPLOYMENT",
         "CONTROL_TOWER_AZURE_OPENAI_ENDPOINT",
         "CONTROL_TOWER_AZURE_OPENAI_API_KEY",
+        "CONTROL_TOWER_AZURE_OPENAI_DEPLOYMENT",
     ],
 }
 
@@ -68,7 +72,7 @@ class ProviderReadinessService:
             "mode": "local-deterministic-provider-readiness",
             "local_mock_only": configured_provider in {"local", "mock"},
             "configured_provider": configured_provider,
-            "active_provider_class": "LocalMockLlmProvider",
+            "active_provider_class": provider_runtime_class(self.settings),
             "readiness_status": summary["readiness_status"],
             "provider_score": summary["provider_score"],
             "summary": summary,
@@ -198,6 +202,12 @@ class ProviderReadinessService:
             and row["present"]
             for row in env_rows
         )
+        azure_deployment_ready = any(
+            row["provider"] == "azure_openai"
+            and row["name"].endswith("AZURE_OPENAI_DEPLOYMENT")
+            and row["present"]
+            for row in env_rows
+        ) or bool(self.settings.azure_openai_deployment)
         checks = [
             self._check(
                 "provider_supported",
@@ -233,12 +243,12 @@ class ProviderReadinessService:
             ),
             self._check(
                 "azure_credentials_present_if_selected",
-                "Azure OpenAI endpoint and key are present only when Azure is selected",
+                "Azure OpenAI endpoint, key, and deployment are present only when Azure is selected",
                 configured_provider not in {"azure", "azure_openai"}
-                or (azure_endpoint_ready and azure_key_ready),
+                or (azure_endpoint_ready and azure_key_ready and azure_deployment_ready),
                 "fail",
-                "Azure endpoint/key presence is recorded as booleans and redacted.",
-                "Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY before enabling Azure OpenAI.",
+                "Azure endpoint/key/deployment presence is recorded as booleans and redacted.",
+                "Set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT before enabling Azure OpenAI.",
             ),
             self._check(
                 "env_example_documents_optional_providers",
@@ -283,6 +293,7 @@ class ProviderReadinessService:
             "OPENAI_API_KEY",
             "AZURE_OPENAI_ENDPOINT",
             "AZURE_OPENAI_API_KEY",
+            "AZURE_OPENAI_DEPLOYMENT",
         }
         documented = {
             row["name"] for row in env_rows if row["documented_in_env_example"]
@@ -302,7 +313,7 @@ class ProviderReadinessService:
             },
             {
                 "provider": "openai",
-                "runtime_class": "OpenAIProvider adapter placeholder",
+                "runtime_class": "OpenAIChatProvider+LocalMockFallback",
                 "external_network": True,
                 "credentials_required": True,
                 "status": status_by_id["openai_credentials_present_if_selected"],
@@ -310,7 +321,7 @@ class ProviderReadinessService:
             },
             {
                 "provider": "azure_openai",
-                "runtime_class": "AzureOpenAIProvider adapter placeholder",
+                "runtime_class": "AzureOpenAIChatProvider+LocalMockFallback",
                 "external_network": True,
                 "credentials_required": True,
                 "status": status_by_id["azure_credentials_present_if_selected"],
@@ -390,7 +401,7 @@ class ProviderReadinessService:
                 "owner": "Platform AI Owner",
                 "severity": "medium",
                 "configured_provider": configured_provider,
-                "remediation": "Add contract tests for timeout, retry, redaction, token accounting, and local fallback before live-provider rollout.",
+                "remediation": "Keep contract tests current for timeout, redaction, token accounting, and local fallback before live-provider rollout.",
             }
         )
         return backlog
@@ -435,7 +446,7 @@ class ProviderReadinessService:
 
     def _jd_skills(self) -> list[str]:
         return [
-            "LLM provider abstraction with local/mock default and optional production adapters.",
+            "LLM provider abstraction with local/mock default, optional OpenAI/Azure adapters, and local fallback.",
             "Credential readiness, secret redaction, and fail-closed external integration posture.",
             "Operational rollout planning across SLO, policy, approval, and fallback controls.",
             "FastAPI endpoint wiring, Streamlit dashboard surfacing, pytest coverage, and artifact export.",
@@ -455,7 +466,7 @@ class ProviderReadinessService:
         return [
             "The audit checks local configuration and environment variable presence only.",
             "It does not call OpenAI, Azure OpenAI, Zendesk, Jira, Slack, GitHub, or external networks.",
-            "Live OpenAI/Azure adapter implementations remain production backlog items behind the provider interface.",
+            "Live OpenAI/Azure adapters are implemented but not called by this audit; credential validity and billing are not verified.",
             "Credential validity, rate limits, deployment names, model availability, and billing status are not verified.",
             "Secrets are intentionally redacted; only boolean presence is reported.",
         ]

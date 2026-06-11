@@ -66,6 +66,7 @@ class AgentWorkflowService:
         playbook_service: PlaybookService,
         low_confidence_threshold: float,
         sla_high_risk_threshold: float,
+        llm_provider: Any | None = None,
     ):
         self.store = store
         self.ticket_service = ticket_service
@@ -78,7 +79,7 @@ class AgentWorkflowService:
         self.playbook_service = playbook_service
         self.low_confidence_threshold = low_confidence_threshold
         self.sla_high_risk_threshold = sla_high_risk_threshold
-        self.llm = LocalMockLlmProvider()
+        self.llm = llm_provider or LocalMockLlmProvider()
         self.zendesk = FakeZendeskAdapter()
         self.jira = FakeJiraAdapter()
         self.slack = FakeSlackAdapter()
@@ -307,6 +308,7 @@ class AgentWorkflowService:
             ticket = Ticket(**state["ticket"])
             draft = await self.llm.draft_customer_reply(ticket, [KnowledgeArticle(**i) for i in state.get("kb_results", [])])
             state.setdefault("drafts", {})["customer_reply"] = draft["text"]
+            state.setdefault("llm_provider_events", []).append(self._llm_event("customer_reply", draft))
             await self.metrics_service.record_node_metrics("customer_reply_drafter", 0, draft["tokens"], draft["cost_usd"])
             return state
 
@@ -319,12 +321,26 @@ class AgentWorkflowService:
             if should:
                 draft = await self.llm.draft_engineering_escalation(ticket, state["classification"], state["sla_risk"], [KnowledgeArticle(**i) for i in state.get("kb_results", [])])
                 state.setdefault("drafts", {})["engineering_escalation"] = draft["text"]
+                state.setdefault("llm_provider_events", []).append(
+                    self._llm_event("engineering_escalation", draft)
+                )
                 await self.metrics_service.record_node_metrics("engineering_escalation_drafter", 0, draft["tokens"], draft["cost_usd"])
             else:
                 state.setdefault("drafts", {})["engineering_escalation"] = ""
             return state
 
         return await self._node(state, "engineering_escalation_drafter", work)
+
+    def _llm_event(self, draft_type: str, draft: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "draft_type": draft_type,
+            "provider": draft.get("provider", self.llm.__class__.__name__),
+            "model": draft.get("model", self.llm.__class__.__name__),
+            "tokens": draft.get("tokens", 0),
+            "cost_usd": draft.get("cost_usd", 0.0),
+            "fallback_used": draft.get("fallback_used", False),
+            "fallback_reason": draft.get("fallback_reason", ""),
+        }
 
     async def qa_evaluator(self, state: AgentWorkflowState) -> AgentWorkflowState:
         async def work():

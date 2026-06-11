@@ -117,9 +117,9 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 ## Provider Readiness Guard Pack
 
-`GET /providers/readiness` audits the configured LLM provider without calling external networks. It verifies that `LocalMockLlmProvider` remains the active default for CI and demos, redacts optional OpenAI/Azure credential presence, reports fail-closed provider checks, and lists fallback policy plus production activation tasks.
+`GET /providers/readiness` audits the configured LLM provider without calling external networks. It verifies that `LocalMockLlmProvider` remains the active default for CI and demos, reports optional `OpenAIChatProvider` and `AzureOpenAIChatProvider` activation posture, redacts credential presence, checks fallback guardrails, and lists production activation tasks.
 
-`POST /providers/readiness-pack` writes Markdown and JSON under `data/provider_readiness_packs/`. The pack includes provider checks, an activation checklist, acceptance criteria, local commands, JD skills demonstrated, and interviewer talking points. It remains local/mock only and does not call OpenAI, Azure OpenAI, Zendesk, Jira, Slack, GitHub, or any external service.
+`POST /providers/readiness-pack` writes Markdown and JSON under `data/provider_readiness_packs/`. The pack includes provider checks, an activation checklist, acceptance criteria, local commands, JD skills demonstrated, and interviewer talking points. It remains audit-only and does not call OpenAI, Azure OpenAI, Zendesk, Jira, Slack, GitHub, or any external service.
 
 ## Durable Workflow Recovery Pack
 

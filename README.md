@@ -6,7 +6,7 @@ This control tower uses a LangGraph agent workflow to triage tickets, retrieve c
 
 `support-escalation-agent-control-tower` / `agent-escalation-tower` is a local-first portfolio implementation of an AI-assisted support escalation control tower. It helps support teams ingest tickets, classify intent, detect SLA risk, retrieve internal KB context, draft customer and engineering responses, pause for human approval, and preserve trace/audit/metrics evidence for every run.
 
-The default mode uses deterministic local/mock providers, so a fresh clone runs without paid LLM keys. OpenAI or Azure OpenAI can be wired later behind the included provider interface without changing workflow code.
+The default mode uses deterministic local/mock providers, so a fresh clone runs without paid LLM keys. Optional OpenAI and Azure OpenAI adapters are available behind the provider interface, with local fallback and human-approval boundaries preserved.
 
 ## What Is Included
 
@@ -64,7 +64,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Data Residency and PII Exposure Pack under `data/data_residency_packs/`, auditing local tickets, drafts, approvals, outbox payloads, account regions, regulated segments, and sensitive support data before production adapters are enabled
 - Access Control Review Pack under `data/access_review_packs/`, mapping FastAPI endpoints to least-privilege roles, production scopes, findings, and production authz acceptance criteria
 - Enterprise Risk Register Pack under `data/risk_registers/`, consolidating finance, compliance, capacity, evidence, access, KB, runbook, SLO, leadership, and release risks into owner actions
-- Provider Readiness Guard Pack under `data/provider_readiness_packs/`, auditing local/mock default posture, optional OpenAI/Azure credential readiness, secret redaction, fallback policy, and production activation tasks
+- Provider Readiness Guard Pack under `data/provider_readiness_packs/`, auditing local/mock default posture, optional OpenAI/Azure adapter readiness, secret redaction, fallback policy, and production activation tasks
 - Autonomy Governance and Tool Trust Pack under `data/autonomy_governance_packs/`, auditing autonomous loop budgets, trusted tool usage, HITL dispatch boundaries, token/cost visibility, findings, and owner actions
 - Durable Workflow Recovery Pack under `data/workflow_recovery_packs/`, auditing persisted node checkpoints, resume tokens, HITL recovery readiness, and operator recovery queues
 - Autonomous Support Operations Pack under `data/support_ops_packs/`, building role crews, delegated task boards, process modes, review gates, run transparency, and artifact handoffs for support leaders, account teams, and engineering escalation owners
@@ -282,7 +282,10 @@ Important variables:
 - `CONTROL_TOWER_MAX_TOOL_ATTEMPTS`: KB/tool retry limit
 - `CONTROL_TOWER_LOW_CONFIDENCE_THRESHOLD`: confidence threshold for review
 - `CONTROL_TOWER_SLA_HIGH_RISK_THRESHOLD`: escalation threshold
-- `CONTROL_TOWER_LLM_PROVIDER`: local/mock default, with OpenAI or Azure OpenAI treated as optional production activation paths
+- `CONTROL_TOWER_LLM_PROVIDER`: local/mock default; set `openai` or `azure_openai` only when optional credentials, timeout, token budget, and fallback controls are configured
+- `CONTROL_TOWER_OPENAI_API_KEY`, `OPENAI_API_KEY`, `CONTROL_TOWER_OPENAI_MODEL`, `CONTROL_TOWER_OPENAI_BASE_URL`: optional OpenAI adapter settings
+- `CONTROL_TOWER_AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_ENDPOINT`, `CONTROL_TOWER_AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_API_KEY`, `CONTROL_TOWER_AZURE_OPENAI_DEPLOYMENT`, `AZURE_OPENAI_DEPLOYMENT`, `CONTROL_TOWER_AZURE_OPENAI_API_VERSION`: optional Azure OpenAI adapter settings
+- `CONTROL_TOWER_LLM_TIMEOUT_SECONDS`, `CONTROL_TOWER_LLM_MAX_TOKENS`, `CONTROL_TOWER_LLM_FALLBACK_ENABLED`: optional live-provider guardrails
 
 ## Reliability Surfaces
 
@@ -374,7 +377,7 @@ Important variables:
 - `POST /security/access-review-pack`: writes Markdown and JSON under `data/access_review_packs/` with the access matrix, acceptance criteria, production authz backlog, reviewer walkthrough, and local verification commands.
 - `GET /risk/register`: returns the local Enterprise Risk Register with risk score, owner action plan, control signal summary, endpoints, limitations, and risks from finance, compliance, capacity, access, evidence, KB, runbook, SLO, leadership, and release controls.
 - `POST /risk/register-pack`: writes Markdown and JSON under `data/risk_registers/` with executive summary, owner action plan, control signals, acceptance criteria, local commands, and local/mock limitations.
-- `GET /providers/readiness`: returns local provider readiness for the configured LLM mode, local/mock default, optional OpenAI/Azure credential presence, fallback policy, redacted env audit, production backlog, commands, and limitations.
+- `GET /providers/readiness`: returns local provider readiness for the configured LLM mode, local/mock default, optional OpenAI/Azure adapter classes, credential presence, fallback policy, redacted env audit, production backlog, commands, and limitations.
 - `POST /providers/readiness-pack`: writes Markdown and JSON under `data/provider_readiness_packs/` with provider checks, activation checklist, acceptance criteria, production backlog, local commands, JD skills, and limitations.
 - `GET /metrics/agent-performance`: includes approval count, outbox dispatch count, failure count, failure-drill count, average node latency, average tokens per run, and average cost per run.
 

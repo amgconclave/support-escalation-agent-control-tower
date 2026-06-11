@@ -345,6 +345,7 @@ class AgentWorkflowState(TypedDict, total=False):
     failure_state: dict[str, Any] | None
     node_history: list[str]
     tool_calls: list[dict[str, Any]]
+    llm_provider_events: list[dict[str, Any]]
     metrics: dict[str, Any]
     checkpoints: list[dict[str, Any]]
     durability: dict[str, Any]
