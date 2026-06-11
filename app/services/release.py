@@ -261,6 +261,8 @@ class ReleaseService:
             ("POST", "/incidents/rca-pack", "Postmortem RCA artifact", True),
             ("POST", "/demo/evidence-pack", "Full demo evidence artifact", True),
             ("POST", "/ops/operator-readiness-pack", "Operator readiness artifact", True),
+            ("GET", "/ops/daily-brief", "Executive Daily Ops Brief", False),
+            ("POST", "/ops/daily-brief-pack", "Executive Daily Ops Brief artifact", True),
             ("GET", "/leadership/scorecard", "Leadership KPI scorecard", False),
             ("GET", "/knowledge/quality-audit", "KB readiness audit", False),
             ("GET", "/metrics/agent-performance", "Agent metrics", False),

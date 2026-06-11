@@ -83,6 +83,12 @@ These analytics endpoints do not call Azure, Zendesk, Jira, Slack, or any extern
 
 `POST /ops/optimization-report` writes Markdown and JSON under `data/optimization_reports/`. The report packages the same SLO statuses with top slow nodes, high-token nodes, failure hotspots, approval bottlenecks, and recommended fixes. This gives the demo an operator-facing loop from observability to concrete tuning work without requiring external APM, billing, or queueing systems.
 
+## Executive Daily Ops Brief Pack
+
+`GET /ops/daily-brief` composes local control-tower evidence into a daily command-center summary for support leadership. It aggregates ops analytics, SLO budget, customer health, capacity planning, leadership KPI scorecard, and the enterprise risk register to summarize SLA exposure, blocked approvals, engineer load, critical accounts, top risky tickets, control signals, and owner actions.
+
+`POST /ops/daily-brief-pack` writes Markdown and JSON under `data/daily_ops_briefs/`. The pack adds an executive decision table, local evidence links, endpoint list, verification commands, and explicit local/mock limitations. It remains deterministic and does not call CRM, billing, BI, workforce management, Zendesk, Jira, Slack, Azure, OpenAI, GitHub, or external systems.
+
 ## Runbook QA and Operator Readiness Pack
 
 `POST /ops/runbook-qa` evaluates whether a run is complete enough for operator handoff. It checks ticket summary, classification, SLA risk, customer impact, KB citations/context, drafted reply, engineering escalation, approval state, trace ID, outbox dispatches, failure drill result, remediation owners, SLO budget, optimization recommendations, and customer/account health.

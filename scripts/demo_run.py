@@ -405,6 +405,20 @@ def run_with_http_server() -> dict | None:
         )
         provider_pack_response.raise_for_status()
         result["provider_readiness_pack"] = provider_pack_response.json()
+        daily_brief_response = requests.get(
+            f"{BASE}/ops/daily-brief",
+            headers=headers,
+            timeout=60,
+        )
+        daily_brief_response.raise_for_status()
+        result["daily_ops_brief"] = daily_brief_response.json()
+        daily_brief_pack_response = requests.post(
+            f"{BASE}/ops/daily-brief-pack",
+            headers=headers,
+            timeout=60,
+        )
+        daily_brief_pack_response.raise_for_status()
+        result["daily_ops_brief_pack"] = daily_brief_pack_response.json()
         result["mode"] = "http"
         return result
     except Exception:
@@ -621,6 +635,12 @@ def run_in_process() -> dict:
         provider_pack_response = client.post("/providers/readiness-pack", headers={"x-api-key": token})
         provider_pack_response.raise_for_status()
         result["provider_readiness_pack"] = provider_pack_response.json()
+        daily_brief_response = client.get("/ops/daily-brief", headers={"x-api-key": token})
+        daily_brief_response.raise_for_status()
+        result["daily_ops_brief"] = daily_brief_response.json()
+        daily_brief_pack_response = client.post("/ops/daily-brief-pack", headers={"x-api-key": token})
+        daily_brief_pack_response.raise_for_status()
+        result["daily_ops_brief_pack"] = daily_brief_pack_response.json()
         result["mode"] = "in-process"
         return result
 
@@ -681,6 +701,8 @@ def main():
     risk_register_pack = result["risk_register_pack"]
     provider_readiness = result["provider_readiness"]
     provider_readiness_pack = result["provider_readiness_pack"]
+    daily_ops_brief = result["daily_ops_brief"]
+    daily_ops_brief_pack = result["daily_ops_brief_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
 
@@ -885,6 +907,15 @@ def main():
     )
     print("Provider Readiness Pack:", provider_readiness_pack["markdown_path"])
     print("Provider Readiness JSON:", provider_readiness_pack["json_path"])
+    print(
+        "Daily Ops Brief:",
+        daily_ops_brief["status"],
+        f"high_sla={daily_ops_brief['sla_exposure']['high_sla_risk_count']}",
+        f"blocked_approvals={len(daily_ops_brief['blocked_approvals'])}",
+        f"critical_accounts={len(daily_ops_brief['critical_accounts'])}",
+    )
+    print("Daily Ops Brief Pack:", daily_ops_brief_pack["markdown_path"])
+    print("Daily Ops Brief JSON:", daily_ops_brief_pack["json_path"])
     print("Incident impact status:", metrics["incident_impact_status"])
     print("Incident narrative:", metrics["incident_narrative_path"])
     print("Finance impact artifact:", metrics["finance_impact_path"])

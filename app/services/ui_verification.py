@@ -61,6 +61,7 @@ EXPECTED_VIEWS = [
     "Access Control",
     "Risk Register",
     "Provider Readiness",
+    "Executive Daily Ops Brief",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -364,6 +365,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /ops/daily-brief",
+        "purpose": "Executive Daily Ops Brief command-center summary.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /ops/daily-brief-pack",
+        "purpose": "Executive Daily Ops Brief Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -521,6 +534,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Risk Register",
         "producer_endpoint": "POST /risk/register-pack",
         "artifact_directory": "data/risk_registers",
+    },
+    {
+        "tab_label": "Executive Daily Ops Brief",
+        "producer_endpoint": "POST /ops/daily-brief-pack",
+        "artifact_directory": "data/daily_ops_briefs",
     },
 ]
 
@@ -848,6 +866,11 @@ class UIVerificationService:
                 "view": "Risk Register",
                 "placeholder": "screenshots/risk-register-owner-actions.png",
                 "what_to_capture": "Risk score, open risks, owner action plan, control signals, and generated pack paths.",
+            },
+            {
+                "view": "Executive Daily Ops Brief",
+                "placeholder": "screenshots/executive-daily-ops-brief.png",
+                "what_to_capture": "Daily status, SLA exposure, blocked approvals, critical accounts, engineer load, and generated pack paths.",
             },
         ]
 

@@ -13,6 +13,7 @@ from app.services.briefs import IncidentBriefService
 from app.services.capacity_planning import CapacityPlanningService
 from app.services.customers import CustomerHealthService
 from app.services.data_residency import DataResidencyService
+from app.services.daily_ops_brief import ExecutiveDailyOpsBriefService
 from app.services.demo import DemoService
 from app.services.drills import DrillService
 from app.services.evidence_retention import EvidenceRetentionService
@@ -327,4 +328,15 @@ class ServiceContainer:
             settings,
             self.audit,
             settings.state_file.parent / "provider_readiness_packs",
+        )
+        self.daily_ops_brief = ExecutiveDailyOpsBriefService(
+            self.store,
+            self.analytics,
+            self.ops,
+            self.customers,
+            self.capacity_planning,
+            self.leadership,
+            self.risk_register,
+            self.audit,
+            settings.state_file.parent / "daily_ops_briefs",
         )

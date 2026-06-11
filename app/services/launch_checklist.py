@@ -63,6 +63,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Executive Daily Ops Brief Pack",
+        "directory": "data/daily_ops_briefs",
+        "producer": "POST /ops/daily-brief-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Launch checklist",
         "directory": "data/launch_checklists",
         "producer": "POST /ops/launch-checklist",
@@ -369,6 +375,8 @@ class LaunchChecklistService:
             self._row("POST", "/risk/register-pack", True, "Writes the Enterprise Risk Register Pack.", True, "data/risk_registers"),
             self._row("GET", "/providers/readiness", True, "Returns provider readiness and local/mock LLM posture.", False),
             self._row("POST", "/providers/readiness-pack", True, "Writes the Provider Readiness Guard Pack.", True, "data/provider_readiness_packs"),
+            self._row("GET", "/ops/daily-brief", True, "Returns the Executive Daily Ops Brief command-center summary.", False),
+            self._row("POST", "/ops/daily-brief-pack", True, "Writes the Executive Daily Ops Brief Pack.", True, "data/daily_ops_briefs"),
             self._row("POST", "/tickets/ingest-samples", True, "Loads sample tickets for manual demos.", False),
             self._row("GET", "/tickets", True, "Confirms authenticated ticket listing works.", False),
             self._row("POST", "/demo/evidence-pack", True, "Runs the complete demo and writes evidence.", True, "data/demo_packs plus linked artifacts"),

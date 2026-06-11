@@ -76,6 +76,7 @@ tabs = st.tabs(
         "Access Control",
         "Risk Register",
         "Provider Readiness",
+        "Executive Daily Ops Brief",
     ]
 )
 
@@ -2611,4 +2612,62 @@ with tabs[43]:
         st.dataframe(pack["pack"]["activation_checklist"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Provider Readiness Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[44]:
+    left, right = st.columns(2)
+    if left.button("Refresh Daily Ops Brief", type="primary", use_container_width=True):
+        st.session_state["daily_ops_brief"] = api("GET", "/ops/daily-brief")
+    if right.button("Export Daily Ops Brief Pack", use_container_width=True):
+        pack = api("POST", "/ops/daily-brief-pack")
+        st.session_state["daily_ops_brief_pack"] = pack
+        st.session_state["daily_ops_brief"] = pack["pack"]["daily_brief"]
+        st.success(f"Daily Ops Brief Pack exported: {pack['markdown_path']}")
+
+    brief = st.session_state.get("daily_ops_brief") or api("GET", "/ops/daily-brief")
+    st.session_state["daily_ops_brief"] = brief
+    sla = brief["sla_exposure"]
+    load = brief["engineer_load"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Daily status", brief["status"])
+    c2.metric("High SLA risk", sla["high_sla_risk_count"])
+    c3.metric("Blocked approvals", len(brief["blocked_approvals"]))
+    c4.metric("Capacity gap FTE", load["capacity_gap_fte"])
+
+    st.subheader("Executive Summary")
+    st.write(brief["executive_summary"])
+
+    st.subheader("Recommended Actions")
+    for action in brief["recommended_actions"]:
+        st.markdown(f"- {action}")
+
+    st.subheader("Blocked Approvals")
+    st.dataframe(brief["blocked_approvals"], use_container_width=True, hide_index=True)
+
+    st.subheader("Engineer Load")
+    st.dataframe(load["queues"], use_container_width=True, hide_index=True)
+
+    st.subheader("Critical Accounts")
+    st.dataframe(brief["critical_accounts"], use_container_width=True, hide_index=True)
+
+    st.subheader("Top Risky Tickets")
+    st.dataframe(brief["top_risky_tickets"], use_container_width=True, hide_index=True)
+
+    st.subheader("Control Signals")
+    st.dataframe(brief["control_signals"], use_container_width=True, hide_index=True)
+
+    pack = st.session_state.get("daily_ops_brief_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Daily Ops Brief Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['brief_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Decision Table")
+        st.dataframe(pack["pack"]["decision_table"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Daily Ops Brief Pack JSON"):
             st.json(pack["pack"])

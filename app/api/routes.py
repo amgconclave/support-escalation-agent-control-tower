@@ -328,6 +328,16 @@ async def audit_pack(request: Request):
     return await get_container(request).ops.export_audit_pack()
 
 
+@router.get("/ops/daily-brief", dependencies=[Depends(require_api_key)])
+async def daily_ops_brief(request: Request):
+    return await get_container(request).daily_ops_brief.brief(request.app)
+
+
+@router.post("/ops/daily-brief-pack", dependencies=[Depends(require_api_key)])
+async def daily_ops_brief_pack(request: Request):
+    return await get_container(request).daily_ops_brief.export_pack(request.app)
+
+
 @router.get("/ops/smoke-matrix", dependencies=[Depends(require_api_key)])
 async def smoke_matrix(request: Request):
     return await get_container(request).launch_checklist.smoke_matrix()

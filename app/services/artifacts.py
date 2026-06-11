@@ -93,6 +93,7 @@ EXTRA_ARTIFACTS = [
 REVIEWER_PURPOSES = {
     "data/demo_packs": "End-to-end demo proof linking the scenario, metrics, endpoints, and generated evidence files.",
     "data/operator_packs": "Operator handoff proof for runbook QA, critical metrics, endpoint coverage, and readiness.",
+    "data/daily_ops_briefs": "Executive daily command-center brief with SLA exposure, blocked approvals, engineer load, critical accounts, controls, and owner actions.",
     "data/launch_checklists": "Fresh-clone smoke matrix, setup commands, evals, troubleshooting, and launch-readiness evidence.",
     "data/portfolio_packs": "Recruiter/interviewer evidence that maps job-relevant skills to code, endpoints, tests, and artifacts.",
     "data/release_packs": "GitHub publish-readiness packet with gate status, coverage, commands, and repo checklist.",
