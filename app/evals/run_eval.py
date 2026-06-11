@@ -57,6 +57,8 @@ async def run_eval() -> None:
     runbook_gap_pack = await container.runbook_coverage.export_gap_pack()
     capacity_forecast = await container.capacity_planning.forecast()
     capacity_plan = await container.capacity_planning.export_staffing_plan()
+    provider_readiness = await container.provider_readiness.readiness()
+    provider_pack = await container.provider_readiness.export_pack()
     passed = (
         correct_classification == total
         and correct_routing == total
@@ -66,6 +68,8 @@ async def run_eval() -> None:
         and runbook_audit["runbook_gaps"]
         and capacity_forecast["demand_summary"]["ticket_count"] >= total
         and capacity_forecast["queue_forecast"]
+        and provider_readiness["readiness_status"] == "local_mock_ready"
+        and provider_readiness["summary"]["secrets_exposed"] is False
     )
 
     print(f"Number of eval tickets: {total}")
@@ -94,6 +98,9 @@ async def run_eval() -> None:
     print(f"Capacity Forecast score: {capacity_forecast['capacity_score']}")
     print(f"Capacity Forecast gaps: {len(capacity_forecast['staffing_gaps'])}")
     print(f"Capacity Staffing Plan: {capacity_plan['markdown_path']}")
+    print(f"Provider Readiness status: {provider_readiness['readiness_status']}")
+    print(f"Provider Readiness score: {provider_readiness['provider_score']}")
+    print(f"Provider Readiness Pack: {provider_pack['markdown_path']}")
     print(f"Pass/fail summary: {'PASS' if passed else 'FAIL'}")
     if not passed:
         raise SystemExit(1)

@@ -81,6 +81,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Maps FastAPI endpoints to least-privilege roles, production scopes, findings, and authz acceptance criteria.",
     },
+    {
+        "name": "Provider Readiness Guard Pack",
+        "directory": "data/provider_readiness_packs",
+        "producer": "POST /providers/readiness-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Audits local/mock LLM default posture, optional OpenAI/Azure credential readiness, fallback policy, and production activation tasks.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -118,6 +125,7 @@ REVIEWER_PURPOSES = {
     "data/capacity_plans": "Support capacity forecast proof with queue load, staffing gaps, owners, and local remediation actions.",
     "data/data_residency_packs": EXTRA_ARTIFACTS[6]["reviewer_purpose"],
     "data/access_review_packs": EXTRA_ARTIFACTS[7]["reviewer_purpose"],
+    "data/provider_readiness_packs": EXTRA_ARTIFACTS[8]["reviewer_purpose"],
 }
 
 

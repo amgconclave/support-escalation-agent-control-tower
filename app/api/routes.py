@@ -478,6 +478,16 @@ async def enterprise_risk_register_pack(request: Request):
     return await get_container(request).risk_register.export_pack(request.app)
 
 
+@router.get("/providers/readiness", dependencies=[Depends(require_api_key)])
+async def provider_readiness(request: Request):
+    return await get_container(request).provider_readiness.readiness()
+
+
+@router.post("/providers/readiness-pack", dependencies=[Depends(require_api_key)])
+async def provider_readiness_pack(request: Request):
+    return await get_container(request).provider_readiness.export_pack()
+
+
 @router.get("/runtime/demo-readiness")
 async def runtime_demo_readiness(request: Request):
     return await get_container(request).runtime_demo.readiness()

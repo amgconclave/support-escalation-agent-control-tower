@@ -391,6 +391,20 @@ def run_with_http_server() -> dict | None:
         )
         risk_register_pack_response.raise_for_status()
         result["risk_register_pack"] = risk_register_pack_response.json()
+        provider_readiness_response = requests.get(
+            f"{BASE}/providers/readiness",
+            headers=headers,
+            timeout=60,
+        )
+        provider_readiness_response.raise_for_status()
+        result["provider_readiness"] = provider_readiness_response.json()
+        provider_pack_response = requests.post(
+            f"{BASE}/providers/readiness-pack",
+            headers=headers,
+            timeout=60,
+        )
+        provider_pack_response.raise_for_status()
+        result["provider_readiness_pack"] = provider_pack_response.json()
         result["mode"] = "http"
         return result
     except Exception:
@@ -601,6 +615,12 @@ def run_in_process() -> dict:
         risk_register_pack_response = client.post("/risk/register-pack", headers={"x-api-key": token})
         risk_register_pack_response.raise_for_status()
         result["risk_register_pack"] = risk_register_pack_response.json()
+        provider_readiness_response = client.get("/providers/readiness", headers={"x-api-key": token})
+        provider_readiness_response.raise_for_status()
+        result["provider_readiness"] = provider_readiness_response.json()
+        provider_pack_response = client.post("/providers/readiness-pack", headers={"x-api-key": token})
+        provider_pack_response.raise_for_status()
+        result["provider_readiness_pack"] = provider_pack_response.json()
         result["mode"] = "in-process"
         return result
 
@@ -659,6 +679,8 @@ def main():
     access_review_pack = result["access_review_pack"]
     risk_register = result["risk_register"]
     risk_register_pack = result["risk_register_pack"]
+    provider_readiness = result["provider_readiness"]
+    provider_readiness_pack = result["provider_readiness_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
 
@@ -855,6 +877,14 @@ def main():
     )
     print("Risk Register Pack:", risk_register_pack["markdown_path"])
     print("Risk Register JSON:", risk_register_pack["json_path"])
+    print(
+        "Provider readiness:",
+        provider_readiness["readiness_status"],
+        f"score={provider_readiness['provider_score']}",
+        f"provider={provider_readiness['configured_provider']}",
+    )
+    print("Provider Readiness Pack:", provider_readiness_pack["markdown_path"])
+    print("Provider Readiness JSON:", provider_readiness_pack["json_path"])
     print("Incident impact status:", metrics["incident_impact_status"])
     print("Incident narrative:", metrics["incident_narrative_path"])
     print("Finance impact artifact:", metrics["finance_impact_path"])

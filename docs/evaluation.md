@@ -44,6 +44,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Capacity Planning queue load, required/available FTE, staffing gaps, dashboard wiring, demo/eval output, and Staffing Plan export under `data/capacity_plans/`
 - Data Residency and PII Exposure audit for local PII, restricted-region, regulated-segment, approval, outbox exposure, dashboard wiring, demo output, and pack export under `data/data_residency_packs/`
 - Access Control Matrix role mapping, production scopes, shared-demo-key findings, dashboard wiring, demo output, and Review Pack export under `data/access_review_packs/`
+- Provider Readiness audit for local/mock default posture, optional OpenAI/Azure credential readiness, secret redaction, dashboard wiring, demo/eval output, and Guard Pack export under `data/provider_readiness_packs/`
 - Dashboard Smoke source wiring for Streamlit views, endpoint references, generated artifact tabs, and UI Verification Pack export under `data/ui_verification/`
 - metrics aggregation
 - auth behavior
@@ -1060,6 +1061,31 @@ Expected:
 - Markdown and JSON files are written under `data/risk_registers/`
 - dashboard includes a `Risk Register` tab with risk score, open risk counts, owner actions, control signals, and export controls
 - one-command demo output includes Risk Register status/score/open risk count and Risk Register Pack paths
+
+## Provider Readiness Guard Eval
+
+Review provider readiness:
+
+```bash
+curl http://localhost:8000/providers/readiness \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Export the guard pack:
+
+```bash
+curl -X POST http://localhost:8000/providers/readiness-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- response includes configured provider, active provider class, readiness status, provider score, provider checks, redacted env presence, fallback policy, production backlog, endpoints, commands, and limitations
+- default local/mock mode reports no external services required for the demo and no exposed secrets
+- unsupported or missing external-provider configuration fails closed through provider checks
+- Markdown and JSON files are written under `data/provider_readiness_packs/`
+- dashboard includes a `Provider Readiness` tab with provider matrix, checks, env presence, fallback policy, production backlog, and export controls
+- `scripts/demo_run.py` prints Provider Readiness status/score and pack paths
 
 ## Change Risk and Escalation Replay Eval
 

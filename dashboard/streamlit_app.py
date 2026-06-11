@@ -75,6 +75,7 @@ tabs = st.tabs(
         "Data Residency",
         "Access Control",
         "Risk Register",
+        "Provider Readiness",
     ]
 )
 
@@ -2556,4 +2557,58 @@ with tabs[42]:
         st.markdown("\n".join(f"- {item}" for item in pack["pack"]["risk_acceptance_criteria"]))
         st.markdown(pack["markdown"])
         with st.expander("Risk Register Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[43]:
+    left, right = st.columns(2)
+    if left.button("Refresh Provider Readiness", type="primary", use_container_width=True):
+        st.session_state["provider_readiness"] = api("GET", "/providers/readiness")
+    if right.button("Export Provider Readiness Pack", use_container_width=True):
+        pack = api("POST", "/providers/readiness-pack")
+        st.session_state["provider_readiness_pack"] = pack
+        st.session_state["provider_readiness"] = pack["pack"]["provider_readiness"]
+        st.success(f"Provider Readiness Pack exported: {pack['markdown_path']}")
+
+    readiness = st.session_state.get("provider_readiness") or api("GET", "/providers/readiness")
+    st.session_state["provider_readiness"] = readiness
+    summary = readiness["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Provider score", readiness["provider_score"])
+    c2.metric("Status", readiness["readiness_status"])
+    c3.metric("Provider", readiness["configured_provider"])
+    c4.metric("Failures / Warnings", f"{summary['fail_count']} / {summary['warn_count']}")
+
+    st.subheader("Provider Matrix")
+    st.dataframe(readiness["provider_matrix"], use_container_width=True, hide_index=True)
+
+    st.subheader("Provider Checks")
+    st.dataframe(readiness["provider_checks"], use_container_width=True, hide_index=True)
+
+    st.subheader("Environment Presence")
+    st.dataframe(readiness["env_presence"]["variables"], use_container_width=True, hide_index=True)
+
+    st.subheader("Fallback Policy")
+    st.json(readiness["fallback_policy"])
+
+    st.subheader("Production Backlog")
+    st.dataframe(readiness["production_backlog"], use_container_width=True, hide_index=True)
+
+    st.subheader("Limitations")
+    for limitation in readiness["limitations"]:
+        st.markdown(f"- {limitation}")
+
+    pack = st.session_state.get("provider_readiness_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Provider Readiness Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Activation Checklist")
+        st.dataframe(pack["pack"]["activation_checklist"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Provider Readiness Pack JSON"):
             st.json(pack["pack"])

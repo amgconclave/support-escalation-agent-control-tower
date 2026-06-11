@@ -84,6 +84,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /runbooks/gap-pack`
   Writes Markdown and JSON under the ignored runbook gap folder, normally `data/runbook_gap_packs/`. The pack includes the ticket coverage map, missing runbook gaps, owner-ready remediation tasks, acceptance criteria, endpoint evidence, local verification commands, JD skills demonstrated, and five interviewer talking points.
 
+- `GET /providers/readiness`
+  Returns the Provider Readiness audit for the configured LLM mode. The response includes local/mock default status, active provider class, redacted optional OpenAI/Azure credential presence, provider matrix, fallback policy, production activation backlog, endpoint evidence, local commands, and limitations. It does not call OpenAI, Azure OpenAI, Zendesk, Jira, Slack, GitHub, or external networks.
+
+- `POST /providers/readiness-pack`
+  Writes Markdown and JSON under the ignored provider readiness folder, normally `data/provider_readiness_packs/`. The pack includes provider checks, activation checklist, acceptance criteria, production backlog, local verification commands, JD skills demonstrated, interviewer talking points, and secret-redaction limitations.
+
 - `POST /playbooks/recommend`
   Accepts either `ticket_id` or an inline `ticket` payload plus optional `top_n`. Returns ranked playbooks with match reasons, confidence, checklist steps, owner roles, escalation policy, and customer update template. If a stored ticket has already been analyzed, the recommender uses its classification and SLA risk context.
 

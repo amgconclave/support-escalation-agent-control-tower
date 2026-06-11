@@ -32,6 +32,7 @@ from app.services.policy_change_simulation import PolicyChangeSimulationService
 from app.services.policy_guardrails import PolicyGuardrailService
 from app.services.postmortem_rca import PostmortemRcaService
 from app.services.portfolio import PortfolioService
+from app.services.provider_readiness import ProviderReadinessService
 from app.services.replay_lab import ReplayLabService
 from app.services.release import ReleaseService
 from app.services.reviewer import ReviewerService
@@ -321,4 +322,9 @@ class ServiceContainer:
             self.ops,
             self.audit,
             settings.state_file.parent / "risk_registers",
+        )
+        self.provider_readiness = ProviderReadinessService(
+            settings,
+            self.audit,
+            settings.state_file.parent / "provider_readiness_packs",
         )

@@ -60,6 +60,7 @@ EXPECTED_VIEWS = [
     "Data Residency",
     "Access Control",
     "Risk Register",
+    "Provider Readiness",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -351,6 +352,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /providers/readiness",
+        "purpose": "Provider readiness audit for local/mock, OpenAI, and Azure OpenAI activation posture.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /providers/readiness-pack",
+        "purpose": "Provider Readiness Guard Pack export with activation checklist and production backlog.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -378,6 +391,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Policy Guardrails",
         "producer_endpoint": "POST /policies/change-pack",
         "artifact_directory": "data/policy_change_packs",
+    },
+    {
+        "tab_label": "Provider Readiness",
+        "producer_endpoint": "POST /providers/readiness-pack",
+        "artifact_directory": "data/provider_readiness_packs",
     },
     {
         "tab_label": "Customer Health / Account Brief",

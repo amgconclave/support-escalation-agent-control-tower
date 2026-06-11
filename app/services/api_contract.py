@@ -78,6 +78,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /capacity/staffing-plan",
     "GET /compliance/data-residency-audit",
     "POST /compliance/data-residency-pack",
+    "GET /providers/readiness",
+    "POST /providers/readiness-pack",
 ]
 
 LOCAL_ONLY_LIMITATIONS = [

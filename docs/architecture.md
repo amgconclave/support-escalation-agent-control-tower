@@ -28,6 +28,7 @@ The control tower is organized as an async FastAPI application with explicit ser
 - **ScenarioCatalogService** reads the enterprise fake scenario dataset, exposes expected outcome coverage, runs deterministic checks, and writes Scenario Dataset Eval Coverage Pack artifacts.
 - **EvidenceRetentionService** audits local escalation evidence completeness and writes Evidence Retention and Chain-of-Custody Pack artifacts with SHA-256 hashes.
 - **CapacityPlanningService** forecasts local support queue load from tickets, scenarios, and run history, then writes owner-ready Capacity Staffing Plan artifacts.
+- **ProviderReadinessService** audits the configured LLM provider mode, redacted optional OpenAI/Azure credential presence, local fallback policy, and production activation tasks, then writes Provider Readiness Guard Pack artifacts.
 - **OpsService CI Doctor** inspects local repo files for CI commands, docs, Docker, env examples, dependency manifests, ignored generated artifacts, local/mock provider notes, and redacted secret scan findings, then writes Dependency/Secrets Audit Pack artifacts.
 - **ReplayLabService** performs deterministic counterfactual replay over stored run state for Change Risk / Escalation Replay scenarios and exports Markdown/JSON reports.
 - **PolicyGuardrailService** evaluates approval policy rules over run context, Replay Lab findings, requested automation actions, customer tier, adapter health, confidence, SLA pressure, and KB grounding, then exports policy packs.
@@ -68,12 +69,15 @@ The default persistence layer is a local SQLite database configured by `CONTROL_
 - Evidence Retention and Chain-of-Custody Pack artifacts under ignored `data/evidence_packs/`
 - Capacity Forecast and Staffing Plan artifacts under ignored `data/capacity_plans/`
 - Postmortem RCA + Corrective Action Tracking Pack artifacts under ignored `data/rca_packs/`
+- Provider Readiness Guard Pack artifacts under ignored `data/provider_readiness_packs/`
 
 This keeps local setup dependency-free while still using a real durable database that persists state across process restarts.
 
 ## Provider Boundary
 
 The project runs locally with `LocalMockLlmProvider`. Optional OpenAI or Azure OpenAI adapters can be added behind `LlmProvider` without changing workflow nodes.
+
+`GET /providers/readiness` is the local guardrail for that boundary. It checks the configured provider, redacts credential presence, proves that fresh-clone CI/demo runs require no paid LLM keys, and lists production activation backlog items for live OpenAI or Azure OpenAI rollout. `POST /providers/readiness-pack` writes the Markdown/JSON guard pack under ignored `data/provider_readiness_packs/`. The service does not call external provider APIs.
 
 ## Security and Observability
 

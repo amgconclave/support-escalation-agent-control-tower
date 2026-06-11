@@ -97,6 +97,12 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /runbooks/gap-pack` writes Markdown and JSON under `data/runbook_gap_packs/`. The pack turns missing or partial runbook coverage into owner-ready remediation tasks with affected ticket IDs, suggested playbook outlines, acceptance criteria, local commands, JD skills demonstrated, and interviewer talking points. It remains local/mock only and does not call external KB, Zendesk, Jira, Slack, Azure, OpenAI, or GitHub systems.
 
+## Provider Readiness Guard Pack
+
+`GET /providers/readiness` audits the configured LLM provider without calling external networks. It verifies that `LocalMockLlmProvider` remains the active default for CI and demos, redacts optional OpenAI/Azure credential presence, reports fail-closed provider checks, and lists fallback policy plus production activation tasks.
+
+`POST /providers/readiness-pack` writes Markdown and JSON under `data/provider_readiness_packs/`. The pack includes provider checks, an activation checklist, acceptance criteria, local commands, JD skills demonstrated, and interviewer talking points. It remains local/mock only and does not call OpenAI, Azure OpenAI, Zendesk, Jira, Slack, GitHub, or any external service.
+
 ## Local Launch Checklist and Smoke Matrix
 
 `GET /ops/smoke-matrix` is the reviewer-facing smoke surface. It lists the key local endpoints, whether they require an API key, expected status codes, sample `curl.exe` and PowerShell commands, artifact expectations, and a launch readiness summary.
