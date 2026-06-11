@@ -600,6 +600,49 @@ rg "communications/quality-audit|communications/quality-pack|Communication Quali
 Get-ChildItem -Recurse -File data\communication_quality_packs -ErrorAction SilentlyContinue | Select-Object FullName,Length,LastWriteTime
 ```
 
+## Autonomous Support Operations Eval
+
+Call the crew plan:
+
+```powershell
+curl http://localhost:8000/ops/crew-plan `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- response title is `Autonomous Support Operations Crew Plan`
+- role crews include Support Lead, Account Team, Engineering Escalation Owner, and Operations Commander
+- delegated tasks include evidence references and handoff contracts
+- selected process mode is one of standard triage, SLA war room, engineering escalation, or customer communications review
+- review gates include classification/SLA, knowledge grounding, human approval, and delegation completeness
+- run transparency includes run ID, trace ID, node history, tool-call count, approval status, tokens, and estimated cost
+
+Export the reviewer artifact:
+
+```powershell
+curl -X POST http://localhost:8000/ops/crew-pack `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- Markdown and JSON files are written under `data/support_ops_packs/`
+- Markdown includes Role Crews, Delegated Tasks, Review Gates, Artifact Handoffs, Run Transparency, Local Proof Commands, and Limitations
+- pack is local/mock only and does not dispatch customer-visible or engineering-facing actions
+
+Required local Support Ops verification command set:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m ruff check app tests dashboard scripts
+.\.venv\Scripts\python.exe -m app.evals.run_eval
+.\.venv\Scripts\python.exe scripts\dashboard_smoke.py
+.\.venv\Scripts\python.exe scripts\demo_run.py
+rg "ops/crew-plan|ops/crew-pack|Support Ops Crews|support_ops_packs|role crews|task delegation|process modes" app dashboard docs README.md tests scripts
+Get-ChildItem -Recurse -File data\support_ops_packs -ErrorAction SilentlyContinue | Select-Object FullName,Length,LastWriteTime
+```
+
 ## Postmortem RCA and Corrective Action Eval
 
 Inspect the Postmortem RCA summary:

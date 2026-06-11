@@ -45,6 +45,10 @@ VERIFY_COMMANDS = [
         r'workflow_recovery_packs|resume token|checkpoint" app dashboard docs README.md tests scripts'
     ),
     (
+        r'rg "ops/crew-plan|ops/crew-pack|Support Ops Crews|support_ops_packs|'
+        r'role crews|task delegation|process modes" app dashboard docs README.md tests scripts'
+    ),
+    (
         r"Get-ChildItem -Recurse -File data\api_contracts -ErrorAction SilentlyContinue "
         r"| Select-Object FullName,Length,LastWriteTime"
     ),
@@ -92,6 +96,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /governance/autonomy-pack",
     "GET /workflows/durability-audit",
     "POST /workflows/durability-pack",
+    "GET /ops/crew-plan",
+    "POST /ops/crew-pack",
     "GET /ops/daily-brief",
     "POST /ops/daily-brief-pack",
 ]

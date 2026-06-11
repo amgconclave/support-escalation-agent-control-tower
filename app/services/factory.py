@@ -44,6 +44,7 @@ from app.services.runbook_coverage import RunbookCoverageService
 from app.services.runbook_qa import RunbookQaService
 from app.services.runtime_demo import RuntimeDemoService
 from app.services.scenarios import ScenarioCatalogService
+from app.services.support_ops import SupportOperationsService
 from app.services.tickets import TicketService
 from app.services.trace import TraceService
 from app.services.ui_verification import UIVerificationService
@@ -367,4 +368,13 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "workflow_recovery_packs",
+        )
+        self.support_ops = SupportOperationsService(
+            self.store,
+            self.tickets,
+            self.workflow,
+            self.playbooks,
+            self.audit,
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "support_ops_packs",
         )

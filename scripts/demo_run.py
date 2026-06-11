@@ -250,6 +250,20 @@ def run_with_http_server() -> dict | None:
         )
         communication_quality_pack_response.raise_for_status()
         result["communication_quality_pack"] = communication_quality_pack_response.json()
+        support_ops_response = requests.get(
+            f"{BASE}/ops/crew-plan",
+            headers=headers,
+            timeout=60,
+        )
+        support_ops_response.raise_for_status()
+        result["support_ops_crew_plan"] = support_ops_response.json()
+        support_ops_pack_response = requests.post(
+            f"{BASE}/ops/crew-pack",
+            headers=headers,
+            timeout=60,
+        )
+        support_ops_pack_response.raise_for_status()
+        result["support_ops_pack"] = support_ops_pack_response.json()
         git_readiness_response = requests.get(
             f"{BASE}/git/readiness",
             headers=headers,
@@ -600,6 +614,12 @@ def run_in_process() -> dict:
         )
         communication_quality_pack_response.raise_for_status()
         result["communication_quality_pack"] = communication_quality_pack_response.json()
+        support_ops_response = client.get("/ops/crew-plan", headers={"x-api-key": token})
+        support_ops_response.raise_for_status()
+        result["support_ops_crew_plan"] = support_ops_response.json()
+        support_ops_pack_response = client.post("/ops/crew-pack", headers={"x-api-key": token})
+        support_ops_pack_response.raise_for_status()
+        result["support_ops_pack"] = support_ops_pack_response.json()
         git_readiness_response = client.get("/git/readiness", headers={"x-api-key": token})
         git_readiness_response.raise_for_status()
         result["git_readiness"] = git_readiness_response.json()
@@ -742,6 +762,8 @@ def main():
     customer_comms_pack = result["customer_comms_pack"]
     communication_quality = result["communication_quality_audit"]
     communication_quality_pack = result["communication_quality_pack"]
+    support_ops_crew_plan = result["support_ops_crew_plan"]
+    support_ops_pack = result["support_ops_pack"]
     git_readiness = result["git_readiness"]
     git_push_plan = result["git_push_plan"]
     api_contract_audit = result["api_contract_audit"]
@@ -882,6 +904,14 @@ def main():
     )
     print("Communication Quality Pack:", communication_quality_pack["markdown_path"])
     print("Communication Quality JSON:", communication_quality_pack["json_path"])
+    print(
+        "Support Ops Crews:",
+        support_ops_crew_plan["readiness_status"],
+        f"mode={support_ops_crew_plan['selected_process_mode']['mode_id']}",
+        f"tasks={len(support_ops_crew_plan['delegated_tasks'])}",
+    )
+    print("Support Ops Pack:", support_ops_pack["markdown_path"])
+    print("Support Ops JSON:", support_ops_pack["json_path"])
     print("Git readiness:", git_readiness["status"], f"branch={git_readiness['current_branch'] or 'unknown'}")
     print("Git changed files:", git_readiness["summary"]["changed_count"])
     print("Push Plan:", git_push_plan["markdown_path"])

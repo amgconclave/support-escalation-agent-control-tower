@@ -159,6 +159,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /ops/daily-brief-pack`
   Writes Markdown and JSON under the ignored local daily ops folder, normally `data/daily_ops_briefs/`. The pack includes the daily brief, executive decision table, SLA exposure, blocked approvals, engineer load, critical accounts, control signals, evidence links, verification commands, and limitations.
 
+- `GET /ops/crew-plan`
+  Returns the Autonomous Support Operations crew plan for a selected/latest/sample run. The response includes support leader, account team, engineering owner, and operations commander role crews; delegated task board; selected process mode; review gates; artifact handoffs; run transparency; scenario coverage; repo-radar patterns; proof commands; and local/mock limitations.
+
+- `POST /ops/crew-pack`
+  Writes Markdown and JSON under the ignored local support ops folder, normally `data/support_ops_packs/`. The pack includes the crew plan, delegation board, review-gate summary, artifact handoff packet, local proof commands, and limitations. It never dispatches customer or engineering actions.
+
 - `GET /ops/smoke-matrix`
   Returns the Local Launch Checklist smoke matrix for GitHub reviewers. Each row includes endpoint, purpose, auth requirement, expected status, sample `curl.exe` and PowerShell `Invoke-RestMethod` commands, artifact expectation, and the overall launch readiness summary.
 

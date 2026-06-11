@@ -562,6 +562,22 @@ async def operator_readiness_pack(request: Request, payload: RunbookQaRequest | 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
 
 
+@router.get("/ops/crew-plan", dependencies=[Depends(require_api_key)])
+async def support_ops_crew_plan(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).support_ops.crew_plan(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/ops/crew-pack", dependencies=[Depends(require_api_key)])
+async def support_ops_crew_pack(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).support_ops.export_crew_pack(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
 @router.get("/runbooks/coverage-audit", dependencies=[Depends(require_api_key)])
 async def runbook_coverage_audit(request: Request):
     return await get_container(request).runbook_coverage.coverage_audit()

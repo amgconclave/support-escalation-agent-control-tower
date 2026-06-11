@@ -65,6 +65,7 @@ EXPECTED_VIEWS = [
     "Autonomy Governance",
     "Durable Workflows",
     "Communication Quality",
+    "Support Ops Crews",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -416,6 +417,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /ops/crew-plan",
+        "purpose": "Autonomous Support Operations role-crew and task-delegation plan.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /ops/crew-pack",
+        "purpose": "Autonomous Support Operations Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -593,6 +606,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Durable Workflows",
         "producer_endpoint": "POST /workflows/durability-pack",
         "artifact_directory": "data/workflow_recovery_packs",
+    },
+    {
+        "tab_label": "Support Ops Crews",
+        "producer_endpoint": "POST /ops/crew-pack",
+        "artifact_directory": "data/support_ops_packs",
     },
 ]
 

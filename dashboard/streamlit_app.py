@@ -80,6 +80,7 @@ tabs = st.tabs(
         "Autonomy Governance",
         "Durable Workflows",
         "Communication Quality",
+        "Support Ops Crews",
     ]
 )
 
@@ -2844,4 +2845,74 @@ with tabs[47]:
         )
         st.markdown(pack["markdown"])
         with st.expander("Communication Quality JSON"):
+            st.json(pack["pack"])
+
+with tabs[48]:
+    run_id = st.text_input("Support ops run ID", value=st.session_state.get("run_id", ""))
+    plan_path = f"/ops/crew-plan?run_id={run_id}" if run_id else "/ops/crew-plan"
+    pack_path = f"/ops/crew-pack?run_id={run_id}" if run_id else "/ops/crew-pack"
+    left, right = st.columns(2)
+    if left.button("Refresh Support Ops Crews", type="primary", use_container_width=True):
+        plan = api("GET", plan_path)
+        st.session_state["support_ops_crew_plan"] = plan
+        st.session_state["run_id"] = plan["run_id"]
+    if right.button("Export Support Ops Pack", use_container_width=True):
+        pack = api("POST", pack_path)
+        st.session_state["support_ops_pack"] = pack
+        st.session_state["support_ops_crew_plan"] = pack["pack"]["crew_plan"]
+        st.session_state["run_id"] = pack["pack"]["crew_plan"]["run_id"]
+        st.success(f"Support Ops Pack exported: {pack['markdown_path']}")
+
+    plan = st.session_state.get("support_ops_crew_plan") or api("GET", plan_path)
+    st.session_state["support_ops_crew_plan"] = plan
+    mode = plan["selected_process_mode"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Operations score", plan["operations_score"])
+    c2.metric("Status", plan["readiness_status"])
+    c3.metric("Process mode", mode["mode_id"])
+    c4.metric("Delegated tasks", len(plan["delegated_tasks"]))
+
+    st.subheader("Role Crews")
+    st.dataframe(plan["role_crews"], use_container_width=True, hide_index=True)
+
+    st.subheader("Delegated Task Board")
+    st.dataframe(
+        [
+            {
+                "task": task["task_id"],
+                "owner": task["owner_role"],
+                "artifact": task["artifact_type"],
+                "status": task["status"],
+                "evidence": ", ".join(task["evidence_refs"]),
+            }
+            for task in plan["delegated_tasks"]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Review Gates")
+    st.dataframe(plan["review_gates"], use_container_width=True, hide_index=True)
+
+    st.subheader("Artifact Handoffs")
+    st.dataframe(plan["artifact_handoffs"], use_container_width=True, hide_index=True)
+
+    st.subheader("Run Transparency")
+    st.json(plan["run_transparency"])
+
+    st.subheader("Scenario Coverage")
+    st.dataframe(plan["scenario_coverage"]["scenarios"], use_container_width=True, hide_index=True)
+
+    pack = st.session_state.get("support_ops_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Support Ops Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(pack["markdown"])
+        with st.expander("Support Ops Pack JSON"):
             st.json(pack["pack"])
