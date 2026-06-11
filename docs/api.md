@@ -90,6 +90,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /providers/readiness-pack`
   Writes Markdown and JSON under the ignored provider readiness folder, normally `data/provider_readiness_packs/`. The pack includes provider checks, activation checklist, acceptance criteria, production backlog, local verification commands, JD skills demonstrated, interviewer talking points, and secret-redaction limitations.
 
+- `GET /governance/autonomy-audit`
+  Returns the Autonomy Governance audit for existing local runs. The response includes bounded workflow node checks, trusted tool allowlist status, retry budget visibility, human-approval-before-dispatch checks, token/cost observability, run-level findings, owner actions, repo-radar patterns, local commands, and local/mock limitations.
+
+- `POST /governance/autonomy-pack`
+  Writes Markdown and JSON under the ignored autonomy governance folder, normally `data/autonomy_governance_packs/`. The pack includes the autonomy audit, decision table, acceptance criteria, reviewer artifact paths, proof commands, and limitations.
+
 - `POST /playbooks/recommend`
   Accepts either `ticket_id` or an inline `ticket` payload plus optional `top_n`. Returns ranked playbooks with match reasons, confidence, checklist steps, owner roles, escalation policy, and customer update template. If a stored ticket has already been analyzed, the recommender uses its classification and SLA risk context.
 

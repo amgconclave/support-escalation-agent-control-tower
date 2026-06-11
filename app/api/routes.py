@@ -498,6 +498,16 @@ async def provider_readiness_pack(request: Request):
     return await get_container(request).provider_readiness.export_pack()
 
 
+@router.get("/governance/autonomy-audit", dependencies=[Depends(require_api_key)])
+async def autonomy_governance_audit(request: Request):
+    return await get_container(request).autonomy_governance.autonomy_audit()
+
+
+@router.post("/governance/autonomy-pack", dependencies=[Depends(require_api_key)])
+async def autonomy_governance_pack(request: Request):
+    return await get_container(request).autonomy_governance.export_pack()
+
+
 @router.get("/runtime/demo-readiness")
 async def runtime_demo_readiness(request: Request):
     return await get_container(request).runtime_demo.readiness()

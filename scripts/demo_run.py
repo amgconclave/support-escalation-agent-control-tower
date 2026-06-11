@@ -405,6 +405,20 @@ def run_with_http_server() -> dict | None:
         )
         provider_pack_response.raise_for_status()
         result["provider_readiness_pack"] = provider_pack_response.json()
+        autonomy_audit_response = requests.get(
+            f"{BASE}/governance/autonomy-audit",
+            headers=headers,
+            timeout=60,
+        )
+        autonomy_audit_response.raise_for_status()
+        result["autonomy_governance"] = autonomy_audit_response.json()
+        autonomy_pack_response = requests.post(
+            f"{BASE}/governance/autonomy-pack",
+            headers=headers,
+            timeout=60,
+        )
+        autonomy_pack_response.raise_for_status()
+        result["autonomy_governance_pack"] = autonomy_pack_response.json()
         daily_brief_response = requests.get(
             f"{BASE}/ops/daily-brief",
             headers=headers,
@@ -635,6 +649,12 @@ def run_in_process() -> dict:
         provider_pack_response = client.post("/providers/readiness-pack", headers={"x-api-key": token})
         provider_pack_response.raise_for_status()
         result["provider_readiness_pack"] = provider_pack_response.json()
+        autonomy_audit_response = client.get("/governance/autonomy-audit", headers={"x-api-key": token})
+        autonomy_audit_response.raise_for_status()
+        result["autonomy_governance"] = autonomy_audit_response.json()
+        autonomy_pack_response = client.post("/governance/autonomy-pack", headers={"x-api-key": token})
+        autonomy_pack_response.raise_for_status()
+        result["autonomy_governance_pack"] = autonomy_pack_response.json()
         daily_brief_response = client.get("/ops/daily-brief", headers={"x-api-key": token})
         daily_brief_response.raise_for_status()
         result["daily_ops_brief"] = daily_brief_response.json()
@@ -701,6 +721,8 @@ def main():
     risk_register_pack = result["risk_register_pack"]
     provider_readiness = result["provider_readiness"]
     provider_readiness_pack = result["provider_readiness_pack"]
+    autonomy_governance = result["autonomy_governance"]
+    autonomy_governance_pack = result["autonomy_governance_pack"]
     daily_ops_brief = result["daily_ops_brief"]
     daily_ops_brief_pack = result["daily_ops_brief_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
@@ -907,6 +929,14 @@ def main():
     )
     print("Provider Readiness Pack:", provider_readiness_pack["markdown_path"])
     print("Provider Readiness JSON:", provider_readiness_pack["json_path"])
+    print(
+        "Autonomy Governance:",
+        autonomy_governance["readiness_status"],
+        f"score={autonomy_governance['governance_score']}",
+        f"findings={autonomy_governance['summary']['finding_count']}",
+    )
+    print("Autonomy Governance Pack:", autonomy_governance_pack["markdown_path"])
+    print("Autonomy Governance JSON:", autonomy_governance_pack["json_path"])
     print(
         "Daily Ops Brief:",
         daily_ops_brief["status"],

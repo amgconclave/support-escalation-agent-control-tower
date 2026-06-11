@@ -9,6 +9,7 @@ from app.services.api_contract import ApiContractService
 from app.services.artifacts import ArtifactInventoryService
 from app.services.access_control import AccessControlService
 from app.services.audit import AuditService
+from app.services.autonomy_governance import AutonomyGovernanceService
 from app.services.briefs import IncidentBriefService
 from app.services.capacity_planning import CapacityPlanningService
 from app.services.customers import CustomerHealthService
@@ -339,4 +340,12 @@ class ServiceContainer:
             self.risk_register,
             self.audit,
             settings.state_file.parent / "daily_ops_briefs",
+        )
+        self.autonomy_governance = AutonomyGovernanceService(
+            self.store,
+            self.tickets,
+            self.workflow,
+            self.audit,
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "autonomy_governance_packs",
         )

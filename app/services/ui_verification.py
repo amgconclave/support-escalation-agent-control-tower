@@ -62,6 +62,7 @@ EXPECTED_VIEWS = [
     "Risk Register",
     "Provider Readiness",
     "Executive Daily Ops Brief",
+    "Autonomy Governance",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -366,6 +367,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "GET /governance/autonomy-audit",
+        "purpose": "Autonomy Governance audit for loop budgets, tool trust, HITL boundaries, token/cost, and run findings.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /governance/autonomy-pack",
+        "purpose": "Autonomy Governance and Tool Trust Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "GET /ops/daily-brief",
         "purpose": "Executive Daily Ops Brief command-center summary.",
         "dashboard_reference_required": True,
@@ -539,6 +552,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Executive Daily Ops Brief",
         "producer_endpoint": "POST /ops/daily-brief-pack",
         "artifact_directory": "data/daily_ops_briefs",
+    },
+    {
+        "tab_label": "Autonomy Governance",
+        "producer_endpoint": "POST /governance/autonomy-pack",
+        "artifact_directory": "data/autonomy_governance_packs",
     },
 ]
 
@@ -871,6 +889,11 @@ class UIVerificationService:
                 "view": "Executive Daily Ops Brief",
                 "placeholder": "screenshots/executive-daily-ops-brief.png",
                 "what_to_capture": "Daily status, SLA exposure, blocked approvals, critical accounts, engineer load, and generated pack paths.",
+            },
+            {
+                "view": "Autonomy Governance",
+                "placeholder": "screenshots/autonomy-governance-tool-trust.png",
+                "what_to_capture": "Governance score, loop budget controls, tool trust findings, owner actions, and generated pack paths.",
             },
         ]
 

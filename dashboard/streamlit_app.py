@@ -77,6 +77,7 @@ tabs = st.tabs(
         "Risk Register",
         "Provider Readiness",
         "Executive Daily Ops Brief",
+        "Autonomy Governance",
     ]
 )
 
@@ -2670,4 +2671,55 @@ with tabs[44]:
         st.dataframe(pack["pack"]["decision_table"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Daily Ops Brief Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[45]:
+    left, right = st.columns(2)
+    if left.button("Refresh Autonomy Governance", type="primary", use_container_width=True):
+        st.session_state["autonomy_governance"] = api("GET", "/governance/autonomy-audit")
+    if right.button("Export Autonomy Governance Pack", use_container_width=True):
+        pack = api("POST", "/governance/autonomy-pack")
+        st.session_state["autonomy_governance_pack"] = pack
+        st.session_state["autonomy_governance"] = pack["pack"]["autonomy_audit"]
+        st.success(f"Autonomy Governance Pack exported: {pack['markdown_path']}")
+
+    audit = st.session_state.get("autonomy_governance") or api("GET", "/governance/autonomy-audit")
+    st.session_state["autonomy_governance"] = audit
+    summary = audit["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Governance score", audit["governance_score"])
+    c2.metric("Status", audit["readiness_status"])
+    c3.metric("Runs audited", summary["run_count"])
+    c4.metric("Findings", summary["finding_count"])
+
+    st.subheader("Control Checks")
+    st.dataframe(audit["control_checks"], use_container_width=True, hide_index=True)
+
+    st.subheader("Run Governance")
+    st.dataframe(audit["run_governance"], use_container_width=True, hide_index=True)
+
+    st.subheader("Owner Action Plan")
+    st.dataframe(audit["owner_action_plan"], use_container_width=True, hide_index=True)
+
+    st.subheader("Policy Defaults")
+    st.json(audit["policy_defaults"])
+
+    st.subheader("Limitations")
+    for limitation in audit["limitations"]:
+        st.markdown(f"- {limitation}")
+
+    pack = st.session_state.get("autonomy_governance_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Autonomy Governance Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Decision Table")
+        st.dataframe(pack["pack"]["decision_table"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Autonomy Governance Pack JSON"):
             st.json(pack["pack"])

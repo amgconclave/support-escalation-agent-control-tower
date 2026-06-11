@@ -88,6 +88,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Audits local/mock LLM default posture, optional OpenAI/Azure credential readiness, fallback policy, and production activation tasks.",
     },
+    {
+        "name": "Autonomy Governance and Tool Trust Pack",
+        "directory": "data/autonomy_governance_packs",
+        "producer": "POST /governance/autonomy-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Audits autonomous loop budgets, trusted tool usage, HITL dispatch boundaries, token/cost visibility, and owner actions.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -127,6 +134,7 @@ REVIEWER_PURPOSES = {
     "data/data_residency_packs": EXTRA_ARTIFACTS[6]["reviewer_purpose"],
     "data/access_review_packs": EXTRA_ARTIFACTS[7]["reviewer_purpose"],
     "data/provider_readiness_packs": EXTRA_ARTIFACTS[8]["reviewer_purpose"],
+    "data/autonomy_governance_packs": EXTRA_ARTIFACTS[9]["reviewer_purpose"],
 }
 
 
