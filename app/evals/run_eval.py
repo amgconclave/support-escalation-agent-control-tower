@@ -59,6 +59,8 @@ async def run_eval() -> None:
     capacity_plan = await container.capacity_planning.export_staffing_plan()
     provider_readiness = await container.provider_readiness.readiness()
     provider_pack = await container.provider_readiness.export_pack()
+    communication_quality = await container.communication_quality.quality_audit()
+    communication_quality_pack = await container.communication_quality.export_quality_pack()
     passed = (
         correct_classification == total
         and correct_routing == total
@@ -70,6 +72,8 @@ async def run_eval() -> None:
         and capacity_forecast["queue_forecast"]
         and provider_readiness["readiness_status"] == "local_mock_ready"
         and provider_readiness["summary"]["secrets_exposed"] is False
+        and communication_quality["overall_score"] >= 60
+        and communication_quality["scenario_coverage"]["coverage_status"] == "pass"
     )
 
     print(f"Number of eval tickets: {total}")
@@ -101,6 +105,9 @@ async def run_eval() -> None:
     print(f"Provider Readiness status: {provider_readiness['readiness_status']}")
     print(f"Provider Readiness score: {provider_readiness['provider_score']}")
     print(f"Provider Readiness Pack: {provider_pack['markdown_path']}")
+    print(f"Communication Quality status: {communication_quality['status']}")
+    print(f"Communication Quality score: {communication_quality['overall_score']}")
+    print(f"Communication Quality Pack: {communication_quality_pack['markdown_path']}")
     print(f"Pass/fail summary: {'PASS' if passed else 'FAIL'}")
     if not passed:
         raise SystemExit(1)

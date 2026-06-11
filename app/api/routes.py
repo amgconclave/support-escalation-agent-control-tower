@@ -448,6 +448,22 @@ async def customer_comms_pack(request: Request):
     return await get_container(request).oncall_handoff.export_customer_comms_pack()
 
 
+@router.get("/communications/quality-audit", dependencies=[Depends(require_api_key)])
+async def communication_quality_audit(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).communication_quality.quality_audit(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/communications/quality-pack", dependencies=[Depends(require_api_key)])
+async def communication_quality_pack(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).communication_quality.export_quality_pack(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
 @router.get("/git/readiness", dependencies=[Depends(require_api_key)])
 async def git_readiness(request: Request):
     return await get_container(request).git_readiness.readiness()

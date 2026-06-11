@@ -236,6 +236,20 @@ def run_with_http_server() -> dict | None:
         )
         customer_comms_response.raise_for_status()
         result["customer_comms_pack"] = customer_comms_response.json()
+        communication_quality_response = requests.get(
+            f"{BASE}/communications/quality-audit",
+            headers=headers,
+            timeout=60,
+        )
+        communication_quality_response.raise_for_status()
+        result["communication_quality_audit"] = communication_quality_response.json()
+        communication_quality_pack_response = requests.post(
+            f"{BASE}/communications/quality-pack",
+            headers=headers,
+            timeout=60,
+        )
+        communication_quality_pack_response.raise_for_status()
+        result["communication_quality_pack"] = communication_quality_pack_response.json()
         git_readiness_response = requests.get(
             f"{BASE}/git/readiness",
             headers=headers,
@@ -563,6 +577,15 @@ def run_in_process() -> dict:
         )
         customer_comms_response.raise_for_status()
         result["customer_comms_pack"] = customer_comms_response.json()
+        communication_quality_response = client.get("/communications/quality-audit", headers={"x-api-key": token})
+        communication_quality_response.raise_for_status()
+        result["communication_quality_audit"] = communication_quality_response.json()
+        communication_quality_pack_response = client.post(
+            "/communications/quality-pack",
+            headers={"x-api-key": token},
+        )
+        communication_quality_pack_response.raise_for_status()
+        result["communication_quality_pack"] = communication_quality_pack_response.json()
         git_readiness_response = client.get("/git/readiness", headers={"x-api-key": token})
         git_readiness_response.raise_for_status()
         result["git_readiness"] = git_readiness_response.json()
@@ -697,6 +720,8 @@ def main():
     final_handoff_pack = result["final_handoff_pack"]
     on_call_handoff = result["on_call_handoff"]
     customer_comms_pack = result["customer_comms_pack"]
+    communication_quality = result["communication_quality_audit"]
+    communication_quality_pack = result["communication_quality_pack"]
     git_readiness = result["git_readiness"]
     git_push_plan = result["git_push_plan"]
     api_contract_audit = result["api_contract_audit"]
@@ -828,6 +853,13 @@ def main():
     )
     print("Customer Communications Pack:", customer_comms_pack["markdown_path"])
     print("Customer Communications JSON:", customer_comms_pack["json_path"])
+    print(
+        "Communication quality:",
+        communication_quality["status"],
+        f"score={communication_quality['overall_score']}",
+    )
+    print("Communication Quality Pack:", communication_quality_pack["markdown_path"])
+    print("Communication Quality JSON:", communication_quality_pack["json_path"])
     print("Git readiness:", git_readiness["status"], f"branch={git_readiness['current_branch'] or 'unknown'}")
     print("Git changed files:", git_readiness["summary"]["changed_count"])
     print("Push Plan:", git_push_plan["markdown_path"])

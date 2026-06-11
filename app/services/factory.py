@@ -12,6 +12,7 @@ from app.services.audit import AuditService
 from app.services.autonomy_governance import AutonomyGovernanceService
 from app.services.briefs import IncidentBriefService
 from app.services.capacity_planning import CapacityPlanningService
+from app.services.communication_quality import CustomerCommunicationQualityService
 from app.services.customers import CustomerHealthService
 from app.services.data_residency import DataResidencyService
 from app.services.daily_ops_brief import ExecutiveDailyOpsBriefService
@@ -260,6 +261,14 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "customer_comms_packs",
+        )
+        self.communication_quality = CustomerCommunicationQualityService(
+            self.store,
+            self.tickets,
+            self.workflow,
+            self.audit,
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "communication_quality_packs",
         )
         self.postmortem_rca = PostmortemRcaService(
             self.store,

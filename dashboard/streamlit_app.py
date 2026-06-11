@@ -78,6 +78,7 @@ tabs = st.tabs(
         "Provider Readiness",
         "Executive Daily Ops Brief",
         "Autonomy Governance",
+        "Communication Quality",
     ]
 )
 
@@ -2722,4 +2723,73 @@ with tabs[45]:
         st.dataframe(pack["pack"]["decision_table"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Autonomy Governance Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[46]:
+    run_id = st.text_input("Communication quality run ID", value=st.session_state.get("run_id", ""))
+    quality_path = f"/communications/quality-audit?run_id={run_id}" if run_id else "/communications/quality-audit"
+    pack_path = f"/communications/quality-pack?run_id={run_id}" if run_id else "/communications/quality-pack"
+    left, right = st.columns(2)
+    if left.button("Refresh Communication Quality", type="primary", use_container_width=True):
+        audit = api("GET", quality_path)
+        st.session_state["communication_quality_audit"] = audit
+        st.session_state["run_id"] = audit["run_id"]
+    if right.button("Export Communication Quality Pack", use_container_width=True):
+        pack = api("POST", pack_path)
+        st.session_state["communication_quality_pack"] = pack
+        st.session_state["communication_quality_audit"] = pack["pack"]["quality_audit"]
+        st.session_state["run_id"] = pack["pack"]["quality_audit"]["run_id"]
+        st.success(f"Communication Quality Pack exported: {pack['markdown_path']}")
+
+    audit = st.session_state.get("communication_quality_audit") or api("GET", quality_path)
+    st.session_state["communication_quality_audit"] = audit
+    gate = audit["quality_gate"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Overall score", audit["overall_score"])
+    c2.metric("Status", audit["status"])
+    c3.metric("Dispatch ready", str(gate["approved_for_dispatch"]))
+    c4.metric("Scenarios", audit["scenario_coverage"]["scenario_count"])
+
+    st.subheader("Score Dimensions")
+    st.dataframe(
+        [
+            {
+                "dimension": name,
+                "score": item["score"],
+                "status": item["status"],
+                "gaps": "; ".join(item["gaps"]),
+            }
+            for name, item in audit["score_dimensions"].items()
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Role Crew Review")
+    st.dataframe(audit["role_playbook_handoffs"], use_container_width=True, hide_index=True)
+
+    st.subheader("Reviewer Actions")
+    st.dataframe(audit["required_revisions"], use_container_width=True, hide_index=True)
+
+    st.subheader("Run Transparency")
+    st.json(audit["run_transparency"])
+
+    st.subheader("Artifact Handoffs")
+    st.dataframe(audit["artifact_handoffs"], use_container_width=True, hide_index=True)
+
+    st.subheader("Scenario Coverage")
+    st.dataframe(audit["scenario_coverage"]["scenarios"], use_container_width=True, hide_index=True)
+
+    pack = st.session_state.get("communication_quality_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Communication Quality Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(pack["markdown"])
+        with st.expander("Communication Quality JSON"):
             st.json(pack["pack"])

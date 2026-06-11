@@ -167,6 +167,12 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /handoff/customer-comms-pack` writes Markdown and JSON under `data/customer_comms_packs/`. The Customer Communications Simulation Pack includes customer update drafts, internal handoff, engineering ticket draft, SLA/customer-impact timeline, approval checklist, trace IDs, local proof commands, and Scenario Dataset coverage for high SLA risk, low-confidence approval pause, tool failure/retry, billing/privacy, and outage/API incidents. It is local/mock only and drafts communications without dispatching to Zendesk, Jira, Slack, Azure, OpenAI, GitHub, or external services.
 
+## Customer Communication Quality
+
+`GET /communications/quality-audit` evaluates drafted customer replies before approval or dispatch. It uses role-crew reviewers for empathy, specificity, policy compliance, and escalation clarity; returns role playbook handoffs, a pre-dispatch review gate, run transparency, artifact handoffs, required revisions, and deterministic Scenario Dataset coverage.
+
+`POST /communications/quality-pack` writes Markdown and JSON under `data/communication_quality_packs/`. The pack is a reviewer artifact for support leads and engineering managers to inspect customer-facing draft quality, guardrail blockers, role-review findings, and trace-backed handoff evidence. It remains local/mock only and does not send customer communications.
+
 ## Postmortem RCA and Corrective Actions
 
 `GET /incidents/postmortem-summary` returns the latest or deterministic sample Postmortem RCA summary. It connects tickets, runs, traces, approvals, outbox/customer comms state, on-call handoff readiness, and Scenario Dataset coverage into incident summary, severity, timeline, root cause category, contributing factors, impacted customer/account, approval/comms status, trace links, corrective actions, recurrence risk, customer follow-up state, readiness, and proof commands.

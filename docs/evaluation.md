@@ -556,6 +556,49 @@ Get-ChildItem -Recurse -File data\customer_comms_packs -ErrorAction SilentlyCont
 
 This On-Call Handoff check is local/mock only. It creates deterministic draft communications and proof artifacts without dispatching to customers or calling Azure, OpenAI, Zendesk, Jira, Slack, GitHub, or external services.
 
+## Customer Communication Quality Eval
+
+Call the communication quality audit:
+
+```powershell
+curl http://localhost:8000/communications/quality-audit `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- response title is `Customer Communication Quality Audit`
+- score dimensions include empathy, specificity, policy compliance, and escalation clarity
+- role crew includes empathy, specificity, policy guardrail, and engineering escalation reviewers
+- quality gate reports blockers, required approver, and dispatch readiness
+- run transparency includes node history, tool-call counts, approval ID, QA, and final action
+- scenario coverage includes outage, billing, privacy, webhook/API, and ambiguity paths
+
+Export the reviewer artifact:
+
+```powershell
+curl -X POST http://localhost:8000/communications/quality-pack `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- Markdown and JSON files are written under `data/communication_quality_packs/`
+- Markdown includes Score Dimensions, Role Crew Review, Reviewer Actions, Artifact Handoffs, Scenario Coverage, Local Proof Commands, and Limitations
+- pack is local/mock only and does not send customer-visible replies
+
+Required local Communication Quality verification command set:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m ruff check app tests dashboard scripts
+.\.venv\Scripts\python.exe -m app.evals.run_eval
+.\.venv\Scripts\python.exe scripts\dashboard_smoke.py
+.\.venv\Scripts\python.exe scripts\demo_run.py
+rg "communications/quality-audit|communications/quality-pack|Communication Quality|communication_quality_packs|empathy|specificity|escalation clarity" app dashboard docs README.md tests scripts
+Get-ChildItem -Recurse -File data\communication_quality_packs -ErrorAction SilentlyContinue | Select-Object FullName,Length,LastWriteTime
+```
+
 ## Postmortem RCA and Corrective Action Eval
 
 Inspect the Postmortem RCA summary:

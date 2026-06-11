@@ -95,6 +95,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Audits autonomous loop budgets, trusted tool usage, HITL dispatch boundaries, token/cost visibility, and owner actions.",
     },
+    {
+        "name": "Customer Communication Quality Pack",
+        "directory": "data/communication_quality_packs",
+        "producer": "POST /communications/quality-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Scores drafted replies for empathy, specificity, policy compliance, escalation clarity, role-review gates, and handoff readiness.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -135,6 +142,7 @@ REVIEWER_PURPOSES = {
     "data/access_review_packs": EXTRA_ARTIFACTS[7]["reviewer_purpose"],
     "data/provider_readiness_packs": EXTRA_ARTIFACTS[8]["reviewer_purpose"],
     "data/autonomy_governance_packs": EXTRA_ARTIFACTS[9]["reviewer_purpose"],
+    "data/communication_quality_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
 }
 
 

@@ -201,6 +201,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /handoff/customer-comms-pack`
   Writes Markdown and JSON under the ignored local customer communications folder, normally `data/customer_comms_packs/`. The pack includes customer update drafts, internal on-call handoff, engineering ticket draft, SLA/customer-impact timeline, approval checklist, guardrail status, trace IDs, deterministic coverage across Scenario Dataset paths, local proof commands, and limitations. It drafts only; it does not dispatch customer-visible communications.
 
+- `GET /communications/quality-audit`
+  Scores the latest or `run_id`-selected customer reply draft for empathy, specificity, policy compliance, and escalation clarity. The response includes role-crew reviewers, role playbook handoffs, a pre-dispatch review gate, run transparency, artifact handoffs, scenario coverage, required revisions, local proof commands, and limitations.
+
+- `POST /communications/quality-pack`
+  Writes Markdown and JSON under the ignored local communication quality folder, normally `data/communication_quality_packs/`. The pack packages the communication quality audit, reviewer actions, role-crew review, artifact handoffs, and run transparency for support lead review. It is local/mock only and never dispatches customer-visible messages.
+
 - `GET /git/readiness`
   Returns GitHub Push Readiness and Branch Hygiene checks from read-only local git inspection. The response includes git repo detection, current branch, tracked/untracked/modified/ignored summary, generated artifact directories that should stay ignored, changed source/doc/test/dashboard buckets, suspicious large/generated files, required GitHub Actions workflow presence, README final handoff mention, `.env.example` presence, dirty-worktree guidance, and recommended commit groups. It does not call GitHub APIs or mutate the repository.
 

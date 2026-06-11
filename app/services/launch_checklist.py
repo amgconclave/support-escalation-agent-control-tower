@@ -260,6 +260,12 @@ EXPECTED_ARTIFACTS = [
         "producer": "POST /governance/autonomy-pack",
         "formats": ["markdown", "json"],
     },
+    {
+        "name": "Customer Communication Quality Pack",
+        "directory": "data/communication_quality_packs",
+        "producer": "POST /communications/quality-pack",
+        "formats": ["markdown", "json"],
+    },
 ]
 
 
@@ -359,6 +365,8 @@ class LaunchChecklistService:
             self._row("POST", "/ui/verification-pack", True, "Writes the UI Verification Pack.", True, "data/ui_verification"),
             self._row("GET", "/handoff/on-call-summary", True, "Returns On-Call Handoff communication readiness.", False),
             self._row("POST", "/handoff/customer-comms-pack", True, "Writes Customer Communications proof.", True, "data/customer_comms_packs"),
+            self._row("GET", "/communications/quality-audit", True, "Scores customer reply draft quality before approval.", False),
+            self._row("POST", "/communications/quality-pack", True, "Writes the Customer Communication Quality Pack.", True, "data/communication_quality_packs"),
             self._row("GET", "/incidents/postmortem-summary", True, "Returns Postmortem RCA summary and corrective action status.", False),
             self._row("POST", "/incidents/rca-pack", True, "Writes Postmortem RCA + Corrective Action proof.", True, "data/rca_packs"),
             self._row("GET", "/git/readiness", True, "Returns local git push readiness and branch hygiene checks.", False),

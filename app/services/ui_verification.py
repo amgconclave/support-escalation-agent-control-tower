@@ -63,6 +63,7 @@ EXPECTED_VIEWS = [
     "Provider Readiness",
     "Executive Daily Ops Brief",
     "Autonomy Governance",
+    "Communication Quality",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -231,6 +232,18 @@ EXPECTED_ENDPOINTS = [
     {
         "endpoint": "POST /handoff/customer-comms-pack",
         "purpose": "Customer Communications Simulation Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "GET /communications/quality-audit",
+        "purpose": "Customer Communication Quality audit for drafted replies.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /communications/quality-pack",
+        "purpose": "Customer Communication Quality Pack export.",
         "dashboard_reference_required": True,
         "route_required": True,
     },
@@ -502,6 +515,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "On-Call Handoff",
         "producer_endpoint": "POST /handoff/customer-comms-pack",
         "artifact_directory": "data/customer_comms_packs",
+    },
+    {
+        "tab_label": "Communication Quality",
+        "producer_endpoint": "POST /communications/quality-pack",
+        "artifact_directory": "data/communication_quality_packs",
     },
     {
         "tab_label": "Git Readiness",
