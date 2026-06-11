@@ -116,6 +116,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Builds role crews, delegated task plans, process modes, review gates, run transparency, and artifact handoffs for support escalation operations.",
     },
+    {
+        "name": "Tool Governance and Marketplace Trust Pack",
+        "directory": "data/tool_governance_packs",
+        "producer": "POST /tools/governance-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Audits tool manifests, owners, risk tiers, data exposure, approval boundaries, unknown tool references, and marketplace intake gates.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -159,6 +166,7 @@ REVIEWER_PURPOSES = {
     "data/workflow_recovery_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
     "data/communication_quality_packs": EXTRA_ARTIFACTS[11]["reviewer_purpose"],
     "data/support_ops_packs": EXTRA_ARTIFACTS[12]["reviewer_purpose"],
+    "data/tool_governance_packs": EXTRA_ARTIFACTS[13]["reviewer_purpose"],
 }
 
 

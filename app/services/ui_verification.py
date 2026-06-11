@@ -66,6 +66,7 @@ EXPECTED_VIEWS = [
     "Durable Workflows",
     "Communication Quality",
     "Support Ops Crews",
+    "Tool Governance",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -429,6 +430,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /tools/registry",
+        "purpose": "Tool manifest registry with owners, risk tiers, data exposure, approval boundaries, and usage evidence.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /tools/governance-pack",
+        "purpose": "Tool Governance and Marketplace Trust Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -611,6 +624,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Support Ops Crews",
         "producer_endpoint": "POST /ops/crew-pack",
         "artifact_directory": "data/support_ops_packs",
+    },
+    {
+        "tab_label": "Tool Governance",
+        "producer_endpoint": "POST /tools/governance-pack",
+        "artifact_directory": "data/tool_governance_packs",
     },
 ]
 
@@ -953,6 +971,11 @@ class UIVerificationService:
                 "view": "Durable Workflows",
                 "placeholder": "screenshots/durable-workflows-recovery-queue.png",
                 "what_to_capture": "Durability score, checkpoint controls, resume tokens, recovery queue, and generated pack paths.",
+            },
+            {
+                "view": "Tool Governance",
+                "placeholder": "screenshots/tool-governance-registry.png",
+                "what_to_capture": "Tool governance score, manifest controls, approval matrix, unknown-tool queue, and generated pack paths.",
             },
         ]
 

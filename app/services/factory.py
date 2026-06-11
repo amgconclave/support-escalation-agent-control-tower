@@ -46,6 +46,7 @@ from app.services.runtime_demo import RuntimeDemoService
 from app.services.scenarios import ScenarioCatalogService
 from app.services.support_ops import SupportOperationsService
 from app.services.tickets import TicketService
+from app.services.tool_governance import ToolGovernanceService
 from app.services.trace import TraceService
 from app.services.ui_verification import UIVerificationService
 from app.services.workflow import AgentWorkflowService
@@ -377,4 +378,10 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "support_ops_packs",
+        )
+        self.tool_governance = ToolGovernanceService(
+            self.store,
+            self.workflow,
+            self.audit,
+            settings.state_file.parent / "tool_governance_packs",
         )

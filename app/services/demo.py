@@ -66,6 +66,8 @@ SCENARIO_ENDPOINTS = [
     "POST /handoff/customer-comms-pack",
     "GET /governance/autonomy-audit",
     "POST /governance/autonomy-pack",
+    "GET /tools/registry",
+    "POST /tools/governance-pack",
     "GET /metrics/agent-performance",
     "GET /audit/events",
 ]

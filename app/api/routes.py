@@ -578,6 +578,16 @@ async def support_ops_crew_pack(request: Request, run_id: str | None = None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
 
 
+@router.get("/tools/registry", dependencies=[Depends(require_api_key)])
+async def tool_registry(request: Request):
+    return await get_container(request).tool_governance.registry()
+
+
+@router.post("/tools/governance-pack", dependencies=[Depends(require_api_key)])
+async def tool_governance_pack(request: Request):
+    return await get_container(request).tool_governance.export_pack()
+
+
 @router.get("/runbooks/coverage-audit", dependencies=[Depends(require_api_key)])
 async def runbook_coverage_audit(request: Request):
     return await get_container(request).runbook_coverage.coverage_audit()

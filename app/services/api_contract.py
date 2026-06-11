@@ -49,6 +49,10 @@ VERIFY_COMMANDS = [
         r'role crews|task delegation|process modes" app dashboard docs README.md tests scripts'
     ),
     (
+        r'rg "tools/registry|tools/governance-pack|Tool Governance|tool_governance_packs|'
+        r'tool manifest|tool registry" app dashboard docs README.md tests scripts'
+    ),
+    (
         r"Get-ChildItem -Recurse -File data\api_contracts -ErrorAction SilentlyContinue "
         r"| Select-Object FullName,Length,LastWriteTime"
     ),
@@ -98,6 +102,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /workflows/durability-pack",
     "GET /ops/crew-plan",
     "POST /ops/crew-pack",
+    "GET /tools/registry",
+    "POST /tools/governance-pack",
     "GET /ops/daily-brief",
     "POST /ops/daily-brief-pack",
 ]
@@ -376,6 +382,8 @@ class ApiContractService:
             "POST /governance/autonomy-pack",
             "GET /workflows/durability-audit",
             "POST /workflows/durability-pack",
+            "GET /tools/registry",
+            "POST /tools/governance-pack",
         ]
         rows = [
             {

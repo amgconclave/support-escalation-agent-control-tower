@@ -264,6 +264,20 @@ def run_with_http_server() -> dict | None:
         )
         support_ops_pack_response.raise_for_status()
         result["support_ops_pack"] = support_ops_pack_response.json()
+        tool_registry_response = requests.get(
+            f"{BASE}/tools/registry",
+            headers=headers,
+            timeout=60,
+        )
+        tool_registry_response.raise_for_status()
+        result["tool_registry"] = tool_registry_response.json()
+        tool_governance_pack_response = requests.post(
+            f"{BASE}/tools/governance-pack",
+            headers=headers,
+            timeout=60,
+        )
+        tool_governance_pack_response.raise_for_status()
+        result["tool_governance_pack"] = tool_governance_pack_response.json()
         git_readiness_response = requests.get(
             f"{BASE}/git/readiness",
             headers=headers,
@@ -620,6 +634,12 @@ def run_in_process() -> dict:
         support_ops_pack_response = client.post("/ops/crew-pack", headers={"x-api-key": token})
         support_ops_pack_response.raise_for_status()
         result["support_ops_pack"] = support_ops_pack_response.json()
+        tool_registry_response = client.get("/tools/registry", headers={"x-api-key": token})
+        tool_registry_response.raise_for_status()
+        result["tool_registry"] = tool_registry_response.json()
+        tool_governance_pack_response = client.post("/tools/governance-pack", headers={"x-api-key": token})
+        tool_governance_pack_response.raise_for_status()
+        result["tool_governance_pack"] = tool_governance_pack_response.json()
         git_readiness_response = client.get("/git/readiness", headers={"x-api-key": token})
         git_readiness_response.raise_for_status()
         result["git_readiness"] = git_readiness_response.json()
@@ -764,6 +784,8 @@ def main():
     communication_quality_pack = result["communication_quality_pack"]
     support_ops_crew_plan = result["support_ops_crew_plan"]
     support_ops_pack = result["support_ops_pack"]
+    tool_registry = result["tool_registry"]
+    tool_governance_pack = result["tool_governance_pack"]
     git_readiness = result["git_readiness"]
     git_push_plan = result["git_push_plan"]
     api_contract_audit = result["api_contract_audit"]
@@ -912,6 +934,15 @@ def main():
     )
     print("Support Ops Pack:", support_ops_pack["markdown_path"])
     print("Support Ops JSON:", support_ops_pack["json_path"])
+    print(
+        "Tool Governance:",
+        tool_registry["readiness_status"],
+        f"score={tool_registry['tool_governance_score']}",
+        f"tools={tool_registry['summary']['registered_tool_count']}",
+        f"unknown={tool_registry['summary']['unknown_tool_count']}",
+    )
+    print("Tool Governance Pack:", tool_governance_pack["markdown_path"])
+    print("Tool Governance JSON:", tool_governance_pack["json_path"])
     print("Git readiness:", git_readiness["status"], f"branch={git_readiness['current_branch'] or 'unknown'}")
     print("Git changed files:", git_readiness["summary"]["changed_count"])
     print("Push Plan:", git_push_plan["markdown_path"])

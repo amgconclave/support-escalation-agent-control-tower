@@ -165,6 +165,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /ops/crew-pack`
   Writes Markdown and JSON under the ignored local support ops folder, normally `data/support_ops_packs/`. The pack includes the crew plan, delegation board, review-gate summary, artifact handoff packet, local proof commands, and limitations. It never dispatches customer or engineering actions.
 
+- `GET /tools/registry`
+  Returns the Tool Governance Registry. The response includes local tool manifests, owners, risk tiers, data exposure, approval boundaries, failure modes, observed usage, unknown tool references, marketplace intake policy, owner actions, proof commands, and local/mock limitations.
+
+- `POST /tools/governance-pack`
+  Writes Markdown and JSON under the ignored local tool governance folder, normally `data/tool_governance_packs/`. The pack includes the registry, approval matrix, production acceptance criteria, proof commands, and limitations. It does not call external tool marketplaces, SaaS tools, Azure, OpenAI, Slack, Jira, Zendesk, GitHub, or external networks.
+
 - `GET /ops/smoke-matrix`
   Returns the Local Launch Checklist smoke matrix for GitHub reviewers. Each row includes endpoint, purpose, auth requirement, expected status, sample `curl.exe` and PowerShell `Invoke-RestMethod` commands, artifact expectation, and the overall launch readiness summary.
 

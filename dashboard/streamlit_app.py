@@ -81,6 +81,7 @@ tabs = st.tabs(
         "Durable Workflows",
         "Communication Quality",
         "Support Ops Crews",
+        "Tool Governance",
     ]
 )
 
@@ -2915,4 +2916,69 @@ with tabs[48]:
         )
         st.markdown(pack["markdown"])
         with st.expander("Support Ops Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[49]:
+    left, right = st.columns(2)
+    if left.button("Refresh Tool Governance", type="primary", use_container_width=True):
+        st.session_state["tool_governance_registry"] = api("GET", "/tools/registry")
+    if right.button("Export Tool Governance Pack", use_container_width=True):
+        pack = api("POST", "/tools/governance-pack")
+        st.session_state["tool_governance_pack"] = pack
+        st.session_state["tool_governance_registry"] = pack["pack"]["tool_registry"]
+        st.success(f"Tool Governance Pack exported: {pack['markdown_path']}")
+
+    registry = st.session_state.get("tool_governance_registry") or api("GET", "/tools/registry")
+    st.session_state["tool_governance_registry"] = registry
+    summary = registry["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Tool governance score", registry["tool_governance_score"])
+    c2.metric("Status", registry["readiness_status"])
+    c3.metric("Registered tools", summary["registered_tool_count"])
+    c4.metric("Observed calls", summary["observed_tool_call_count"])
+
+    st.subheader("Tool Manifests")
+    st.dataframe(
+        [
+            {
+                "tool": item["tool_name"],
+                "owner": item["owner"],
+                "category": item["category"],
+                "risk": item["risk_tier"],
+                "calls": item["observed_call_count"],
+                "errors": item["observed_error_count"],
+                "controls": item["control_status"],
+                "rollout": item["rollout_state"],
+            }
+            for item in registry["tool_manifests"]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Control Checks")
+    st.dataframe(registry["control_checks"], use_container_width=True, hide_index=True)
+
+    st.subheader("Unknown Tool References")
+    st.dataframe(registry["unknown_tool_references"], use_container_width=True, hide_index=True)
+
+    st.subheader("Marketplace Intake Policy")
+    st.json(registry["marketplace_intake_policy"])
+
+    st.subheader("Owner Action Plan")
+    st.dataframe(registry["owner_action_plan"], use_container_width=True, hide_index=True)
+
+    pack = st.session_state.get("tool_governance_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Tool Governance Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.dataframe(pack["pack"]["approval_matrix"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Tool Governance Pack JSON"):
             st.json(pack["pack"])
