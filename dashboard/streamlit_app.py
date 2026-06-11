@@ -73,6 +73,7 @@ tabs = st.tabs(
         "Evidence Retention",
         "Capacity Planning",
         "Data Residency",
+        "Access Control",
     ]
 )
 
@@ -2431,4 +2432,72 @@ with tabs[40]:
         st.dataframe(pack["pack"]["review_queue"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Data Residency Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[41]:
+    left, right = st.columns(2)
+    if left.button("Refresh Access Matrix", type="primary", use_container_width=True):
+        st.session_state["access_matrix"] = api("GET", "/security/access-matrix")
+    if right.button("Export Access Review Pack", use_container_width=True):
+        pack = api("POST", "/security/access-review-pack")
+        st.session_state["access_review_pack"] = pack
+        st.session_state["access_matrix"] = pack["pack"]["access_matrix"]
+        st.success(f"Access Review Pack exported: {pack['markdown_path']}")
+
+    matrix = st.session_state.get("access_matrix") or api("GET", "/security/access-matrix")
+    st.session_state["access_matrix"] = matrix
+    summary = matrix["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Least-privilege score", summary["least_privilege_score"])
+    c2.metric("Status", matrix["status"])
+    c3.metric("Protected", summary["protected_endpoint_count"])
+    c4.metric("Findings", summary["critical_finding_count"] + summary["high_finding_count"])
+
+    st.subheader("Auth Model")
+    st.json(matrix["auth_model"])
+
+    st.subheader("Roles")
+    st.dataframe(matrix["roles"], use_container_width=True, hide_index=True)
+
+    st.subheader("Domain Ownership")
+    st.dataframe(matrix["domain_ownership"], use_container_width=True, hide_index=True)
+
+    st.subheader("Endpoint Access Matrix")
+    st.dataframe(
+        [
+            {
+                "endpoint": item["endpoint"],
+                "sensitivity": item["sensitivity"],
+                "owner_role": item["owner_role"],
+                "allowed_roles": ", ".join(item["allowed_roles"]),
+                "production_scope": item["production_scope"],
+                "approval": item["requires_human_approval"],
+            }
+            for item in matrix["access_matrix"]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Findings")
+    st.json(matrix["findings"])
+
+    st.subheader("Limitations")
+    for limitation in matrix["limitations"]:
+        st.markdown(f"- {limitation}")
+
+    pack = st.session_state.get("access_review_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Access Review Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Production Authz Backlog")
+        st.dataframe(pack["pack"]["production_authz_backlog"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Access Review Pack JSON"):
             st.json(pack["pack"])

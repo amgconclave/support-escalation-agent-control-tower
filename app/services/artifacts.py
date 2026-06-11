@@ -74,6 +74,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Audits local support tickets, drafts, approvals, outbox payloads, and account regions for PII and residency review risk.",
     },
+    {
+        "name": "Access Control Review Pack",
+        "directory": "data/access_review_packs",
+        "producer": "POST /security/access-review-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Maps FastAPI endpoints to least-privilege roles, production scopes, findings, and authz acceptance criteria.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -110,6 +117,7 @@ REVIEWER_PURPOSES = {
     "data/evidence_packs": EXTRA_ARTIFACTS[5]["reviewer_purpose"],
     "data/capacity_plans": "Support capacity forecast proof with queue load, staffing gaps, owners, and local remediation actions.",
     "data/data_residency_packs": EXTRA_ARTIFACTS[6]["reviewer_purpose"],
+    "data/access_review_packs": EXTRA_ARTIFACTS[7]["reviewer_purpose"],
 }
 
 

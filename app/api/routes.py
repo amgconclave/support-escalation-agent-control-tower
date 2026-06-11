@@ -458,6 +458,16 @@ async def api_reviewer_collection(request: Request):
     return await get_container(request).api_contract.export_reviewer_collection(request.app)
 
 
+@router.get("/security/access-matrix", dependencies=[Depends(require_api_key)])
+async def security_access_matrix(request: Request):
+    return await get_container(request).access_control.matrix(request.app)
+
+
+@router.post("/security/access-review-pack", dependencies=[Depends(require_api_key)])
+async def security_access_review_pack(request: Request):
+    return await get_container(request).access_control.export_review_pack(request.app)
+
+
 @router.get("/runtime/demo-readiness")
 async def runtime_demo_readiness(request: Request):
     return await get_container(request).runtime_demo.readiness()

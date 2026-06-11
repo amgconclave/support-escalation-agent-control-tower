@@ -363,6 +363,20 @@ def run_with_http_server() -> dict | None:
         )
         data_residency_pack_response.raise_for_status()
         result["data_residency_pack"] = data_residency_pack_response.json()
+        access_matrix_response = requests.get(
+            f"{BASE}/security/access-matrix",
+            headers=headers,
+            timeout=60,
+        )
+        access_matrix_response.raise_for_status()
+        result["access_matrix"] = access_matrix_response.json()
+        access_pack_response = requests.post(
+            f"{BASE}/security/access-review-pack",
+            headers=headers,
+            timeout=60,
+        )
+        access_pack_response.raise_for_status()
+        result["access_review_pack"] = access_pack_response.json()
         result["mode"] = "http"
         return result
     except Exception:
@@ -561,6 +575,12 @@ def run_in_process() -> dict:
         )
         data_residency_pack_response.raise_for_status()
         result["data_residency_pack"] = data_residency_pack_response.json()
+        access_matrix_response = client.get("/security/access-matrix", headers={"x-api-key": token})
+        access_matrix_response.raise_for_status()
+        result["access_matrix"] = access_matrix_response.json()
+        access_pack_response = client.post("/security/access-review-pack", headers={"x-api-key": token})
+        access_pack_response.raise_for_status()
+        result["access_review_pack"] = access_pack_response.json()
         result["mode"] = "in-process"
         return result
 
@@ -615,6 +635,8 @@ def main():
     capacity_plan = result["capacity_plan"]
     data_residency_audit = result["data_residency_audit"]
     data_residency_pack = result["data_residency_pack"]
+    access_matrix = result["access_matrix"]
+    access_review_pack = result["access_review_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
 
@@ -793,6 +815,14 @@ def main():
     )
     print("Data Residency Pack:", data_residency_pack["markdown_path"])
     print("Data Residency JSON:", data_residency_pack["json_path"])
+    print(
+        "Access control:",
+        access_matrix["status"],
+        f"score={access_matrix['summary']['least_privilege_score']}",
+        f"protected={access_matrix['summary']['protected_endpoint_count']}",
+    )
+    print("Access Review Pack:", access_review_pack["markdown_path"])
+    print("Access Review JSON:", access_review_pack["json_path"])
     print("Incident impact status:", metrics["incident_impact_status"])
     print("Incident narrative:", metrics["incident_narrative_path"])
     print("Finance impact artifact:", metrics["finance_impact_path"])

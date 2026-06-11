@@ -58,6 +58,7 @@ EXPECTED_VIEWS = [
     "Evidence Retention",
     "Capacity Planning",
     "Data Residency",
+    "Access Control",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -325,6 +326,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /security/access-matrix",
+        "purpose": "Least-privilege access matrix over the local FastAPI route inventory.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /security/access-review-pack",
+        "purpose": "Access Control Review Pack export with role scopes and production authz backlog.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -467,6 +480,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Data Residency",
         "producer_endpoint": "POST /compliance/data-residency-pack",
         "artifact_directory": "data/data_residency_packs",
+    },
+    {
+        "tab_label": "Access Control",
+        "producer_endpoint": "POST /security/access-review-pack",
+        "artifact_directory": "data/access_review_packs",
     },
 ]
 

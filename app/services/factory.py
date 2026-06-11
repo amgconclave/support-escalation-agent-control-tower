@@ -7,6 +7,7 @@ from app.services.analytics import AnalyticsService
 from app.services.approvals import ApprovalService
 from app.services.api_contract import ApiContractService
 from app.services.artifacts import ArtifactInventoryService
+from app.services.access_control import AccessControlService
 from app.services.audit import AuditService
 from app.services.briefs import IncidentBriefService
 from app.services.capacity_planning import CapacityPlanningService
@@ -272,6 +273,9 @@ class ServiceContainer:
         )
         self.api_contract = ApiContractService(
             settings.state_file.parent / "api_contracts",
+        )
+        self.access_control = AccessControlService(
+            settings.state_file.parent / "access_review_packs",
         )
         self.runtime_demo = RuntimeDemoService(
             settings.state_file.parent / "runtime_packs",

@@ -43,6 +43,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Evidence Retention audit for trace, approval, outbox, audit-event, artifact, SHA-256 hash coverage, dashboard wiring, demo output, and pack export under `data/evidence_packs/`
 - Capacity Planning queue load, required/available FTE, staffing gaps, dashboard wiring, demo/eval output, and Staffing Plan export under `data/capacity_plans/`
 - Data Residency and PII Exposure audit for local PII, restricted-region, regulated-segment, approval, outbox exposure, dashboard wiring, demo output, and pack export under `data/data_residency_packs/`
+- Access Control Matrix role mapping, production scopes, shared-demo-key findings, dashboard wiring, demo output, and Review Pack export under `data/access_review_packs/`
 - Dashboard Smoke source wiring for Streamlit views, endpoint references, generated artifact tabs, and UI Verification Pack export under `data/ui_verification/`
 - metrics aggregation
 - auth behavior

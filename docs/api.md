@@ -225,6 +225,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /compliance/data-residency-pack`
   Writes Markdown and JSON under the ignored data residency folder, normally `data/data_residency_packs/`. The pack includes executive summary, review queue, control owner actions, acceptance criteria, local verification commands, and local/mock limitations.
 
+- `GET /security/access-matrix`
+  Returns a local least-privilege access matrix over FastAPI/OpenAPI route metadata. The response includes public/protected endpoint counts, proposed roles, domain ownership, endpoint production scopes, human-approval markers, findings, sample commands, and local/demo auth limitations.
+
+- `POST /security/access-review-pack`
+  Writes Markdown and JSON under the ignored access review folder, normally `data/access_review_packs/`. The pack includes the access matrix, least-privilege acceptance criteria, production authorization backlog, reviewer walkthrough, local verification commands, and local/mock limitations.
+
 - `POST /ops/runbook-qa`
   Evaluates operator handoff completeness for a supplied `run_id`, the latest local run, or a deterministic sample fallback when no run exists. The response includes score, pass/fail status, missing sections, warnings, linked artifact paths, and recommended fixes for ticket summary, classification, SLA risk, customer impact, KB context, drafts, approval state, trace ID, outbox, failure drill, remediation owners, SLO budget, optimization recommendations, and customer/account health.
 
@@ -534,6 +540,16 @@ curl http://localhost:8000/api/contract-audit \
   -H "x-api-key: demo-control-tower-key"
 
 curl -X POST http://localhost:8000/api/reviewer-collection \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Review least-privilege access and export the Access Control Review Pack:
+
+```bash
+curl http://localhost:8000/security/access-matrix \
+  -H "x-api-key: demo-control-tower-key"
+
+curl -X POST http://localhost:8000/security/access-review-pack \
   -H "x-api-key: demo-control-tower-key"
 ```
 

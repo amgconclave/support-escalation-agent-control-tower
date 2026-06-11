@@ -233,6 +233,12 @@ The response returns the policy decision, required approval type, approval chain
 
 `POST /policies/change-pack` writes Markdown and JSON under `data/policy_change_packs/`. The pack is reviewer-facing evidence for policy-change management: approval thresholds, confidence cutoffs, SLA routing changes, blast-radius scoring, scenario-level before/after decisions, local verification commands, and interviewer talking points.
 
+## Access Control Matrix and Review Pack
+
+`GET /security/access-matrix` inspects the local FastAPI route inventory, public/protected route dependency metadata, endpoint domains, and HTTP methods. It returns a least-privilege matrix that maps each endpoint to proposed roles, production scopes, owner roles, sensitivity labels, human-approval markers, and findings.
+
+`POST /security/access-review-pack` writes Markdown and JSON under `data/access_review_packs/`. The pack is local reviewer evidence for production authz planning: role definitions, domain ownership, route-level scopes, findings for the shared demo key, least-privilege acceptance criteria, production backlog items, verification commands, and explicit local-only limitations.
+
 ## Customer Impact Timeline and Executive Incident Narrative
 
 `POST /incidents/timeline` is the executive story layer over the local control tower evidence. It accepts an optional `run_id`; without one, it uses the latest local run or bootstraps a deterministic sample incident. The service builds a time-ordered Customer Impact Timeline from the ticket, workflow trace, human approvals, outbox dispatches, incident brief, remediation checklist, weekly review, account brief, SLO posture, Replay Lab output, and policy guardrail decision.

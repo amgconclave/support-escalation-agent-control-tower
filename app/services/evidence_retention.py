@@ -53,6 +53,7 @@ EVIDENCE_ARTIFACT_DIRECTORIES = [
     "runtime_packs",
     "scenario_packs",
     "data_residency_packs",
+    "access_review_packs",
 ]
 
 
