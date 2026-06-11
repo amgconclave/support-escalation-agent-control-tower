@@ -109,6 +109,12 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /providers/readiness-pack` writes Markdown and JSON under `data/provider_readiness_packs/`. The pack includes provider checks, an activation checklist, acceptance criteria, local commands, JD skills demonstrated, and interviewer talking points. It remains local/mock only and does not call OpenAI, Azure OpenAI, Zendesk, Jira, Slack, GitHub, or any external service.
 
+## Durable Workflow Recovery Pack
+
+Each workflow node now writes a checkpoint into the persisted run state with the node name, status, latency, state keys, approval status, final action, and a resume token. This keeps the local LangGraph path durable enough for reviewer inspection and operator recovery without requiring cloud queues or paid providers.
+
+`GET /workflows/durability-audit` audits recent runs for checkpoint coverage, pending-approval resume readiness, dispatch-boundary safety, and operator recovery actions. `POST /workflows/durability-pack` writes Markdown and JSON under `data/workflow_recovery_packs/` with the recovery decision table, acceptance criteria, and limitations. Recovery remains explicit: operators approve, reject, replay, or repair; the service does not auto-resume partial external actions.
+
 ## Local Launch Checklist and Smoke Matrix
 
 `GET /ops/smoke-matrix` is the reviewer-facing smoke surface. It lists the key local endpoints, whether they require an API key, expected status codes, sample `curl.exe` and PowerShell commands, artifact expectations, and a launch readiness summary.

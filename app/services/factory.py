@@ -48,6 +48,7 @@ from app.services.tickets import TicketService
 from app.services.trace import TraceService
 from app.services.ui_verification import UIVerificationService
 from app.services.workflow import AgentWorkflowService
+from app.services.workflow_recovery import WorkflowRecoveryService
 
 
 class ServiceContainer:
@@ -357,4 +358,13 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "autonomy_governance_packs",
+        )
+        self.workflow_recovery = WorkflowRecoveryService(
+            self.store,
+            self.tickets,
+            self.approvals,
+            self.workflow,
+            self.audit,
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "workflow_recovery_packs",
         )

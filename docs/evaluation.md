@@ -45,6 +45,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Data Residency and PII Exposure audit for local PII, restricted-region, regulated-segment, approval, outbox exposure, dashboard wiring, demo output, and pack export under `data/data_residency_packs/`
 - Access Control Matrix role mapping, production scopes, shared-demo-key findings, dashboard wiring, demo output, and Review Pack export under `data/access_review_packs/`
 - Provider Readiness audit for local/mock default posture, optional OpenAI/Azure credential readiness, secret redaction, dashboard wiring, demo/eval output, and Guard Pack export under `data/provider_readiness_packs/`
+- Durable Workflow Recovery audit for persisted checkpoints, resume tokens, HITL recovery readiness, dashboard wiring, demo output, and Recovery Pack export under `data/workflow_recovery_packs/`
 - Dashboard Smoke source wiring for Streamlit views, endpoint references, generated artifact tabs, and UI Verification Pack export under `data/ui_verification/`
 - metrics aggregation
 - auth behavior

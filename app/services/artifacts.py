@@ -96,6 +96,13 @@ EXTRA_ARTIFACTS = [
         "reviewer_purpose": "Audits autonomous loop budgets, trusted tool usage, HITL dispatch boundaries, token/cost visibility, and owner actions.",
     },
     {
+        "name": "Durable Workflow Recovery Pack",
+        "directory": "data/workflow_recovery_packs",
+        "producer": "POST /workflows/durability-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Audits persisted workflow checkpoints, resume tokens, HITL recovery readiness, and operator recovery queues.",
+    },
+    {
         "name": "Customer Communication Quality Pack",
         "directory": "data/communication_quality_packs",
         "producer": "POST /communications/quality-pack",
@@ -142,7 +149,8 @@ REVIEWER_PURPOSES = {
     "data/access_review_packs": EXTRA_ARTIFACTS[7]["reviewer_purpose"],
     "data/provider_readiness_packs": EXTRA_ARTIFACTS[8]["reviewer_purpose"],
     "data/autonomy_governance_packs": EXTRA_ARTIFACTS[9]["reviewer_purpose"],
-    "data/communication_quality_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
+    "data/workflow_recovery_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
+    "data/communication_quality_packs": EXTRA_ARTIFACTS[11]["reviewer_purpose"],
 }
 
 

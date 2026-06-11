@@ -170,10 +170,61 @@ class AgentWorkflowService:
     async def _node(self, state: AgentWorkflowState, node: str, fn: Callable[[], Any]) -> AgentWorkflowState:
         start = time.perf_counter()
         state.setdefault("node_history", []).append(node)
-        async with self.trace_service.node_span(state["run_id"], state["trace_id"], state["ticket_id"], node):
-            state = await fn()
-        await self.metrics_service.record_node_metrics(node, (time.perf_counter() - start) * 1000)
+        status = "completed"
+        try:
+            async with self.trace_service.node_span(state["run_id"], state["trace_id"], state["ticket_id"], node):
+                state = await fn()
+        except Exception as exc:
+            status = "failed"
+            state["failure_state"] = {
+                "node": node,
+                "error": str(exc),
+                "failed_at": datetime.now(timezone.utc).isoformat(),
+            }
+            raise
+        finally:
+            latency_ms = (time.perf_counter() - start) * 1000
+            await self.metrics_service.record_node_metrics(node, latency_ms)
+            await self._checkpoint_state(state, node, status, latency_ms)
         return state
+
+    async def _checkpoint_state(
+        self,
+        workflow_state: AgentWorkflowState,
+        node: str,
+        status: str,
+        latency_ms: float,
+    ) -> None:
+        checkpoints = workflow_state.setdefault("checkpoints", [])
+        checkpoint = {
+            "checkpoint_id": f"chk_{len(checkpoints) + 1:03d}",
+            "sequence": len(checkpoints) + 1,
+            "node": node,
+            "status": status,
+            "persisted_at": datetime.now(timezone.utc).isoformat(),
+            "latency_ms": round(latency_ms, 2),
+            "approval_status": workflow_state.get("approval_status", ""),
+            "final_action": workflow_state.get("final_action", ""),
+            "state_keys": sorted(workflow_state.keys()),
+        }
+        checkpoints.append(checkpoint)
+        workflow_state["durability"] = {
+            "checkpoint_count": len(checkpoints),
+            "latest_checkpoint_id": checkpoint["checkpoint_id"],
+            "latest_node": node,
+            "latest_status": status,
+            "resume_token": f"{workflow_state['run_id']}:{checkpoint['checkpoint_id']}",
+            "store": self.store.__class__.__name__,
+        }
+
+        def mutate(state):
+            raw = state["runs"].get(workflow_state["run_id"])
+            if raw:
+                raw["state"] = workflow_state
+                raw["failure_state"] = workflow_state.get("failure_state")
+                state["runs"][workflow_state["run_id"]] = raw
+
+        await self.store.update(mutate)
 
     async def intake_classifier(self, state: AgentWorkflowState) -> AgentWorkflowState:
         async def work():

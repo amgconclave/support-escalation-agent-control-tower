@@ -433,6 +433,20 @@ def run_with_http_server() -> dict | None:
         )
         autonomy_pack_response.raise_for_status()
         result["autonomy_governance_pack"] = autonomy_pack_response.json()
+        workflow_durability_response = requests.get(
+            f"{BASE}/workflows/durability-audit",
+            headers=headers,
+            timeout=60,
+        )
+        workflow_durability_response.raise_for_status()
+        result["workflow_durability"] = workflow_durability_response.json()
+        workflow_durability_pack_response = requests.post(
+            f"{BASE}/workflows/durability-pack",
+            headers=headers,
+            timeout=60,
+        )
+        workflow_durability_pack_response.raise_for_status()
+        result["workflow_durability_pack"] = workflow_durability_pack_response.json()
         daily_brief_response = requests.get(
             f"{BASE}/ops/daily-brief",
             headers=headers,
@@ -678,6 +692,12 @@ def run_in_process() -> dict:
         autonomy_pack_response = client.post("/governance/autonomy-pack", headers={"x-api-key": token})
         autonomy_pack_response.raise_for_status()
         result["autonomy_governance_pack"] = autonomy_pack_response.json()
+        workflow_durability_response = client.get("/workflows/durability-audit", headers={"x-api-key": token})
+        workflow_durability_response.raise_for_status()
+        result["workflow_durability"] = workflow_durability_response.json()
+        workflow_durability_pack_response = client.post("/workflows/durability-pack", headers={"x-api-key": token})
+        workflow_durability_pack_response.raise_for_status()
+        result["workflow_durability_pack"] = workflow_durability_pack_response.json()
         daily_brief_response = client.get("/ops/daily-brief", headers={"x-api-key": token})
         daily_brief_response.raise_for_status()
         result["daily_ops_brief"] = daily_brief_response.json()
@@ -748,6 +768,8 @@ def main():
     provider_readiness_pack = result["provider_readiness_pack"]
     autonomy_governance = result["autonomy_governance"]
     autonomy_governance_pack = result["autonomy_governance_pack"]
+    workflow_durability = result["workflow_durability"]
+    workflow_durability_pack = result["workflow_durability_pack"]
     daily_ops_brief = result["daily_ops_brief"]
     daily_ops_brief_pack = result["daily_ops_brief_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
@@ -969,6 +991,14 @@ def main():
     )
     print("Autonomy Governance Pack:", autonomy_governance_pack["markdown_path"])
     print("Autonomy Governance JSON:", autonomy_governance_pack["json_path"])
+    print(
+        "Workflow Durability:",
+        workflow_durability["readiness_status"],
+        f"score={workflow_durability['durability_score']}",
+        f"checkpoints={workflow_durability['summary']['checkpoint_count']}",
+    )
+    print("Workflow Durability Pack:", workflow_durability_pack["markdown_path"])
+    print("Workflow Durability JSON:", workflow_durability_pack["json_path"])
     print(
         "Daily Ops Brief:",
         daily_ops_brief["status"],

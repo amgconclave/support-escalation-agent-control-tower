@@ -524,6 +524,16 @@ async def autonomy_governance_pack(request: Request):
     return await get_container(request).autonomy_governance.export_pack()
 
 
+@router.get("/workflows/durability-audit", dependencies=[Depends(require_api_key)])
+async def workflow_durability_audit(request: Request):
+    return await get_container(request).workflow_recovery.durability_audit()
+
+
+@router.post("/workflows/durability-pack", dependencies=[Depends(require_api_key)])
+async def workflow_durability_pack(request: Request):
+    return await get_container(request).workflow_recovery.export_pack()
+
+
 @router.get("/runtime/demo-readiness")
 async def runtime_demo_readiness(request: Request):
     return await get_container(request).runtime_demo.readiness()

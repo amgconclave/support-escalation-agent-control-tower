@@ -78,6 +78,7 @@ tabs = st.tabs(
         "Provider Readiness",
         "Executive Daily Ops Brief",
         "Autonomy Governance",
+        "Durable Workflows",
         "Communication Quality",
     ]
 )
@@ -2726,6 +2727,57 @@ with tabs[45]:
             st.json(pack["pack"])
 
 with tabs[46]:
+    left, right = st.columns(2)
+    if left.button("Refresh Durable Workflow Audit", type="primary", use_container_width=True):
+        st.session_state["workflow_durability"] = api("GET", "/workflows/durability-audit")
+    if right.button("Export Durable Workflow Pack", use_container_width=True):
+        pack = api("POST", "/workflows/durability-pack")
+        st.session_state["workflow_durability_pack"] = pack
+        st.session_state["workflow_durability"] = pack["pack"]["durability_audit"]
+        st.success(f"Durable Workflow Pack exported: {pack['markdown_path']}")
+
+    audit = st.session_state.get("workflow_durability") or api("GET", "/workflows/durability-audit")
+    st.session_state["workflow_durability"] = audit
+    summary = audit["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Durability score", audit["durability_score"])
+    c2.metric("Status", audit["readiness_status"])
+    c3.metric("Checkpoints", summary["checkpoint_count"])
+    c4.metric("Resume-ready", summary["resume_ready_count"])
+
+    st.subheader("Control Checks")
+    st.dataframe(audit["control_checks"], use_container_width=True, hide_index=True)
+
+    st.subheader("Run Recovery")
+    st.dataframe(audit["run_recovery"], use_container_width=True, hide_index=True)
+
+    st.subheader("Operator Recovery Queue")
+    st.dataframe(audit["operator_recovery_queue"], use_container_width=True, hide_index=True)
+
+    st.subheader("Resume Policy")
+    st.json(audit["resume_policy"])
+
+    st.subheader("Limitations")
+    for limitation in audit["limitations"]:
+        st.markdown(f"- {limitation}")
+
+    pack = st.session_state.get("workflow_durability_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Durable Workflow Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Recovery Decision Table")
+        st.dataframe(pack["pack"]["recovery_decision_table"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Durable Workflow Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[47]:
     run_id = st.text_input("Communication quality run ID", value=st.session_state.get("run_id", ""))
     quality_path = f"/communications/quality-audit?run_id={run_id}" if run_id else "/communications/quality-audit"
     pack_path = f"/communications/quality-pack?run_id={run_id}" if run_id else "/communications/quality-pack"

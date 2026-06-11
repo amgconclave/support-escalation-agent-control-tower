@@ -71,6 +71,7 @@ The default persistence layer is a local SQLite database configured by `CONTROL_
 - Capacity Forecast and Staffing Plan artifacts under ignored `data/capacity_plans/`
 - Postmortem RCA + Corrective Action Tracking Pack artifacts under ignored `data/rca_packs/`
 - Provider Readiness Guard Pack artifacts under ignored `data/provider_readiness_packs/`
+- Durable Workflow Recovery Pack artifacts under ignored `data/workflow_recovery_packs/`
 
 This keeps local setup dependency-free while still using a real durable database that persists state across process restarts.
 
@@ -85,6 +86,8 @@ The project runs locally with `LocalMockLlmProvider`. Optional OpenAI or Azure O
 All business endpoints require `x-api-key` or `Authorization: Bearer`. `/health` and `/auth/demo-token` are open for local demo use.
 
 Every request gets an `x-trace-id`. Workflow runs get their own durable trace ID and trace events for node starts, node completions, tool calls, errors, latency, token use, cost, final action, and failure state.
+
+Workflow node completions also persist checkpoint metadata into each run state. `GET /workflows/durability-audit` turns those checkpoints into a recovery view with resume tokens, HITL readiness, missing-checkpoint findings, and dispatch-boundary checks. `POST /workflows/durability-pack` writes a local recovery pack under `data/workflow_recovery_packs/`. It is a local operator surface, not a distributed worker lease or cloud checkpoint manager.
 
 Runbook QA is an observability consumer rather than another external integration. It reads local state and generated artifacts, can bootstrap a deterministic sample when no run exists, and never calls real Zendesk, Jira, Slack, Azure, or OpenAI services.
 

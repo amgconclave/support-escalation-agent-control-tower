@@ -334,3 +334,5 @@ class AgentWorkflowState(TypedDict, total=False):
     node_history: list[str]
     tool_calls: list[dict[str, Any]]
     metrics: dict[str, Any]
+    checkpoints: list[dict[str, Any]]
+    durability: dict[str, Any]

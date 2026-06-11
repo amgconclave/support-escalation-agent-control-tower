@@ -63,6 +63,7 @@ EXPECTED_VIEWS = [
     "Provider Readiness",
     "Executive Daily Ops Brief",
     "Autonomy Governance",
+    "Durable Workflows",
     "Communication Quality",
 ]
 
@@ -392,6 +393,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "GET /workflows/durability-audit",
+        "purpose": "Durable workflow checkpoint and recovery readiness audit.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /workflows/durability-pack",
+        "purpose": "Durable Workflow Recovery Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "GET /ops/daily-brief",
         "purpose": "Executive Daily Ops Brief command-center summary.",
         "dashboard_reference_required": True,
@@ -575,6 +588,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Autonomy Governance",
         "producer_endpoint": "POST /governance/autonomy-pack",
         "artifact_directory": "data/autonomy_governance_packs",
+    },
+    {
+        "tab_label": "Durable Workflows",
+        "producer_endpoint": "POST /workflows/durability-pack",
+        "artifact_directory": "data/workflow_recovery_packs",
     },
 ]
 
@@ -912,6 +930,11 @@ class UIVerificationService:
                 "view": "Autonomy Governance",
                 "placeholder": "screenshots/autonomy-governance-tool-trust.png",
                 "what_to_capture": "Governance score, loop budget controls, tool trust findings, owner actions, and generated pack paths.",
+            },
+            {
+                "view": "Durable Workflows",
+                "placeholder": "screenshots/durable-workflows-recovery-queue.png",
+                "what_to_capture": "Durability score, checkpoint controls, resume tokens, recovery queue, and generated pack paths.",
             },
         ]
 

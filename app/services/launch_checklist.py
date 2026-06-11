@@ -261,6 +261,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Durable Workflow Recovery Pack",
+        "directory": "data/workflow_recovery_packs",
+        "producer": "POST /workflows/durability-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Customer Communication Quality Pack",
         "directory": "data/communication_quality_packs",
         "producer": "POST /communications/quality-pack",
@@ -391,6 +397,8 @@ class LaunchChecklistService:
             self._row("POST", "/providers/readiness-pack", True, "Writes the Provider Readiness Guard Pack.", True, "data/provider_readiness_packs"),
             self._row("GET", "/governance/autonomy-audit", True, "Returns autonomy loop budget, tool trust, HITL, token, and cost governance checks.", False),
             self._row("POST", "/governance/autonomy-pack", True, "Writes the Autonomy Governance and Tool Trust Pack.", True, "data/autonomy_governance_packs"),
+            self._row("GET", "/workflows/durability-audit", True, "Returns durable workflow checkpoint, resume token, and recovery checks.", False),
+            self._row("POST", "/workflows/durability-pack", True, "Writes the Durable Workflow Recovery Pack.", True, "data/workflow_recovery_packs"),
             self._row("GET", "/ops/daily-brief", True, "Returns the Executive Daily Ops Brief command-center summary.", False),
             self._row("POST", "/ops/daily-brief-pack", True, "Writes the Executive Daily Ops Brief Pack.", True, "data/daily_ops_briefs"),
             self._row("POST", "/tickets/ingest-samples", True, "Loads sample tickets for manual demos.", False),

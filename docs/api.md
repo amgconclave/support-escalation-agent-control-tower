@@ -96,6 +96,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /governance/autonomy-pack`
   Writes Markdown and JSON under the ignored autonomy governance folder, normally `data/autonomy_governance_packs/`. The pack includes the autonomy audit, decision table, acceptance criteria, reviewer artifact paths, proof commands, and limitations.
 
+- `GET /workflows/durability-audit`
+  Returns the Durable Workflow Recovery audit for persisted local runs. The response includes checkpoint coverage, latest resume tokens, HITL resume readiness, dispatch-boundary safety, operator recovery queue, repo-radar patterns, local commands, and local/mock limitations.
+
+- `POST /workflows/durability-pack`
+  Writes Markdown and JSON under the ignored workflow recovery folder, normally `data/workflow_recovery_packs/`. The pack includes the durability audit, recovery decision table, operator acceptance criteria, reviewer artifact paths, proof commands, and limitations.
+
 - `POST /playbooks/recommend`
   Accepts either `ticket_id` or an inline `ticket` payload plus optional `top_n`. Returns ranked playbooks with match reasons, confidence, checklist steps, owner roles, escalation policy, and customer update template. If a stored ticket has already been analyzed, the recommender uses its classification and SLA risk context.
 

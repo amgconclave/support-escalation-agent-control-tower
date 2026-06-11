@@ -41,6 +41,10 @@ VERIFY_COMMANDS = [
         r'autonomy_governance_packs|tool trust|loop budget" app dashboard docs README.md tests scripts'
     ),
     (
+        r'rg "workflows/durability-audit|workflows/durability-pack|Durable Workflows|'
+        r'workflow_recovery_packs|resume token|checkpoint" app dashboard docs README.md tests scripts'
+    ),
+    (
         r"Get-ChildItem -Recurse -File data\api_contracts -ErrorAction SilentlyContinue "
         r"| Select-Object FullName,Length,LastWriteTime"
     ),
@@ -86,6 +90,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /providers/readiness-pack",
     "GET /governance/autonomy-audit",
     "POST /governance/autonomy-pack",
+    "GET /workflows/durability-audit",
+    "POST /workflows/durability-pack",
     "GET /ops/daily-brief",
     "POST /ops/daily-brief-pack",
 ]
@@ -362,6 +368,8 @@ class ApiContractService:
             "POST /incidents/rca-pack",
             "GET /governance/autonomy-audit",
             "POST /governance/autonomy-pack",
+            "GET /workflows/durability-audit",
+            "POST /workflows/durability-pack",
         ]
         rows = [
             {
