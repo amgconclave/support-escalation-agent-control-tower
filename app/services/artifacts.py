@@ -130,6 +130,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Audits tool manifests, owners, risk tiers, data exposure, approval boundaries, unknown tool references, and marketplace intake gates.",
     },
+    {
+        "name": "Renewal Control and HITL Governance Pack",
+        "directory": "data/renewal_control_packs",
+        "producer": "POST /customers/renewal-control-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Turns renewal risk into a human-review control board with blocked automation actions, deterministic checkpoints, owners, and reviewer acceptance criteria.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -175,6 +182,7 @@ REVIEWER_PURPOSES = {
     "data/support_ops_packs": EXTRA_ARTIFACTS[12]["reviewer_purpose"],
     "data/support_ops_sandbox": EXTRA_ARTIFACTS[13]["reviewer_purpose"],
     "data/tool_governance_packs": EXTRA_ARTIFACTS[14]["reviewer_purpose"],
+    "data/renewal_control_packs": EXTRA_ARTIFACTS[15]["reviewer_purpose"],
 }
 
 

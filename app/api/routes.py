@@ -672,6 +672,16 @@ async def customer_renewal_risk(request: Request):
     return await get_container(request).customers.renewal_risk()
 
 
+@router.get("/customers/renewal-control-board", dependencies=[Depends(require_api_key)])
+async def customer_renewal_control_board(request: Request):
+    return await get_container(request).customers.renewal_control_board()
+
+
+@router.post("/customers/renewal-control-pack", dependencies=[Depends(require_api_key)])
+async def customer_renewal_control_pack(request: Request):
+    return await get_container(request).customers.export_renewal_control_pack()
+
+
 @router.post("/customers/{customer_id_or_name}/renewal-review", dependencies=[Depends(require_api_key)])
 async def customer_renewal_review(customer_id_or_name: str, request: Request):
     try:

@@ -306,6 +306,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "GET /customers/renewal-control-board",
+        "purpose": "Renewal control board with HITL decisions, blocked automation actions, checkpoints, and owners.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /customers/renewal-control-pack",
+        "purpose": "Renewal Control and HITL Governance Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "POST /customers/{customer_id_or_name}/renewal-review",
         "purpose": "Renewal Risk Review artifact export.",
         "dashboard_reference_required": True,
@@ -492,6 +504,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Customer Health / Account Brief",
         "producer_endpoint": "POST /customers/{customer_id_or_name}/renewal-review",
         "artifact_directory": "data/renewal_reviews",
+    },
+    {
+        "tab_label": "Customer Health / Account Brief",
+        "producer_endpoint": "POST /customers/renewal-control-pack",
+        "artifact_directory": "data/renewal_control_packs",
     },
     {
         "tab_label": "Incident Narrative",

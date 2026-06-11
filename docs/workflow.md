@@ -315,6 +315,10 @@ The health score is deterministic and local. It starts at 100 and subtracts weig
 
 `GET /customers/renewal-risk` layers a local renewal-risk model on top of account health. It combines fake renewal inputs from `sample_data/account_health_inputs.json`, local ticket and workflow sentiment, SLA drag from approvals/failures/escalations, blocker severity, ARR metadata from `sample_data/customers.json`, and owner actions. The output is deterministic and mock-only.
 
+`GET /customers/renewal-control-board` adds the governance layer on top of renewal risk. High and critical accounts get human-in-the-loop decisions, blocked automation actions, primary owners, deterministic resume tokens, evidence references, and durable review checkpoints for risk triage, support evidence review, blocker owner assignment, and commercial approval.
+
+`POST /customers/renewal-control-pack` writes Markdown and JSON under `data/renewal_control_packs/`. The pack is the operator-facing proof artifact for the governance board and includes review queue, acceptance criteria, blocked-action policy, local verification endpoints, and limitations. It does not send customer commitments or mutate any CRM.
+
 `POST /customers/{customer_id_or_name}/renewal-review` writes Markdown and JSON under `data/renewal_reviews/`. The review packages executive summary, support evidence, renewal blockers, SLA drag components, customer-success review fields, owner actions, assumptions, and limitations for an account renewal meeting without calling CRM, billing, Zendesk, Jira, Slack, Azure, OpenAI, or external services.
 
 ## Routing

@@ -503,6 +503,20 @@ def run_with_http_server() -> dict | None:
         )
         daily_brief_pack_response.raise_for_status()
         result["daily_ops_brief_pack"] = daily_brief_pack_response.json()
+        renewal_control_response = requests.get(
+            f"{BASE}/customers/renewal-control-board",
+            headers=headers,
+            timeout=60,
+        )
+        renewal_control_response.raise_for_status()
+        result["renewal_control_board"] = renewal_control_response.json()
+        renewal_control_pack_response = requests.post(
+            f"{BASE}/customers/renewal-control-pack",
+            headers=headers,
+            timeout=60,
+        )
+        renewal_control_pack_response.raise_for_status()
+        result["renewal_control_pack"] = renewal_control_pack_response.json()
         result["mode"] = "http"
         return result
     except Exception:
@@ -764,6 +778,12 @@ def run_in_process() -> dict:
         daily_brief_pack_response = client.post("/ops/daily-brief-pack", headers={"x-api-key": token})
         daily_brief_pack_response.raise_for_status()
         result["daily_ops_brief_pack"] = daily_brief_pack_response.json()
+        renewal_control_response = client.get("/customers/renewal-control-board", headers={"x-api-key": token})
+        renewal_control_response.raise_for_status()
+        result["renewal_control_board"] = renewal_control_response.json()
+        renewal_control_pack_response = client.post("/customers/renewal-control-pack", headers={"x-api-key": token})
+        renewal_control_pack_response.raise_for_status()
+        result["renewal_control_pack"] = renewal_control_pack_response.json()
         result["mode"] = "in-process"
         return result
 
@@ -838,6 +858,8 @@ def main():
     workflow_durability_pack = result["workflow_durability_pack"]
     daily_ops_brief = result["daily_ops_brief"]
     daily_ops_brief_pack = result["daily_ops_brief_pack"]
+    renewal_control_board = result["renewal_control_board"]
+    renewal_control_pack = result["renewal_control_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
 
@@ -1100,6 +1122,14 @@ def main():
     )
     print("Daily Ops Brief Pack:", daily_ops_brief_pack["markdown_path"])
     print("Daily Ops Brief JSON:", daily_ops_brief_pack["json_path"])
+    print(
+        "Renewal Control Board:",
+        renewal_control_board["summary"]["status"],
+        f"review_required={renewal_control_board['summary']['review_required_count']}",
+        f"blocked_actions={renewal_control_board['summary']['blocked_automation_action_count']}",
+    )
+    print("Renewal Control Pack:", renewal_control_pack["markdown_path"])
+    print("Renewal Control JSON:", renewal_control_pack["json_path"])
     print("Incident impact status:", metrics["incident_impact_status"])
     print("Incident narrative:", metrics["incident_narrative_path"])
     print("Finance impact artifact:", metrics["finance_impact_path"])

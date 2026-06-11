@@ -294,6 +294,32 @@ Expected evidence:
 - export includes customer health, active tickets, recent runs, recommended playbooks, pending approvals, outbox summary, and next actions
 - returned `markdown_path` and `json_path` point to local files that exist
 
+Review renewal controls:
+
+```bash
+curl http://localhost:8000/customers/renewal-control-board \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected evidence:
+
+- high and critical renewal-risk accounts require human review instead of auto-clearance
+- rows include blocked automation actions, durable review checkpoints, primary owners, evidence references, and resume tokens
+- control policy is local deterministic and does not call CRM, billing, Slack, Jira, Zendesk, Azure, OpenAI, or external services
+
+Export the renewal control pack:
+
+```bash
+curl -X POST http://localhost:8000/customers/renewal-control-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected evidence:
+
+- Markdown and JSON files are written under `data/renewal_control_packs/`
+- pack includes review queue, blocked-action policy, operator acceptance criteria, local verification endpoints, and limitations
+- returned `markdown_path` and `json_path` point to local files that exist
+
 ## Interview Scenario and Evidence Pack Eval
 
 Run the complete scenario:

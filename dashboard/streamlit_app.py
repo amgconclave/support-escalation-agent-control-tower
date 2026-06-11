@@ -345,6 +345,7 @@ with tabs[9]:
 with tabs[10]:
     health = api("GET", "/customers/health")
     renewal = api("GET", "/customers/renewal-risk")
+    renewal_control = api("GET", "/customers/renewal-control-board")
     customers = health["customers"]
     if customers:
         c1, c2, c3, c4 = st.columns(4)
@@ -361,6 +362,12 @@ with tabs[10]:
         r2.metric("Critical or high", renewal_summary["critical_or_high_count"])
         r3.metric("ARR at risk", f"${renewal_summary['arr_at_risk_usd']:,.0f}")
         r4.metric("SLA drag", f"{renewal_summary.get('total_sla_drag_minutes', 0)} min")
+        control_summary = renewal_control["summary"]
+        g1, g2, g3, g4 = st.columns(4)
+        g1.metric("Control status", control_summary["status"])
+        g2.metric("Review required", control_summary["review_required_count"])
+        g3.metric("Blocked actions", control_summary["blocked_automation_action_count"])
+        g4.metric("Pending checkpoints", control_summary["pending_checkpoint_count"])
         st.dataframe(
             [
                 {
@@ -378,6 +385,45 @@ with tabs[10]:
             use_container_width=True,
             hide_index=True,
         )
+        st.subheader("Renewal Control Board")
+        st.dataframe(
+            [
+                {
+                    "account": item["account"],
+                    "review_status": item["review_status"],
+                    "approval": item["required_approval_type"],
+                    "owner": item["primary_owner"],
+                    "blocked_actions": len(item["blocked_automation_actions"]),
+                    "pending_checkpoints": sum(
+                        1
+                        for checkpoint in item["durable_review_checkpoints"]
+                        if checkpoint["status"] == "pending"
+                    ),
+                    "next_action": item["next_operator_action"],
+                }
+                for item in renewal_control["control_board"]
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
+        if st.button("Export Renewal Control Pack"):
+            control_pack = api("POST", "/customers/renewal-control-pack")
+            st.session_state["renewal_control_pack"] = control_pack
+            st.success(f"Renewal control pack exported: {control_pack['markdown_path']}")
+        control_pack = st.session_state.get("renewal_control_pack")
+        if control_pack:
+            st.caption(f"Control Markdown: {control_pack['markdown_path']}")
+            st.caption(f"Control JSON: {control_pack['json_path']}")
+            st.download_button(
+                "Download Renewal Control Pack",
+                data=control_pack["markdown"],
+                file_name=f"{control_pack['pack_id']}.md",
+                mime="text/markdown",
+            )
+            with st.expander("Renewal Control Markdown"):
+                st.markdown(control_pack["markdown"])
+            with st.expander("Renewal Control JSON"):
+                st.json(control_pack["pack"])
         selected = st.selectbox(
             "Account",
             [f"{item['account']} | {item['health_score']} | {item['risk_level']}" for item in customers],

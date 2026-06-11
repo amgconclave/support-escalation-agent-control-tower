@@ -306,6 +306,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `GET /customers/renewal-risk`
   Returns a local deterministic renewal-risk queue. It joins customer health, `sample_data/account_health_inputs.json`, `sample_data/customers.json` ARR metadata, ticket sentiment, workflow SLA state, approval state, and fake blocker inputs. Each account includes renewal window, support sentiment, SLA drag, blocker register, owner actions, ARR at risk, and recommended action.
 
+- `GET /customers/renewal-control-board`
+  Returns a local deterministic control board over the renewal-risk queue. It applies human-in-the-loop and governance policy to high-risk accounts, including required human decisions, blocked automation actions, durable review checkpoints, deterministic resume tokens, evidence references, primary owners, and next operator actions.
+
+- `POST /customers/renewal-control-pack`
+  Writes Markdown and JSON under the ignored local renewal control folder, normally `data/renewal_control_packs/`. The pack includes the control board, review queue, blocked-action policy, operator acceptance criteria, local verification endpoints, and limitations.
+
 - `POST /customers/{customer_id_or_name}/renewal-review`
   Writes Markdown and JSON under the ignored local renewal review folder, normally `data/renewal_reviews/`. The review includes executive summary, renewal risk, support evidence, pending approvals, outbox summary, blocker register, customer-success review, assumptions, and limitations. The path parameter can be the returned `customer_id` slug or the account/customer name.
 

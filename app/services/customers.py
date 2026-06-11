@@ -30,6 +30,7 @@ class CustomerHealthService:
         renewal_inputs_path: Path,
         account_briefs_dir: Path,
         renewal_reviews_dir: Path,
+        renewal_control_dir: Path,
     ):
         self.store = store
         self.ticket_service = ticket_service
@@ -38,6 +39,7 @@ class CustomerHealthService:
         self.renewal_inputs_path = renewal_inputs_path
         self.account_briefs_dir = account_briefs_dir
         self.renewal_reviews_dir = renewal_reviews_dir
+        self.renewal_control_dir = renewal_control_dir
 
     async def health(self) -> dict[str, Any]:
         tickets = await self.ticket_service.list()
@@ -120,6 +122,72 @@ class CustomerHealthService:
             "summary": self._renewal_summary(rows),
             "accounts": rows,
             "limitations": self._renewal_limitations(),
+        }
+
+    async def renewal_control_board(self) -> dict[str, Any]:
+        renewal = await self.renewal_risk()
+        controls = [self._renewal_control_row(row) for row in renewal["accounts"]]
+        return {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "title": "Renewal Control Board",
+            "mode": "local-deterministic-renewal-governance",
+            "local_mock_only": True,
+            "implemented_patterns": [
+                "human-in-the-loop",
+                "governance",
+                "durable workflows",
+                "shared state",
+            ],
+            "summary": self._renewal_control_summary(controls),
+            "review_policy": self._renewal_review_policy(),
+            "control_board": controls,
+            "limitations": self._renewal_control_limitations(),
+        }
+
+    async def export_renewal_control_pack(self) -> dict[str, Any]:
+        board = await self.renewal_control_board()
+        generated_at = datetime.now(timezone.utc)
+        pack_id = f"renewal_control_{generated_at.strftime('%Y%m%d_%H%M%S')}"
+        json_path = self.renewal_control_dir / f"{pack_id}.json"
+        markdown_path = self.renewal_control_dir / f"{pack_id}.md"
+        pack = {
+            "pack_id": pack_id,
+            "generated_at": generated_at.isoformat(),
+            "title": "Renewal Control Pack",
+            "control_board": board,
+            "review_queue": [
+                row
+                for row in board["control_board"]
+                if row["review_status"] != "monitor"
+            ],
+            "operator_acceptance_criteria": self._renewal_control_acceptance_criteria(),
+            "local_verification": {
+                "endpoints": [
+                    "GET /customers/renewal-control-board",
+                    "POST /customers/renewal-control-pack",
+                    "GET /customers/renewal-risk",
+                    "POST /customers/{customer_id_or_name}/renewal-review",
+                ],
+                "artifact_directory": "data/renewal_control_packs",
+                "demo_command": r".\.venv\Scripts\python.exe scripts\demo_run.py",
+            },
+            "artifact_paths": {
+                "renewal_control_markdown": str(markdown_path),
+                "renewal_control_json": str(json_path),
+            },
+        }
+        markdown = self._renewal_control_markdown(pack)
+        self.renewal_control_dir.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(json.dumps(pack, indent=2, default=str), encoding="utf-8")
+        markdown_path.write_text(markdown, encoding="utf-8")
+        return {
+            "pack_id": pack_id,
+            "format": "markdown+json",
+            "status": board["summary"]["status"],
+            "json_path": str(json_path),
+            "markdown_path": str(markdown_path),
+            "pack": pack,
+            "markdown": markdown,
         }
 
     async def export_renewal_review(self, customer_id_or_name: str) -> dict[str, Any]:
@@ -714,6 +782,234 @@ class CustomerHealthService:
             "top_risk_account": rows[0]["account"],
         }
 
+    def _renewal_control_row(self, row: dict[str, Any]) -> dict[str, Any]:
+        required_decisions = self._required_human_decisions(row)
+        checkpoints = self._renewal_review_checkpoints(row)
+        blocked_actions = self._blocked_renewal_actions(row)
+        evidence_refs = self._renewal_evidence_refs(row)
+        if row["renewal_risk_level"] == "critical":
+            review_status = "executive_review_required"
+        elif row["renewal_risk_level"] == "high":
+            review_status = "cross_functional_review_required"
+        elif blocked_actions:
+            review_status = "owner_review_required"
+        else:
+            review_status = "monitor"
+        return {
+            "customer_id": row["customer_id"],
+            "account": row["account"],
+            "renewal_risk_level": row["renewal_risk_level"],
+            "renewal_risk_score": row["renewal_risk_score"],
+            "arr_at_risk_usd": row["arr_at_risk_usd"],
+            "renewal_window_days": row["renewal_window_days"],
+            "review_status": review_status,
+            "required_approval_type": self._required_approval_type(row),
+            "required_human_decisions": required_decisions,
+            "blocked_automation_actions": blocked_actions,
+            "durable_review_checkpoints": checkpoints,
+            "resume_token": f"renewal:{row['customer_id']}:{row['renewal_risk_score']}",
+            "owner_action_count": len(row["owner_actions"]),
+            "primary_owner": self._primary_owner(row),
+            "control_signals": {
+                "support_sentiment": row["support_sentiment"]["label"],
+                "sla_drag_minutes": row["sla_drag"]["total_minutes"],
+                "blocker_count": len(row["renewal_blockers"]),
+                "pending_approval_count": row["health"]["pending_approval_count"],
+                "high_sla_risk_count": row["health"]["high_sla_risk_count"],
+            },
+            "evidence_refs": evidence_refs,
+            "next_operator_action": self._control_next_action(row, review_status),
+        }
+
+    def _required_human_decisions(self, row: dict[str, Any]) -> list[dict[str, str]]:
+        decisions = []
+        if row["renewal_risk_level"] in {"critical", "high"}:
+            decisions.append(
+                {
+                    "decision": "Approve renewal save plan before external executive commitments.",
+                    "owner": row["commercial_owner"],
+                    "reason": f"{row['renewal_risk_level']} renewal risk with ${row['arr_at_risk_usd']:,.0f} ARR at risk.",
+                }
+            )
+        if row["support_sentiment"]["label"] in {"negative", "watch"}:
+            decisions.append(
+                {
+                    "decision": "Review customer sentiment recovery message before dispatch.",
+                    "owner": "customer-success",
+                    "reason": f"Support sentiment is {row['support_sentiment']['label']}.",
+                }
+            )
+        if row["sla_drag"]["level"] in {"high", "severe"}:
+            decisions.append(
+                {
+                    "decision": "Confirm SLA drag owner and next-update timer.",
+                    "owner": "support-ops",
+                    "reason": f"SLA drag is {row['sla_drag']['total_minutes']} minutes.",
+                }
+            )
+        return decisions
+
+    def _blocked_renewal_actions(self, row: dict[str, Any]) -> list[dict[str, str]]:
+        blocked = []
+        if row["renewal_risk_level"] in {"critical", "high"}:
+            blocked.append(
+                {
+                    "action": "send_external_renewal_commitment",
+                    "blocked_until": "human renewal review is approved",
+                    "policy": "No external executive promise from deterministic local scoring alone.",
+                }
+            )
+        if row["renewal_blockers"]:
+            blocked.append(
+                {
+                    "action": "mark_renewal_green",
+                    "blocked_until": "blocker register has owner clearance",
+                    "policy": "Open blockers prevent healthy renewal classification.",
+                }
+            )
+        return blocked
+
+    def _renewal_review_checkpoints(self, row: dict[str, Any]) -> list[dict[str, Any]]:
+        stages = [
+            ("risk_triage", "complete", "Renewal score, health score, sentiment, and SLA drag are computed."),
+            (
+                "support_evidence_review",
+                "pending" if row["health"]["pending_approval_count"] else "complete",
+                "Pending approvals and high-SLA support work are reviewed.",
+            ),
+            (
+                "blocker_owner_assignment",
+                "pending" if row["renewal_blockers"] else "complete",
+                "Every blocker has an accountable owner and clearance action.",
+            ),
+            (
+                "commercial_approval",
+                "pending" if row["renewal_risk_level"] in {"critical", "high"} else "not_required",
+                "Commercial owner approves renewal posture and customer commitment.",
+            ),
+        ]
+        return [
+            {
+                "checkpoint_id": f"{row['customer_id']}:{stage}",
+                "stage": stage,
+                "status": status,
+                "detail": detail,
+            }
+            for stage, status, detail in stages
+        ]
+
+    def _renewal_evidence_refs(self, row: dict[str, Any]) -> list[dict[str, str]]:
+        refs = [
+            {
+                "source": "GET /customers/renewal-risk",
+                "evidence": f"{row['renewal_risk_score']} {row['renewal_risk_level']} renewal score",
+            },
+            {
+                "source": "sample_data/account_health_inputs.json",
+                "evidence": f"{row['renewal_window_days']} day renewal window and {len(row['renewal_blockers'])} blockers",
+            },
+            {
+                "source": "sample_data/customers.json",
+                "evidence": f"${row['arr_usd']:,.0f} ARR metadata",
+            },
+        ]
+        if row["health"]["pending_approval_count"]:
+            refs.append(
+                {
+                    "source": "GET /approvals",
+                    "evidence": f"{row['health']['pending_approval_count']} pending approvals",
+                }
+            )
+        return refs
+
+    def _required_approval_type(self, row: dict[str, Any]) -> str:
+        if row["renewal_risk_level"] == "critical":
+            return "executive_sponsor_and_commercial_owner"
+        if row["renewal_risk_level"] == "high":
+            return "commercial_owner_and_support_lead"
+        if row["renewal_blockers"] or row["support_sentiment"]["label"] in {"negative", "watch"}:
+            return "account_owner"
+        return "none"
+
+    def _primary_owner(self, row: dict[str, Any]) -> str:
+        if row["renewal_risk_level"] == "critical":
+            return row["commercial_owner"]
+        if row["renewal_blockers"]:
+            return row["renewal_blockers"][0]["owner"]
+        return row["commercial_owner"]
+
+    def _control_next_action(self, row: dict[str, Any], review_status: str) -> str:
+        if review_status == "executive_review_required":
+            return "Open executive renewal save review and export the account renewal review artifact."
+        if review_status == "cross_functional_review_required":
+            return "Schedule support, success, and engineering blocker review this week."
+        if review_status == "owner_review_required":
+            return "Assign blocker owners and clear pending support evidence gaps."
+        return "Monitor through standard customer-success operating rhythm."
+
+    def _renewal_control_summary(self, controls: list[dict[str, Any]]) -> dict[str, Any]:
+        review_queue = [row for row in controls if row["review_status"] != "monitor"]
+        executive = [
+            row for row in controls if row["review_status"] == "executive_review_required"
+        ]
+        return {
+            "status": "needs_review" if review_queue else "monitor",
+            "account_count": len(controls),
+            "review_required_count": len(review_queue),
+            "executive_review_required_count": len(executive),
+            "blocked_automation_action_count": sum(
+                len(row["blocked_automation_actions"]) for row in controls
+            ),
+            "arr_at_risk_requiring_review_usd": sum(row["arr_at_risk_usd"] for row in review_queue),
+            "pending_checkpoint_count": sum(
+                1
+                for row in controls
+                for checkpoint in row["durable_review_checkpoints"]
+                if checkpoint["status"] == "pending"
+            ),
+        }
+
+    def _renewal_review_policy(self) -> dict[str, Any]:
+        return {
+            "critical_threshold": 80,
+            "high_threshold": 60,
+            "external_commitments_require_human_approval": True,
+            "blocked_actions": [
+                "send_external_renewal_commitment",
+                "mark_renewal_green",
+            ],
+            "checkpoint_policy": "Every high or critical renewal-risk account must pass support evidence, blocker owner, and commercial approval checkpoints.",
+            "source_of_truth": "GET /customers/renewal-risk",
+        }
+
+    def _renewal_control_acceptance_criteria(self) -> list[dict[str, str]]:
+        return [
+            {
+                "criterion": "High and critical renewal risks are not auto-cleared.",
+                "evidence": "control_board[].blocked_automation_actions contains policy gates.",
+            },
+            {
+                "criterion": "Every review item has a human owner and explicit decision.",
+                "evidence": "control_board[].required_human_decisions and primary_owner are populated.",
+            },
+            {
+                "criterion": "Review work is resumable without external services.",
+                "evidence": "control_board[].resume_token and durable_review_checkpoints are deterministic.",
+            },
+            {
+                "criterion": "Reviewer artifacts are reproducible locally.",
+                "evidence": "POST /customers/renewal-control-pack writes Markdown and JSON under data/renewal_control_packs.",
+            },
+        ]
+
+    def _renewal_control_limitations(self) -> list[str]:
+        return [
+            "Control rows are deterministic local governance views over the renewal risk model.",
+            "Human decisions are represented as review gates; this endpoint does not mutate CRM, billing, Slack, Jira, or Zendesk.",
+            "Resume tokens are deterministic local identifiers, not distributed workflow locks.",
+            "Generated control packs are ignored local proof artifacts and should be regenerated.",
+        ]
+
     def _renewal_executive_summary(self, row: dict[str, Any]) -> str:
         return (
             f"{row['account']} is {row['renewal_risk_level']} renewal risk with score "
@@ -1110,6 +1406,88 @@ class CustomerHealthService:
                 "",
                 "## Limitations",
                 *limitations,
+                "",
+            ]
+        )
+
+    def _renewal_control_markdown(self, pack: dict[str, Any]) -> str:
+        board = pack["control_board"]
+        summary = board["summary"]
+        control_rows = [
+            (
+                f"| {row['account']} | {row['renewal_risk_level']} | {row['renewal_risk_score']} | "
+                f"${row['arr_at_risk_usd']:,.0f} | {row['review_status']} | "
+                f"{row['required_approval_type']} | {row['primary_owner']} |"
+            )
+            for row in board["control_board"]
+        ]
+        checkpoint_rows = [
+            (
+                f"| {row['account']} | {checkpoint['stage']} | {checkpoint['status']} | "
+                f"{checkpoint['detail']} |"
+            )
+            for row in board["control_board"]
+            for checkpoint in row["durable_review_checkpoints"]
+        ]
+        decision_rows = [
+            f"- **{row['account']}** / {item['owner']}: {item['decision']} Reason: {item['reason']}"
+            for row in board["control_board"]
+            for item in row["required_human_decisions"]
+        ] or ["- No human decisions required."]
+        blocked_rows = [
+            f"- **{row['account']}**: `{item['action']}` blocked until {item['blocked_until']} ({item['policy']})"
+            for row in board["control_board"]
+            for item in row["blocked_automation_actions"]
+        ] or ["- No blocked automation actions."]
+        criteria_rows = [
+            f"- [ ] **{item['criterion']}** Evidence: {item['evidence']}"
+            for item in pack["operator_acceptance_criteria"]
+        ]
+        limitation_rows = [f"- {item}" for item in board["limitations"]]
+        return "\n".join(
+            [
+                f"# Renewal Control Pack: {pack['pack_id']}",
+                "",
+                "## Summary",
+                f"- Status: {summary['status']}",
+                f"- Accounts: {summary['account_count']}",
+                f"- Review required: {summary['review_required_count']}",
+                f"- Executive review required: {summary['executive_review_required_count']}",
+                f"- Blocked automation actions: {summary['blocked_automation_action_count']}",
+                f"- ARR at risk requiring review: ${summary['arr_at_risk_requiring_review_usd']:,.0f}",
+                f"- Pending checkpoints: {summary['pending_checkpoint_count']}",
+                "",
+                "## Review Policy",
+                f"- External commitments require human approval: {board['review_policy']['external_commitments_require_human_approval']}",
+                f"- Source of truth: `{board['review_policy']['source_of_truth']}`",
+                f"- Checkpoint policy: {board['review_policy']['checkpoint_policy']}",
+                "",
+                "## Control Board",
+                "| Account | Risk | Score | ARR At Risk | Review Status | Approval | Owner |",
+                "| --- | --- | ---: | ---: | --- | --- | --- |",
+                *control_rows,
+                "",
+                "## Required Human Decisions",
+                *decision_rows,
+                "",
+                "## Blocked Automation Actions",
+                *blocked_rows,
+                "",
+                "## Durable Review Checkpoints",
+                "| Account | Stage | Status | Detail |",
+                "| --- | --- | --- | --- |",
+                *checkpoint_rows,
+                "",
+                "## Operator Acceptance Criteria",
+                *criteria_rows,
+                "",
+                "## Local Verification",
+                f"- Artifact directory: `{pack['local_verification']['artifact_directory']}`",
+                f"- Demo command: `{pack['local_verification']['demo_command']}`",
+                *[f"- `{endpoint}`" for endpoint in pack["local_verification"]["endpoints"]],
+                "",
+                "## Limitations",
+                *limitation_rows,
                 "",
             ]
         )

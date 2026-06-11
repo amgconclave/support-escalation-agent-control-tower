@@ -1216,10 +1216,77 @@ def test_customer_renewal_risk_and_review_export(client):
     assert Path(exported["json_path"]).exists()
 
 
+def test_renewal_control_board_and_pack_export(client):
+    token = client.post("/auth/demo-token").json()["token"]
+    headers = {"X-API-Key": token}
+    ticket = client.post(
+        "/tickets/ingest",
+        headers=headers,
+        json={
+            "subject": "Evergreen compliance export blocks renewal approval",
+            "body": (
+                "The Chief Risk Officer says the renewal is blocked until compliance export "
+                "reliability has evidence, incident prevention, and an executive plan."
+            ),
+            "customer": "Evergreen Bank",
+            "customer_email": "risk@evergreen.example",
+            "priority": "urgent",
+            "customer_tier": "enterprise",
+            "tags": ["compliance", "export", "renewal"],
+        },
+    ).json()
+    run = client.post(f"/tickets/{ticket['ticket_id']}/analyze", headers=headers).json()
+
+    response = client.get("/customers/renewal-control-board", headers=headers)
+    assert response.status_code == 200, response.text
+    board = response.json()
+    evergreen = next(item for item in board["control_board"] if item["customer_id"] == "evergreen-bank")
+
+    assert board["mode"] == "local-deterministic-renewal-governance"
+    assert {"human-in-the-loop", "governance", "durable workflows"} <= set(
+        board["implemented_patterns"]
+    )
+    assert board["summary"]["review_required_count"] >= 1
+    assert board["summary"]["blocked_automation_action_count"] >= 1
+    assert evergreen["review_status"] in {
+        "executive_review_required",
+        "cross_functional_review_required",
+    }
+    assert evergreen["required_human_decisions"]
+    assert evergreen["blocked_automation_actions"]
+    assert evergreen["resume_token"].startswith("renewal:evergreen-bank:")
+    assert any(
+        checkpoint["stage"] == "commercial_approval"
+        for checkpoint in evergreen["durable_review_checkpoints"]
+    )
+    assert evergreen["primary_owner"]
+    assert evergreen["evidence_refs"]
+    assert evergreen["next_operator_action"]
+    assert run["status"] == "awaiting_approval"
+
+    export_response = client.post("/customers/renewal-control-pack", headers=headers)
+    assert export_response.status_code == 200, export_response.text
+    exported = export_response.json()
+    pack = exported["pack"]
+    markdown = exported["markdown"]
+
+    assert exported["status"] == board["summary"]["status"]
+    assert "renewal_control_packs" in exported["markdown_path"]
+    assert Path(exported["markdown_path"]).exists()
+    assert Path(exported["json_path"]).exists()
+    assert pack["review_queue"]
+    assert pack["operator_acceptance_criteria"]
+    assert "GET /customers/renewal-control-board" in pack["local_verification"]["endpoints"]
+    assert "# Renewal Control Pack" in markdown
+    assert "## Blocked Automation Actions" in markdown
+    assert "## Durable Review Checkpoints" in markdown
+
+
 def test_renewal_review_is_listed_in_artifact_inventory(client):
     token = client.post("/auth/demo-token").json()["token"]
     headers = {"X-API-Key": token}
     client.post("/customers/northstar-health/renewal-review", headers=headers)
+    client.post("/customers/renewal-control-pack", headers=headers)
 
     response = client.get("/artifacts/inventory", headers=headers)
     assert response.status_code == 200, response.text
@@ -1232,6 +1299,13 @@ def test_renewal_review_is_listed_in_artifact_inventory(client):
     assert row["file_count"] >= 2
     assert "Renewal" in row["name"]
     assert "ARR exposure" in row["reviewer_purpose"]
+    control_row = next(
+        item for item in inventory["artifacts"] if item["directory"] == "data/renewal_control_packs"
+    )
+    assert control_row["producer"] == "POST /customers/renewal-control-pack"
+    assert control_row["file_count"] >= 2
+    assert "HITL" in control_row["name"]
+    assert "blocked automation" in control_row["reviewer_purpose"]
 
 
 def test_replay_lab_detects_changed_decisions(client):
