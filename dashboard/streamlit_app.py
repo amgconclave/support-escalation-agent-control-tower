@@ -978,6 +978,61 @@ with tabs[18]:
         )
         st.markdown(change_pack["markdown"])
 
+    st.divider()
+    st.subheader("Policy Rollout Review Gate")
+    r1, r2, r3 = st.columns(3)
+    process_mode = r1.selectbox("Rollout process mode", ["shadow", "canary", "full"], index=1)
+    max_new_auto = r2.slider("Max new auto-allowed", 0, 10, 0, 1)
+    max_sla_regressions = r3.slider("Max SLA regressions", 0, 10, 0, 1)
+    max_change_risk = st.slider("Max change risk score", 0, 100, 30, 1)
+    rollout_payload = {
+        **change_payload,
+        "process_mode": process_mode,
+        "max_new_auto_allowed": max_new_auto,
+        "max_sla_regressions": max_sla_regressions,
+        "max_change_risk_score": max_change_risk,
+    }
+    rollout_left, rollout_right = st.columns(2)
+    if rollout_left.button("Run Rollout Gate", use_container_width=True):
+        rollout_plan = api("POST", "/policies/rollout-plan", rollout_payload)
+        st.session_state["policy_rollout_plan"] = rollout_plan
+    if rollout_right.button("Export Rollout Pack", use_container_width=True):
+        rollout_pack = api("POST", "/policies/rollout-pack", rollout_payload)
+        st.session_state["policy_rollout_pack"] = rollout_pack
+        st.session_state["policy_rollout_plan"] = rollout_pack["pack"]["rollout_plan"]
+        st.success(f"Policy rollout pack exported: {rollout_pack['markdown_path']}")
+
+    rollout_plan = st.session_state.get("policy_rollout_plan")
+    if rollout_plan:
+        summary = rollout_plan["summary"]
+        g1, g2, g3, g4 = st.columns(4)
+        g1.metric("Rollout status", rollout_plan["status"])
+        g2.metric("Failed gates", summary["failed_gate_count"])
+        g3.metric("Change risk", summary["change_risk_score"])
+        g4.metric("SLA regressions", summary["sla_regression_count"])
+        st.info(summary["recommendation"])
+        st.dataframe(rollout_plan["review_gates"], use_container_width=True, hide_index=True)
+        st.subheader("Canary rollout")
+        st.dataframe(rollout_plan["canary_rollout"], use_container_width=True, hide_index=True)
+        st.subheader("Role signoffs")
+        st.dataframe(rollout_plan["role_signoffs"], use_container_width=True, hide_index=True)
+        st.subheader("Rollback triggers")
+        st.dataframe(rollout_plan["rollback_triggers"], use_container_width=True, hide_index=True)
+        with st.expander("Policy Rollout JSON"):
+            st.json(rollout_plan)
+
+    rollout_pack = st.session_state.get("policy_rollout_pack")
+    if rollout_pack:
+        st.caption(f"Markdown: {rollout_pack['markdown_path']}")
+        st.caption(f"JSON: {rollout_pack['json_path']}")
+        st.download_button(
+            "Download Policy Rollout Pack",
+            data=rollout_pack["markdown"],
+            file_name=f"{rollout_pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(rollout_pack["markdown"])
+
 with tabs[19]:
     run_id = st.text_input("Incident narrative run ID", value=st.session_state.get("run_id", ""))
     left, right = st.columns(2)

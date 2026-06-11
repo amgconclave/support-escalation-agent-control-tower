@@ -111,6 +111,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Policy Rollout Review Pack",
+        "directory": "data/policy_rollout_packs",
+        "producer": "POST /policies/rollout-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Leadership review",
         "directory": "data/leadership_reviews",
         "producer": "POST /leadership/review-pack",

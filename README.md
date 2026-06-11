@@ -72,7 +72,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Tool Governance and Marketplace Trust Pack under `data/tool_governance_packs/`, auditing local tool manifests, owners, risk tiers, data exposure, HITL boundaries, failure modes, unknown tools, and tool intake gates
 - Local mock LLM provider behind an interface
 - API key auth, structured logs, request trace IDs, audit events, token/latency/cost metrics
-  - Streamlit dashboard for queue, approvals, trace timeline, outbox payloads, reliability drills, SLA simulation, incident briefs, incident narratives, Postmortem RCA, Finance Impact, Evidence Retention, Capacity Planning, Data Residency, Access Control, Risk Register, Provider Readiness, Executive Daily Ops Brief, Autonomy Governance, Durable Workflows, Support Ops Crews, Support Ops Sandbox, playbooks/remediation, customer health/account briefs, ops analytics, SLO optimization, Replay Lab, Policy Guardrails, Policy Change Simulation, Operator QA / Readiness Pack, Leadership Scorecard, Knowledge Quality, Runbook Coverage, Portfolio Pack, Release Pack, CI Doctor / Audit Pack, Reviewer Quickstart, Artifact Inventory, UI Verification, Final Handoff, On-Call Handoff, Git Readiness, API Contract, Runtime Demo, Scenario Dataset, and metrics
+  - Streamlit dashboard for queue, approvals, trace timeline, outbox payloads, reliability drills, SLA simulation, incident briefs, incident narratives, Postmortem RCA, Finance Impact, Evidence Retention, Capacity Planning, Data Residency, Access Control, Risk Register, Provider Readiness, Executive Daily Ops Brief, Autonomy Governance, Durable Workflows, Support Ops Crews, Support Ops Sandbox, playbooks/remediation, customer health/account briefs, ops analytics, SLO optimization, Replay Lab, Policy Guardrails, Policy Change Simulation, Policy Rollout Review Gate, Operator QA / Readiness Pack, Leadership Scorecard, Knowledge Quality, Runbook Coverage, Portfolio Pack, Release Pack, CI Doctor / Audit Pack, Reviewer Quickstart, Artifact Inventory, UI Verification, Final Handoff, On-Call Handoff, Git Readiness, API Contract, Runtime Demo, Scenario Dataset, and metrics
 - Sample tickets, scenario catalog, playbooks, and KB fixtures
 - Docker Compose, GitHub Actions CI, `.env.example`, Makefile, pytest suite
 
@@ -192,6 +192,8 @@ The command calls `POST /demo/evidence-pack`, `POST /ops/operator-readiness-pack
 24. Export `POST /policies/export` to write a Markdown/JSON Policy Guardrail Pack under `data/policy_packs/`.
 24a. Run `POST /policies/change-simulation` to compare approval thresholds, confidence cutoffs, SLA routing thresholds, and blast-radius scoring across the local scenario corpus.
 24b. Export `POST /policies/change-pack` to write an Agent Policy Simulation Pack under `data/policy_change_packs/`.
+24c. Run `POST /policies/rollout-plan` to convert those deltas into fail-closed review gates, canary phases, role signoffs, rollback triggers, and run-transparency evidence.
+24d. Export `POST /policies/rollout-pack` to write a Policy Rollout Review Pack under `data/policy_rollout_packs/`.
 25. Run `POST /incidents/timeline` to build the Customer Impact Timeline for a supplied, latest, or deterministic sample run.
 26. Export `POST /incidents/executive-narrative` to write a Markdown/JSON executive incident story under `data/incident_narratives/`.
 27. Review `GET /incidents/postmortem-summary` for root cause, corrective actions, customer follow-up state, recurrence risk, trace links, and scenario coverage.
@@ -320,6 +322,8 @@ Important variables:
 - `POST /policies/export`: writes Markdown and JSON under `data/policy_packs/` with simulated policies, matched rules, approval matrix, sample scenario outcomes, local verification commands, JD skills demonstrated, and five interviewer talking points.
 - `POST /policies/change-simulation`: compares baseline and proposed approval thresholds, confidence cutoffs, and SLA high-risk thresholds over the local scenario corpus with blast-radius scoring.
 - `POST /policies/change-pack`: writes Markdown and JSON under `data/policy_change_packs/` with scenario-level policy-change deltas, SLA routing impact, rollout recommendation, and reviewer talking points.
+- `POST /policies/rollout-plan`: turns policy-change deltas into deterministic go/no-go gates, canary rollout phases, role signoffs, rollback triggers, run transparency, and artifact handoffs.
+- `POST /policies/rollout-pack`: writes Markdown and JSON under `data/policy_rollout_packs/` for reviewer approval before policy promotion.
 - `POST /incidents/timeline`: returns ordered Customer Impact Timeline events, impact summary, internal/external action split, policy/replay annotations, unresolved risks, owner next steps, and evidence artifact links for a supplied, latest, or sample run.
 - `POST /incidents/executive-narrative`: writes Markdown and JSON under `data/incident_narratives/` with executive summary, timeline, approval evidence, policy decision, replay risk, SLO posture, JD skills, and interviewer talking points.
 - `GET /incidents/postmortem-summary`: returns Postmortem RCA summary with severity, root cause category, contributing factors, approval/comms state, trace links, corrective actions, recurrence risk, customer follow-up state, readiness, and RCA scenario coverage.

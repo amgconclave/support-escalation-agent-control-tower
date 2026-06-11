@@ -203,6 +203,18 @@ class PolicyChangePackRequest(PolicyChangeSimulationRequest):
     pass
 
 
+class PolicyRolloutRequest(PolicyChangeSimulationRequest):
+    model_config = ConfigDict(extra="ignore")
+    process_mode: Literal["shadow", "canary", "full"] = "canary"
+    max_new_auto_allowed: int = Field(default=0, ge=0, le=25)
+    max_sla_regressions: int = Field(default=0, ge=0, le=25)
+    max_change_risk_score: int = Field(default=35, ge=0, le=100)
+
+
+class PolicyRolloutPackRequest(PolicyRolloutRequest):
+    pass
+
+
 class IncidentNarrativeRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
     run_id: str | None = None

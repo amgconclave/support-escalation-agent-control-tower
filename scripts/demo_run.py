@@ -68,6 +68,25 @@ def run_with_http_server() -> dict | None:
         )
         policy_change_response.raise_for_status()
         result["policy_change_pack"] = policy_change_response.json()
+        policy_rollout_response = requests.post(
+            f"{BASE}/policies/rollout-pack",
+            headers=headers,
+            json={
+                "process_mode": "canary",
+                "max_new_auto_allowed": 0,
+                "max_sla_regressions": 0,
+                "max_change_risk_score": 30,
+                "proposed": {
+                    "confidence_cutoff": 0.72,
+                    "sla_high_risk_threshold": 0.65,
+                    "auto_approval_max_blast_radius": 25,
+                },
+                "scenario_limit": 9,
+            },
+            timeout=60,
+        )
+        policy_rollout_response.raise_for_status()
+        result["policy_rollout_pack"] = policy_rollout_response.json()
         scorecard_response = requests.get(
             f"{BASE}/leadership/scorecard",
             headers=headers,
@@ -572,6 +591,24 @@ def run_in_process() -> dict:
         )
         policy_change_response.raise_for_status()
         result["policy_change_pack"] = policy_change_response.json()
+        policy_rollout_response = client.post(
+            "/policies/rollout-pack",
+            headers={"x-api-key": token},
+            json={
+                "process_mode": "canary",
+                "max_new_auto_allowed": 0,
+                "max_sla_regressions": 0,
+                "max_change_risk_score": 30,
+                "proposed": {
+                    "confidence_cutoff": 0.72,
+                    "sla_high_risk_threshold": 0.65,
+                    "auto_approval_max_blast_radius": 25,
+                },
+                "scenario_limit": 9,
+            },
+        )
+        policy_rollout_response.raise_for_status()
+        result["policy_rollout_pack"] = policy_rollout_response.json()
         scorecard_response = client.get("/leadership/scorecard", headers={"x-api-key": token})
         scorecard_response.raise_for_status()
         result["leadership_scorecard"] = scorecard_response.json()
@@ -796,6 +833,7 @@ def main():
     readiness = result["operator_readiness_pack"]
     policy = result["policy_pack"]
     policy_change_pack = result["policy_change_pack"]
+    policy_rollout_pack = result["policy_rollout_pack"]
     leadership = result["leadership_scorecard"]
     leadership_review = result["leadership_review_pack"]
     kb_audit = result["knowledge_quality_audit"]
@@ -862,6 +900,7 @@ def main():
     renewal_control_pack = result["renewal_control_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
+    policy_rollout = policy_rollout_pack["pack"]["rollout_plan"]
 
     print("Mode:", result["mode"])
     print("Scenario:", scenario["scenario_id"])
@@ -885,6 +924,14 @@ def main():
     )
     print("Policy Change Pack:", policy_change_pack["markdown_path"])
     print("Policy Change JSON:", policy_change_pack["json_path"])
+    print(
+        "Policy rollout:",
+        policy_rollout["status"],
+        f"failed_gates={policy_rollout['summary']['failed_gate_count']}",
+        f"mode={policy_rollout['process_mode']}",
+    )
+    print("Policy Rollout Pack:", policy_rollout_pack["markdown_path"])
+    print("Policy Rollout JSON:", policy_rollout_pack["json_path"])
     print(
         "Leadership readiness:",
         leadership["overall_score"],

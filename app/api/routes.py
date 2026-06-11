@@ -13,6 +13,8 @@ from app.models import (
     PolicyChangePackRequest,
     PolicyChangeSimulationRequest,
     PolicyExportRequest,
+    PolicyRolloutPackRequest,
+    PolicyRolloutRequest,
     PolicySimulationRequest,
     PlaybookRecommendRequest,
     RemediationChecklistRequest,
@@ -173,6 +175,22 @@ async def policy_change_pack(
     payload: PolicyChangePackRequest | None = None,
 ):
     return await get_container(request).policy_change_simulation.export_pack(payload)
+
+
+@router.post("/policies/rollout-plan", dependencies=[Depends(require_api_key)])
+async def policy_rollout_plan(
+    request: Request,
+    payload: PolicyRolloutRequest | None = None,
+):
+    return await get_container(request).policy_rollout.rollout_plan(payload)
+
+
+@router.post("/policies/rollout-pack", dependencies=[Depends(require_api_key)])
+async def policy_rollout_pack(
+    request: Request,
+    payload: PolicyRolloutPackRequest | None = None,
+):
+    return await get_container(request).policy_rollout.export_pack(payload)
 
 
 @router.post("/incidents/timeline", dependencies=[Depends(require_api_key)])

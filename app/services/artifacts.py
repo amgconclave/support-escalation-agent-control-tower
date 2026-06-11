@@ -137,6 +137,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Turns renewal risk into a human-review control board with blocked automation actions, deterministic checkpoints, owners, and reviewer acceptance criteria.",
     },
+    {
+        "name": "Policy Rollout Review Pack",
+        "directory": "data/policy_rollout_packs",
+        "producer": "POST /policies/rollout-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Turns policy simulation deltas into fail-closed rollout gates, role signoffs, canary phases, rollback triggers, and reviewer handoffs.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -150,6 +157,7 @@ REVIEWER_PURPOSES = {
     "data/replay_reports": "Counterfactual safety proof for changed SLA, KB, adapter, confidence, and approval conditions.",
     "data/policy_packs": "Policy guardrail proof for blocked/gated actions, approvals, and risk reasoning.",
     "data/policy_change_packs": "Policy-change simulation proof for approval thresholds, confidence cutoffs, SLA routing, and blast-radius scoring.",
+    "data/policy_rollout_packs": EXTRA_ARTIFACTS[16]["reviewer_purpose"],
     "data/leadership_reviews": "Leadership-ready KPI and automation-readiness evidence.",
     "data/kb_refresh_plans": "Knowledge quality audit findings turned into owner-ready refresh work.",
     "data/incident_narratives": "Executive incident narrative and customer-impact timeline evidence.",

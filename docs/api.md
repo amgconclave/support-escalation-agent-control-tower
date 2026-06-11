@@ -48,6 +48,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /policies/change-pack`
   Writes Markdown and JSON under `data/policy_change_packs/` with approval threshold, confidence cutoff, SLA routing, blast-radius, local verification, and reviewer talking-point evidence.
 
+- `POST /policies/rollout-plan`
+  Converts the local policy-change simulation into a deterministic rollout gate. The response includes go/no-go status, failed review gates, role signoffs, canary phases, rollback triggers, run transparency, artifact handoffs, proof commands, and local/mock limitations. It never changes live policy configuration or dispatches external actions.
+
+- `POST /policies/rollout-pack`
+  Writes Markdown and JSON under `data/policy_rollout_packs/` with the rollout gate, canary rollout plan, role signoffs, rollback triggers, artifact handoffs, local verification commands, and reviewer acceptance criteria.
+
 - `POST /incidents/timeline`
   Builds the Customer Impact Timeline for a supplied `run_id`, the latest local run, or a deterministic sample fallback when omitted. The response includes ordered timeline events, customer impact summary, internal/external action split, policy guardrail annotations, Replay Lab annotations, unresolved risks, owner next steps, impact status, and evidence artifact links. It reuses existing local exports such as incident brief, remediation checklist, weekly review, account brief, optimization report, and replay report.
 

@@ -33,6 +33,7 @@ from app.services.outbox import OutboxService
 from app.services.playbooks import PlaybookService
 from app.services.policy_change_simulation import PolicyChangeSimulationService
 from app.services.policy_guardrails import PolicyGuardrailService
+from app.services.policy_rollout import PolicyRolloutService
 from app.services.postmortem_rca import PostmortemRcaService
 from app.services.portfolio import PortfolioService
 from app.services.provider_readiness import ProviderReadinessService
@@ -145,6 +146,11 @@ class ServiceContainer:
             self.workflow,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "policy_change_packs",
+        )
+        self.policy_rollout = PolicyRolloutService(
+            self.policy_change_simulation,
+            self.audit,
+            settings.state_file.parent / "policy_rollout_packs",
         )
         self.incident_narratives = IncidentNarrativeService(
             self.store,
