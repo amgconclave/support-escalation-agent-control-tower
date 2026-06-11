@@ -44,7 +44,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Leadership review pack export under `data/leadership_reviews/` with KPI definitions, evidence links, top risks, next actions, local commands, JD skills, and interviewer talking points
 - Knowledge Quality Auditor for KB freshness, coverage, conflicting guidance, missing citations, high-impact gaps, impacted ticket types, owner recommendations, and readiness status
 - KB refresh plan export under `data/kb_refresh_plans/` with article tasks, owners, acceptance criteria, impacted workflows, local commands, JD skills, and five interviewer talking points
-- Runbook Coverage audit and Gap Pack export under `data/runbook_gap_packs/`, mapping tickets and scenarios to KB/runbook coverage, missing runbook categories, owner assignments, endpoint evidence, and remediation tasks
+- Runbook Coverage audit and Gap Pack export under `data/runbook_gap_packs/`, mapping tickets and scenarios to KB/runbook coverage, missing runbook categories, owner assignments, process modes, review gates, artifact handoffs, run transparency, endpoint evidence, and remediation tasks
 - Local Launch Checklist and API Smoke Matrix for GitHub reviewers, including setup commands, endpoint checks, artifact expectations, eval commands, troubleshooting notes, JD skills, and interviewer talking points
 - Portfolio Evidence Index mapping JD skills to local features, endpoints, tests/evals, artifacts, demo commands, and proof paths
 - Interview Pack export under `data/portfolio_packs/` with a 3-minute demo script, technical talking points, architecture walk-through, failure story, verification commands, metrics/eval summary, artifact inventory, and resume/GitHub bullets
@@ -210,8 +210,8 @@ The command calls `POST /demo/evidence-pack`, `POST /ops/operator-readiness-pack
 30. Export `POST /leadership/review-pack` to write a Markdown/JSON leadership review under `data/leadership_reviews/`.
 31. Review `GET /knowledge/quality-audit` for KB coverage, freshness, citation, conflict, and readiness signals.
 32. Export `POST /knowledge/refresh-plan` to write a Markdown/JSON KB refresh plan under `data/kb_refresh_plans/`.
-32a. Review `GET /runbooks/coverage-audit` for ticket-to-KB/runbook coverage, missing runbook gaps, owner assignments, endpoint evidence, and limitations.
-32b. Export `POST /runbooks/gap-pack` to write a Markdown/JSON Runbook Coverage Gap Pack under `data/runbook_gap_packs/`.
+32a. Review `GET /runbooks/coverage-audit` for ticket-to-KB/runbook coverage, missing runbook gaps, owner assignments, role playbooks, process mode, review gates, artifact handoffs, run transparency, endpoint evidence, and limitations.
+32b. Export `POST /runbooks/gap-pack` to write a Markdown/JSON Runbook Coverage Gap Pack under `data/runbook_gap_packs/` with delegated owner tasks and reviewer gates.
 33. Run `POST /demo/scenario-run` to orchestrate the full interview scenario and return artifact paths plus summary metrics.
 34. Export `POST /demo/evidence-pack` to write the concise Markdown/JSON interview pack.
 35. Review `GET /ops/smoke-matrix` for endpoint checks, expected statuses, commands, artifact expectations, and launch readiness.
@@ -334,8 +334,8 @@ Important variables:
 - `POST /leadership/review-pack`: writes Markdown and JSON under `data/leadership_reviews/` with scorecard, KPI definitions, local evidence links, top risks, next actions, local commands, JD skills demonstrated, and five interviewer talking points.
 - `GET /knowledge/quality-audit`: returns the local KB readiness audit with coverage score, freshness/coverage/conflict/citation metrics, weak or missing articles, impacted ticket types, owner recommendations, risk flags, evidence sources, and readiness status.
 - `POST /knowledge/refresh-plan`: writes Markdown and JSON under `data/kb_refresh_plans/` with article refresh tasks, owners, acceptance criteria, impacted workflows, local commands, JD skills demonstrated, and five interviewer talking points.
-- `GET /runbooks/coverage-audit`: maps active/sample tickets and scenario fixtures to KB articles and runbook recommendations, returning coverage score, missing dedicated runbook gaps, owner assignments, endpoint evidence, and limitations.
-- `POST /runbooks/gap-pack`: writes Markdown and JSON under `data/runbook_gap_packs/` with ticket coverage map, runbook gaps, owner-ready remediation tasks, acceptance criteria, local commands, JD skills, and interviewer talking points.
+- `GET /runbooks/coverage-audit`: maps active/sample tickets and scenario fixtures to KB articles and runbook recommendations, returning coverage score, missing dedicated runbook gaps, owner assignments, selected process mode, role playbooks, delegated tasks, review gates, artifact handoffs, run transparency, endpoint evidence, and limitations.
+- `POST /runbooks/gap-pack`: writes Markdown and JSON under `data/runbook_gap_packs/` with ticket coverage map, runbook gaps, owner-ready remediation tasks, delegated coverage tasks, acceptance criteria, review gates, artifact handoffs, local commands, JD skills, and interviewer talking points.
 - `POST /demo/scenario-run`: runs the complete local interview scenario and returns linked artifact paths, endpoints exercised, and summary metrics.
 - `POST /demo/evidence-pack`: writes Markdown and JSON under `data/demo_packs/` with the scenario summary, generated artifact paths, key metrics, endpoints exercised, and interview talking points.
 - `GET /ops/smoke-matrix`: returns the API smoke matrix with expected status codes, sample curl and PowerShell commands, artifact expectations, and launch readiness.

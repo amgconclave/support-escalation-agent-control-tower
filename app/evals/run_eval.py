@@ -107,6 +107,11 @@ async def run_eval() -> None:
     print(f"Scenario Dataset Eval Pack: {scenario_pack['markdown_path']}")
     print(f"Runbook Coverage score: {runbook_audit['coverage_score']}")
     print(f"Runbook Coverage gaps: {len(runbook_audit['runbook_gaps'])}")
+    print(f"Runbook Coverage process mode: {runbook_audit['selected_process_mode']['mode_id']}")
+    print(
+        "Runbook Coverage review gates:",
+        f"failed={runbook_audit['run_transparency']['failed_gate_count']}",
+    )
     print(f"Runbook Gap Pack: {runbook_gap_pack['markdown_path']}")
     print(f"Capacity Forecast score: {capacity_forecast['capacity_score']}")
     print(f"Capacity Forecast gaps: {len(capacity_forecast['staffing_gaps'])}")

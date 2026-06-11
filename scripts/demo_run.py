@@ -951,6 +951,8 @@ def main():
         runbook_coverage["coverage_score"],
         runbook_coverage["readiness_status"],
         f"gaps={len(runbook_coverage['runbook_gaps'])}",
+        f"mode={runbook_coverage['selected_process_mode']['mode_id']}",
+        f"failed_gates={runbook_coverage['run_transparency']['failed_gate_count']}",
     )
     print("Runbook Gap Pack:", runbook_gap_pack["markdown_path"])
     print("Runbook Gap JSON:", runbook_gap_pack["json_path"])

@@ -21,6 +21,21 @@ def test_runbook_coverage_audit_maps_tickets_to_kb_and_runbooks(client):
     assert audit["runbook_gaps"]
     assert "GET /runbooks/coverage-audit" in audit["endpoint_list"]
     assert "POST /runbooks/gap-pack" in audit["endpoint_list"]
+    assert {
+        "role playbooks",
+        "task delegation",
+        "process modes",
+        "artifact handoffs",
+        "review gates",
+        "run transparency",
+    } <= set(audit["repo_radar_patterns"])
+    assert audit["selected_process_mode"]["mode_id"] == "urgent_gap_remediation"
+    assert audit["role_playbooks"]
+    assert audit["delegated_tasks"]
+    assert audit["artifact_handoffs"]
+    assert audit["run_transparency"]["external_calls"] == 0
+    assert audit["run_transparency"]["external_services_blocked"] is True
+    assert any(gate["gate_id"] == "high_impact_runbook_gate" for gate in audit["review_gates"])
 
     webhook = next(
         item
@@ -52,15 +67,24 @@ def test_runbook_gap_pack_exports_owner_ready_remediation_artifacts(client):
         "ready_for_operator_handoff",
     }
     assert "runbook_gap_packs" in exported["markdown_path"]
+    assert exported["pack_id"] == pack["pack_id"]
     assert Path(exported["markdown_path"]).exists()
     assert Path(exported["json_path"]).exists()
     assert pack["runbook_gaps"]
     assert pack["remediation_tasks"]
     assert pack["owner_assignments"]
+    assert pack["selected_process_mode"]["requires_executive_review"] is True
+    assert pack["delegated_tasks"]
+    assert pack["review_gates"]
+    assert pack["artifact_handoffs"]
+    assert pack["run_transparency"]["execution_mode"] == "local_deterministic_fixture_audit"
     assert "POST /runbooks/gap-pack" in pack["endpoint_list"]
     assert "runbook_gap_pack_markdown" in pack["artifact_paths"]
     assert "# Runbook Coverage Gap Pack" in markdown
     assert "## Ticket Coverage Map" in markdown
     assert "## Remediation Tasks" in markdown
+    assert "## Review Gates" in markdown
+    assert "## Artifact Handoffs" in markdown
+    assert "## Run Transparency" in markdown
     saved = Path(exported["json_path"]).read_text(encoding="utf-8")
     assert "missing_dedicated_incident_runbook" in saved

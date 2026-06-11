@@ -85,10 +85,10 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
   Writes Markdown and JSON under the ignored KB refresh folder, normally `data/kb_refresh_plans/`. The plan includes article refresh tasks, owners, acceptance criteria, impacted workflows, local verification commands, JD skills demonstrated, and five interviewer talking points. It remains fully local/mock and does not call an external knowledge-base system.
 
 - `GET /runbooks/coverage-audit`
-  Returns the Runbook Coverage audit across active tickets, scenario fixtures, local KB articles, and the playbook library. The response includes coverage score, readiness status, per-ticket KB/runbook mapping, missing dedicated runbook gaps, owner assignments, endpoint list, local commands, and local-only limitations.
+  Returns the Runbook Coverage audit across active tickets, scenario fixtures, local KB articles, and the playbook library. The response includes coverage score, readiness status, per-ticket KB/runbook mapping, missing dedicated runbook gaps, owner assignments, selected process mode, role playbooks, delegated remediation tasks, review gates, artifact handoffs, run transparency, endpoint list, local commands, and local-only limitations.
 
 - `POST /runbooks/gap-pack`
-  Writes Markdown and JSON under the ignored runbook gap folder, normally `data/runbook_gap_packs/`. The pack includes the ticket coverage map, missing runbook gaps, owner-ready remediation tasks, acceptance criteria, endpoint evidence, local verification commands, JD skills demonstrated, and five interviewer talking points.
+  Writes Markdown and JSON under the ignored runbook gap folder, normally `data/runbook_gap_packs/`. The pack includes the ticket coverage map, missing runbook gaps, owner-ready remediation tasks, role playbooks, delegated coverage tasks, review gates, artifact handoffs, run transparency, acceptance criteria, endpoint evidence, local verification commands, JD skills demonstrated, and five interviewer talking points.
 
 - `GET /providers/readiness`
   Returns the Provider Readiness audit for the configured LLM mode. The response includes local/mock default status, active provider class, redacted optional OpenAI/Azure credential presence, provider matrix, fallback policy, production activation backlog, endpoint evidence, local commands, and limitations. It does not call OpenAI, Azure OpenAI, Zendesk, Jira, Slack, GitHub, or external networks.

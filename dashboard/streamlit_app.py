@@ -2302,6 +2302,13 @@ with tabs[37]:
             "ticket_mappings": pack["pack"]["ticket_mappings"],
             "runbook_gaps": pack["pack"]["runbook_gaps"],
             "owner_assignments": pack["pack"]["owner_assignments"],
+            "selected_process_mode": pack["pack"]["selected_process_mode"],
+            "role_playbooks": pack["pack"]["role_playbooks"],
+            "delegated_tasks": pack["pack"]["delegated_tasks"],
+            "review_gates": pack["pack"]["review_gates"],
+            "artifact_handoffs": pack["pack"]["artifact_handoffs"],
+            "run_transparency": pack["pack"]["run_transparency"],
+            "repo_radar_patterns": pack["pack"]["repo_radar_patterns"],
             "endpoint_list": pack["pack"]["endpoint_list"],
         }
         st.success(f"Runbook Gap Pack exported: {pack['markdown_path']}")
@@ -2338,6 +2345,43 @@ with tabs[37]:
 
     st.subheader("Owner Assignments")
     st.dataframe(audit["owner_assignments"], use_container_width=True, hide_index=True)
+
+    st.subheader("Process Mode")
+    process_mode = audit["selected_process_mode"]
+    p1, p2, p3, p4 = st.columns(4)
+    p1.metric("Mode", process_mode["mode_id"])
+    p2.metric("Cadence", process_mode["review_cadence"])
+    p3.metric("Owner tasks", process_mode["max_parallel_owner_tasks"])
+    p4.metric("Executive review", str(process_mode["requires_executive_review"]))
+
+    st.subheader("Role Playbooks")
+    st.dataframe(audit["role_playbooks"], use_container_width=True, hide_index=True)
+
+    st.subheader("Delegated Coverage Tasks")
+    st.dataframe(
+        [
+            {
+                "task": task["task_id"],
+                "owner": task["owner_role"],
+                "priority": task["priority"],
+                "status": task["status"],
+                "ticket_type": task["ticket_type"],
+                "evidence": ", ".join(task["evidence_refs"]),
+            }
+            for task in audit["delegated_tasks"]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Review Gates")
+    st.dataframe(audit["review_gates"], use_container_width=True, hide_index=True)
+
+    st.subheader("Artifact Handoffs")
+    st.dataframe(audit["artifact_handoffs"], use_container_width=True, hide_index=True)
+
+    st.subheader("Run Transparency")
+    st.json(audit["run_transparency"])
 
     st.subheader("Endpoint Coverage")
     st.dataframe(

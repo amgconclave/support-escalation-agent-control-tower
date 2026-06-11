@@ -63,6 +63,67 @@ RUNBOOK_COVERAGE_COMMANDS = [
     ),
 ]
 
+RUNBOOK_REPO_RADAR_PATTERNS = [
+    "role playbooks",
+    "task delegation",
+    "process modes",
+    "artifact handoffs",
+    "review gates",
+    "run transparency",
+]
+
+RUNBOOK_ROLE_PLAYBOOKS = [
+    {
+        "role_id": "runbook_program_owner",
+        "role": "Runbook Program Owner",
+        "mission": "Own runbook inventory health, gap prioritization, and acceptance criteria.",
+        "coverage_scope": ["coverage_score", "missing_dedicated_runbook", "review_cadence"],
+        "guardrail": "Cannot mark a gap closed until a ticket maps to KB evidence and a runbook.",
+    },
+    {
+        "role_id": "kb_curator",
+        "role": "Knowledge Curator",
+        "mission": "Retag or add KB articles so ticket language resolves to source guidance.",
+        "coverage_scope": ["kb_article_mapping", "citation_readiness", "fixture_quality"],
+        "guardrail": "Must preserve source-backed guidance; no external KB writes in local mode.",
+    },
+    {
+        "role_id": "escalation_owner",
+        "role": "Escalation Owner",
+        "mission": "Confirm operating procedure, severity rules, and handoff expectations.",
+        "coverage_scope": ["owner_assignment", "severity_policy", "engineering_handoff"],
+        "guardrail": "Engineering-facing actions remain drafts until human approval.",
+    },
+    {
+        "role_id": "ops_reviewer",
+        "role": "Operations Reviewer",
+        "mission": "Review gates, endpoint proof, local commands, and generated artifacts.",
+        "coverage_scope": ["review_gates", "artifact_handoffs", "run_transparency"],
+        "guardrail": "Must keep audit evidence local and reproducible without paid services.",
+    },
+]
+
+RUNBOOK_PROCESS_MODES = {
+    "continuous_monitoring": {
+        "description": "All high-impact coverage is acceptable; monitor fixtures and new ticket types.",
+        "review_cadence": "weekly",
+        "max_parallel_owner_tasks": 2,
+        "requires_executive_review": False,
+    },
+    "targeted_backlog": {
+        "description": "Partial coverage exists; assign backlog tasks to close medium and low gaps.",
+        "review_cadence": "twice-weekly",
+        "max_parallel_owner_tasks": 4,
+        "requires_executive_review": False,
+    },
+    "urgent_gap_remediation": {
+        "description": "High-impact runbook gaps exist; route owners through explicit review gates.",
+        "review_cadence": "daily until closed",
+        "max_parallel_owner_tasks": 6,
+        "requires_executive_review": True,
+    },
+}
+
 
 class RunbookCoverageService:
     """Maps support tickets to KB/runbook coverage and exports owner-ready gap packs."""
@@ -95,6 +156,9 @@ class RunbookCoverageService:
         gaps = self._runbook_gaps(ticket_mappings)
         owner_assignments = self._owner_assignments(gaps, ticket_mappings)
         summary = self._coverage_summary(ticket_mappings, gaps)
+        process_mode = self._select_process_mode(summary, gaps)
+        review_gates = self._review_gates(summary, gaps, ticket_mappings, owner_assignments)
+        artifact_handoffs = self._artifact_handoffs(summary, gaps)
         return {
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "mode": "local-deterministic-runbook-coverage-auditor",
@@ -105,6 +169,13 @@ class RunbookCoverageService:
             "ticket_mappings": ticket_mappings,
             "runbook_gaps": gaps,
             "owner_assignments": owner_assignments,
+            "selected_process_mode": process_mode,
+            "role_playbooks": RUNBOOK_ROLE_PLAYBOOKS,
+            "delegated_tasks": self._delegated_tasks(gaps, ticket_mappings, process_mode),
+            "review_gates": review_gates,
+            "artifact_handoffs": artifact_handoffs,
+            "run_transparency": self._run_transparency(summary, gaps, review_gates),
+            "repo_radar_patterns": RUNBOOK_REPO_RADAR_PATTERNS,
             "endpoint_list": RUNBOOK_COVERAGE_ENDPOINTS,
             "evidence_sources": {
                 "active_ticket_count": len(active_tickets),
@@ -135,6 +206,13 @@ class RunbookCoverageService:
             "ticket_mappings": audit["ticket_mappings"],
             "runbook_gaps": audit["runbook_gaps"],
             "owner_assignments": audit["owner_assignments"],
+            "selected_process_mode": audit["selected_process_mode"],
+            "role_playbooks": audit["role_playbooks"],
+            "delegated_tasks": audit["delegated_tasks"],
+            "review_gates": audit["review_gates"],
+            "artifact_handoffs": audit["artifact_handoffs"],
+            "run_transparency": audit["run_transparency"],
+            "repo_radar_patterns": audit["repo_radar_patterns"],
             "remediation_tasks": remediation_tasks,
             "acceptance_criteria": self._acceptance_criteria(),
             "endpoint_list": RUNBOOK_COVERAGE_ENDPOINTS,
@@ -401,6 +479,214 @@ class RunbookCoverageService:
             "ticket_types": sorted({item["ticket_type"] for item in mappings}),
         }
 
+    def _select_process_mode(
+        self,
+        summary: dict[str, Any],
+        gaps: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        if any(gap["severity"] == "high" for gap in gaps):
+            mode_id = "urgent_gap_remediation"
+        elif summary["coverage_score"] < 85 or gaps:
+            mode_id = "targeted_backlog"
+        else:
+            mode_id = "continuous_monitoring"
+        return {"mode_id": mode_id, **RUNBOOK_PROCESS_MODES[mode_id]}
+
+    def _delegated_tasks(
+        self,
+        gaps: list[dict[str, Any]],
+        mappings: list[dict[str, Any]],
+        process_mode: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        tasks = []
+        for gap in gaps:
+            tasks.append(
+                {
+                    "task_id": f"{gap['gap_id']}_implementation",
+                    "owner_role": gap["owner"],
+                    "role_id": self._role_id_for_owner(gap["owner"]),
+                    "process_mode": process_mode["mode_id"],
+                    "ticket_type": gap["ticket_type"],
+                    "status": "blocked_by_missing_runbook"
+                    if any(reason.startswith("missing_dedicated") for reason in gap["gap_reasons"])
+                    else "ready_for_owner_review",
+                    "priority": gap["severity"],
+                    "objective": (
+                        "Turn coverage gap evidence into a runbook or KB update with "
+                        "reviewable acceptance criteria."
+                    ),
+                    "requirements_to_implementation": {
+                        "requirements": gap["gap_reasons"],
+                        "implementation_artifact": (
+                            "sample_data/playbooks.json or sample_data/kb_articles.json"
+                        ),
+                        "verification": "GET /runbooks/coverage-audit",
+                    },
+                    "evidence_refs": gap["affected_ticket_ids"],
+                    "acceptance_criteria": gap["acceptance_criteria"],
+                }
+            )
+        if not tasks:
+            tasks.append(
+                {
+                    "task_id": "runbook_continuous_monitoring",
+                    "owner_role": "Runbook Program Owner",
+                    "role_id": "runbook_program_owner",
+                    "process_mode": process_mode["mode_id"],
+                    "ticket_type": "all",
+                    "status": "ready_for_monitoring",
+                    "priority": "low",
+                    "objective": "Review fixture changes and keep coverage score above release threshold.",
+                    "requirements_to_implementation": {
+                        "requirements": [
+                            "monitor_new_ticket_types",
+                            "preserve_kb_and_runbook_match",
+                        ],
+                        "implementation_artifact": "sample_data/playbooks.json",
+                        "verification": "POST /runbooks/gap-pack",
+                    },
+                    "evidence_refs": [item["ticket_id"] for item in mappings[:5]],
+                    "acceptance_criteria": self._acceptance_criteria(),
+                }
+            )
+        return tasks[: process_mode["max_parallel_owner_tasks"]]
+
+    def _review_gates(
+        self,
+        summary: dict[str, Any],
+        gaps: list[dict[str, Any]],
+        mappings: list[dict[str, Any]],
+        owner_assignments: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        high_gaps = [gap for gap in gaps if gap["severity"] == "high"]
+        kb_missing = [
+            item
+            for item in mappings
+            if item["kb_coverage"]["status"] != "covered"
+        ]
+        dedicated_runbook_missing = [
+            item
+            for item in mappings
+            if not item["runbook_coverage"]["dedicated_category_runbook"]
+        ]
+        return [
+            self._gate(
+                "high_impact_runbook_gate",
+                "Escalation Owner",
+                not high_gaps,
+                f"{len(high_gaps)} high-severity runbook gaps require owner remediation.",
+            ),
+            self._gate(
+                "kb_source_mapping_gate",
+                "Knowledge Curator",
+                not kb_missing,
+                f"{len(kb_missing)} tickets lack KB article mapping.",
+            ),
+            self._gate(
+                "dedicated_runbook_gate",
+                "Runbook Program Owner",
+                not dedicated_runbook_missing,
+                f"{len(dedicated_runbook_missing)} tickets lack dedicated category runbooks.",
+            ),
+            self._gate(
+                "owner_assignment_gate",
+                "Operations Reviewer",
+                all(item["owner"] and item["next_action"] for item in owner_assignments),
+                "Every open gap and ticket type must have an owner and next action.",
+            ),
+            self._gate(
+                "release_threshold_gate",
+                "Operations Reviewer",
+                summary["coverage_score"] >= 85,
+                f"Coverage score is {summary['coverage_score']}; release target is 85.",
+            ),
+        ]
+
+    def _gate(
+        self,
+        gate_id: str,
+        owner_role: str,
+        passed: bool,
+        detail: str,
+    ) -> dict[str, Any]:
+        return {
+            "gate_id": gate_id,
+            "owner_role": owner_role,
+            "status": "pass" if passed else "fail",
+            "detail": detail,
+            "required_before": "production adapter enablement",
+        }
+
+    def _artifact_handoffs(
+        self,
+        summary: dict[str, Any],
+        gaps: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        return [
+            {
+                "artifact": "runbook_coverage_audit",
+                "producer": "GET /runbooks/coverage-audit",
+                "consumer_role": "Operations Reviewer",
+                "evidence": f"{summary['ticket_count']} mapped tickets",
+                "handoff_status": "ready",
+            },
+            {
+                "artifact": "runbook_gap_pack",
+                "producer": "POST /runbooks/gap-pack",
+                "consumer_role": "Runbook Program Owner",
+                "evidence": f"{len(gaps)} open runbook gaps",
+                "handoff_status": "ready",
+            },
+            {
+                "artifact": "playbook_fixture",
+                "producer": "sample_data/playbooks.json",
+                "consumer_role": "Escalation Owner",
+                "evidence": "local deterministic runbook source",
+                "handoff_status": "ready",
+            },
+            {
+                "artifact": "kb_fixture",
+                "producer": "sample_data/kb_articles.json",
+                "consumer_role": "Knowledge Curator",
+                "evidence": "local deterministic KB source",
+                "handoff_status": "ready",
+            },
+            {
+                "artifact": "dashboard_panel",
+                "producer": "dashboard/streamlit_app.py Runbook Coverage tab",
+                "consumer_role": "Operations Reviewer",
+                "evidence": "coverage, gates, owners, endpoints, and gap pack export",
+                "handoff_status": "ready",
+            },
+        ]
+
+    def _run_transparency(
+        self,
+        summary: dict[str, Any],
+        gaps: list[dict[str, Any]],
+        gates: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        return {
+            "execution_mode": "local_deterministic_fixture_audit",
+            "external_calls": 0,
+            "external_services_blocked": True,
+            "ticket_count": summary["ticket_count"],
+            "ticket_types": summary["ticket_types"],
+            "open_gap_count": len(gaps),
+            "failed_gate_count": len([gate for gate in gates if gate["status"] == "fail"]),
+            "artifact_directory": "data/runbook_gap_packs",
+            "commands_available": len(RUNBOOK_COVERAGE_COMMANDS),
+        }
+
+    def _role_id_for_owner(self, owner: str) -> str:
+        if "Knowledge" in owner or "Support Enablement" in owner:
+            return "kb_curator"
+        if owner in {"Incident Commander", "Developer Support Lead", "Security and Compliance Owner"}:
+            return "escalation_owner"
+        if "QA" in owner:
+            return "ops_reviewer"
+        return "runbook_program_owner"
+
     def _readiness_status(self, score: int, gaps: list[dict[str, Any]]) -> str:
         if any(gap["severity"] == "high" for gap in gaps):
             return "gaps_require_owner_remediation"
@@ -536,6 +822,7 @@ class RunbookCoverageService:
 
     def _markdown(self, pack: dict[str, Any]) -> str:
         summary = pack["coverage_summary"]
+        process_mode = pack["selected_process_mode"]
         gap_rows = [
             (
                 f"| {gap['gap_id']} | {gap['severity']} | {gap['owner']} | "
@@ -562,6 +849,32 @@ class RunbookCoverageService:
             )
             for task in pack["remediation_tasks"]
         ]
+        role_rows = [
+            (
+                f"| {role['role']} | `{role['role_id']}` | {role['mission']} | "
+                f"{role['guardrail']} |"
+            )
+            for role in pack["role_playbooks"]
+        ]
+        delegation_rows = [
+            (
+                f"| `{task['task_id']}` | {task['owner_role']} | {task['priority']} | "
+                f"{task['status']} | {', '.join(task['evidence_refs']) or 'none'} |"
+            )
+            for task in pack["delegated_tasks"]
+        ]
+        gate_rows = [
+            f"| `{gate['gate_id']}` | {gate['owner_role']} | {gate['status']} | {gate['detail']} |"
+            for gate in pack["review_gates"]
+        ]
+        handoff_rows = [
+            (
+                f"| {item['artifact']} | `{item['producer']}` | {item['consumer_role']} | "
+                f"{item['evidence']} | {item['handoff_status']} |"
+            )
+            for item in pack["artifact_handoffs"]
+        ]
+        pattern_rows = [f"- {pattern}" for pattern in pack["repo_radar_patterns"]]
         endpoints = [f"- `{endpoint}`" for endpoint in pack["endpoint_list"]]
         commands = [f"- `{command}`" for command in pack["local_commands"]]
         skills = [f"- {skill}" for skill in pack["jd_skills_demonstrated"]]
@@ -594,6 +907,43 @@ class RunbookCoverageService:
                 "",
                 "## Remediation Tasks",
                 *task_rows,
+                "",
+                "## Process Mode",
+                f"- Mode: `{process_mode['mode_id']}`",
+                f"- Cadence: {process_mode['review_cadence']}",
+                f"- Max parallel owner tasks: {process_mode['max_parallel_owner_tasks']}",
+                f"- Executive review required: {process_mode['requires_executive_review']}",
+                f"- Description: {process_mode['description']}",
+                "",
+                "## Role Playbooks",
+                "| Role | Role ID | Mission | Guardrail |",
+                "| --- | --- | --- | --- |",
+                *role_rows,
+                "",
+                "## Delegated Coverage Tasks",
+                "| Task | Owner | Priority | Status | Evidence |",
+                "| --- | --- | --- | --- | --- |",
+                *delegation_rows,
+                "",
+                "## Review Gates",
+                "| Gate | Owner | Status | Detail |",
+                "| --- | --- | --- | --- |",
+                *gate_rows,
+                "",
+                "## Artifact Handoffs",
+                "| Artifact | Producer | Consumer | Evidence | Status |",
+                "| --- | --- | --- | --- | --- |",
+                *handoff_rows,
+                "",
+                "## Run Transparency",
+                f"- Execution mode: {pack['run_transparency']['execution_mode']}",
+                f"- External calls: {pack['run_transparency']['external_calls']}",
+                f"- Open gaps: {pack['run_transparency']['open_gap_count']}",
+                f"- Failed gates: {pack['run_transparency']['failed_gate_count']}",
+                f"- Artifact directory: {pack['run_transparency']['artifact_directory']}",
+                "",
+                "## Repo Radar Patterns",
+                *pattern_rows,
                 "",
                 "## Endpoint List",
                 *endpoints,
