@@ -107,6 +107,12 @@ These analytics endpoints do not call Azure, Zendesk, Jira, Slack, or any extern
 
 `POST /ops/crew-readiness-pack` writes Markdown and JSON under `data/support_ops_readiness/`. The pack packages scenario results, the role coverage matrix, process-mode coverage, readiness gates, sandbox transcript audit, proof commands, and limitations. It borrows role-crew, task-delegation, process-mode, review-gate, task-sandbox, and run-transparency patterns while staying local/mock only.
 
+## Agent Communication Bus Audit
+
+`GET /ops/agent-bus-audit` audits the local supervisor JSONL bus when files exist. It reports the registered conductor, CLI worker, verifier, repo-radar, and UI-bridge roles; message file health; sender/recipient routes; handoff ledger; review gates; operator queue; recent message previews; and local proof commands.
+
+`POST /ops/agent-bus-pack` writes Markdown and JSON under `data/agent_bus_packs/`. The pack is read-only evidence for agent-role, task-delegation, review-gate, artifact-handoff, task-sandbox, and run-transparency patterns. It does not send or acknowledge bus messages, automate the Codex desktop UI, mutate git state, or call GitHub, Azure, OpenAI, Zendesk, Jira, Slack, browser, or network providers.
+
 ## Runbook QA and Operator Readiness Pack
 
 `POST /ops/runbook-qa` evaluates whether a run is complete enough for operator handoff. It checks ticket summary, classification, SLA risk, customer impact, KB citations/context, drafted reply, engineering escalation, approval state, trace ID, outbox dispatches, failure drill result, remediation owners, SLO budget, optimization recommendations, and customer/account health.

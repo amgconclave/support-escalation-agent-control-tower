@@ -85,6 +85,7 @@ tabs = st.tabs(
         "Support Ops Sandbox",
         "Support Ops Readiness",
         "Tool Governance",
+        "Agent Bus",
     ]
 )
 
@@ -3435,4 +3436,57 @@ with tabs[52]:
         st.dataframe(pack["pack"]["approval_matrix"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Tool Governance Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[53]:
+    left, right = st.columns(2)
+    if left.button("Refresh Agent Bus", type="primary", use_container_width=True):
+        st.session_state["agent_bus_audit"] = api("GET", "/ops/agent-bus-audit")
+    if right.button("Export Agent Bus Pack", use_container_width=True):
+        pack = api("POST", "/ops/agent-bus-pack")
+        st.session_state["agent_bus_pack"] = pack
+        st.session_state["agent_bus_audit"] = pack["pack"]["bus_audit"]
+        st.success(f"Agent Bus Pack exported: {pack['markdown_path']}")
+
+    audit = st.session_state.get("agent_bus_audit") or api("GET", "/ops/agent-bus-audit")
+    st.session_state["agent_bus_audit"] = audit
+    summary = audit["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Coordination score", audit["coordination_score"])
+    c2.metric("Status", audit["readiness_status"])
+    c3.metric("Messages", summary["message_count"])
+    c4.metric("Malformed", summary["malformed_message_count"])
+
+    st.caption(f"Bus root: {audit['bus_root']}")
+
+    st.subheader("Agent Registry")
+    st.dataframe(audit["agent_registry"], use_container_width=True, hide_index=True)
+
+    st.subheader("Message Files")
+    st.dataframe(audit["message_files"], use_container_width=True, hide_index=True)
+
+    st.subheader("Handoff Ledger")
+    st.dataframe(audit["handoff_ledger"], use_container_width=True, hide_index=True)
+
+    st.subheader("Review Gates")
+    st.dataframe(audit["control_gates"], use_container_width=True, hide_index=True)
+
+    st.subheader("Operator Queue")
+    st.dataframe(audit["operator_queue"], use_container_width=True, hide_index=True)
+
+    st.subheader("Recent Messages")
+    st.dataframe(audit["recent_messages"], use_container_width=True, hide_index=True)
+
+    pack = st.session_state.get("agent_bus_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Agent Bus Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(pack["markdown"])
+        with st.expander("Agent Bus Pack JSON"):
             st.json(pack["pack"])

@@ -46,6 +46,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Access Control Matrix role mapping, production scopes, shared-demo-key findings, dashboard wiring, demo output, and Review Pack export under `data/access_review_packs/`
 - Provider Readiness audit for local/mock default posture, optional OpenAI/Azure credential readiness, secret redaction, dashboard wiring, demo/eval output, and Guard Pack export under `data/provider_readiness_packs/`
 - Durable Workflow Recovery audit for persisted checkpoints, resume tokens, HITL recovery readiness, dashboard wiring, demo output, and Recovery Pack export under `data/workflow_recovery_packs/`
+- Agent Communication Bus audit for registered roles, JSONL handoff health, review gates, UI automation boundaries, dashboard wiring, demo output, and Coordination Bus Pack export under `data/agent_bus_packs/`
 - Dashboard Smoke source wiring for Streamlit views, endpoint references, generated artifact tabs, and UI Verification Pack export under `data/ui_verification/`
 - metrics aggregation
 - auth behavior
@@ -1272,6 +1273,31 @@ Expected:
 - Markdown and JSON files are written under `data/provider_readiness_packs/`
 - dashboard includes a `Provider Readiness` tab with provider matrix, checks, env presence, fallback policy, production backlog, and export controls
 - `scripts/demo_run.py` prints Provider Readiness status/score and pack paths
+
+## Agent Bus Coordination Eval
+
+Review the local JSONL handoff surface:
+
+```bash
+curl http://localhost:8000/ops/agent-bus-audit \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Export the coordination pack:
+
+```bash
+curl -X POST http://localhost:8000/ops/agent-bus-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- response includes conductor, codex CLI worker, verifier, repo-radar, and UI bridge roles
+- message-file rows report JSONL existence, counts, malformed records, and latest message times
+- review gates cover registered agents, read-only sandbox behavior, JSONL integrity, known recipients, UI boundary, and external-call boundary
+- Markdown and JSON files are written under `data/agent_bus_packs/`
+- dashboard includes an `Agent Bus` tab with coordination score, message files, handoff ledger, gates, and pack export controls
+- `scripts/demo_run.py` prints Agent Bus status/score/message count and pack paths
 
 ## Change Risk and Escalation Replay Eval
 

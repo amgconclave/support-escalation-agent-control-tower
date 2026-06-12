@@ -5,6 +5,7 @@ from app.adapters.llm import build_llm_provider
 from app.core.config import Settings
 from app.core.storage import JsonStateStore
 from app.services.analytics import AnalyticsService
+from app.services.agent_bus import AgentBusCoordinationService
 from app.services.approvals import ApprovalService
 from app.services.api_contract import ApiContractService
 from app.services.artifacts import ArtifactInventoryService
@@ -430,4 +431,8 @@ class ServiceContainer:
             self.workflow,
             self.audit,
             settings.state_file.parent / "tool_governance_packs",
+        )
+        self.agent_bus = AgentBusCoordinationService(
+            self.audit,
+            settings.state_file.parent / "agent_bus_packs",
         )

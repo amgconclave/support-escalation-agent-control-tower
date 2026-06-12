@@ -68,6 +68,10 @@ VERIFY_COMMANDS = [
         r'tool manifest|tool registry" app dashboard docs README.md tests scripts'
     ),
     (
+        r'rg "ops/agent-bus-audit|ops/agent-bus-pack|Agent Bus|agent_bus_packs|'
+        r'agent communication bus|handoff ledger" app dashboard docs README.md tests scripts'
+    ),
+    (
         r'rg "providers/failover-drill|providers/failover-pack|Provider Failover|'
         r'provider_failover_packs|fallback drill|fail-closed" app dashboard docs README.md tests scripts'
     ),
@@ -131,6 +135,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /ops/crew-readiness-pack",
     "GET /tools/registry",
     "POST /tools/governance-pack",
+    "GET /ops/agent-bus-audit",
+    "POST /ops/agent-bus-pack",
     "GET /ops/daily-brief",
     "POST /ops/daily-brief-pack",
 ]
@@ -417,6 +423,8 @@ class ApiContractService:
             "POST /ops/crew-readiness-pack",
             "GET /tools/registry",
             "POST /tools/governance-pack",
+            "GET /ops/agent-bus-audit",
+            "POST /ops/agent-bus-pack",
         ]
         rows = [
             {

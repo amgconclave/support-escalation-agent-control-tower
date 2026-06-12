@@ -296,6 +296,12 @@ EXPECTED_ARTIFACTS = [
         "producer": "POST /escalations/quality-pack",
         "formats": ["markdown", "json"],
     },
+    {
+        "name": "Agent Coordination Bus Pack",
+        "directory": "data/agent_bus_packs",
+        "producer": "POST /ops/agent-bus-pack",
+        "formats": ["markdown", "json"],
+    },
 ]
 
 
@@ -431,6 +437,8 @@ class LaunchChecklistService:
             self._row("POST", "/workflows/durability-pack", True, "Writes the Durable Workflow Recovery Pack.", True, "data/workflow_recovery_packs"),
             self._row("GET", "/ops/daily-brief", True, "Returns the Executive Daily Ops Brief command-center summary.", False),
             self._row("POST", "/ops/daily-brief-pack", True, "Writes the Executive Daily Ops Brief Pack.", True, "data/daily_ops_briefs"),
+            self._row("GET", "/ops/agent-bus-audit", True, "Returns local agent communication bus handoff health.", False),
+            self._row("POST", "/ops/agent-bus-pack", True, "Writes the Agent Coordination Bus Pack.", True, "data/agent_bus_packs"),
             self._row("POST", "/tickets/ingest-samples", True, "Loads sample tickets for manual demos.", False),
             self._row("GET", "/tickets", True, "Confirms authenticated ticket listing works.", False),
             self._row("POST", "/demo/evidence-pack", True, "Runs the complete demo and writes evidence.", True, "data/demo_packs plus linked artifacts"),

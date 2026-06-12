@@ -201,6 +201,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /tools/governance-pack`
   Writes Markdown and JSON under the ignored local tool governance folder, normally `data/tool_governance_packs/`. The pack includes the registry, approval matrix, production acceptance criteria, proof commands, and limitations. It does not call external tool marketplaces, SaaS tools, Azure, OpenAI, Slack, Jira, Zendesk, GitHub, or external networks.
 
+- `GET /ops/agent-bus-audit`
+  Returns the Agent Communication Bus audit. The response reads local JSONL inbox/outbox files when present, reports registered agent roles, message files, message routes, a handoff ledger, review gates, operator queue, recent message previews, repo-radar patterns, proof commands, and local/mock limitations. It is read-only and does not send, delete, acknowledge, or route messages.
+
+- `POST /ops/agent-bus-pack`
+  Writes Markdown and JSON under the ignored local agent bus folder, normally `data/agent_bus_packs/`. The pack includes the bus audit, review-gate summary, handoff acceptance criteria, proof commands, and limitations. It does not automate the Codex desktop UI or call GitHub, Azure, OpenAI, Zendesk, Jira, Slack, browser, or network providers.
+
 - `GET /ops/smoke-matrix`
   Returns the Local Launch Checklist smoke matrix for GitHub reviewers. Each row includes endpoint, purpose, auth requirement, expected status, sample `curl.exe` and PowerShell `Invoke-RestMethod` commands, artifact expectation, and the overall launch readiness summary.
 

@@ -70,6 +70,7 @@ EXPECTED_VIEWS = [
     "Support Ops Sandbox",
     "Support Ops Readiness",
     "Tool Governance",
+    "Agent Bus",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -529,6 +530,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /ops/agent-bus-audit",
+        "purpose": "Agent communication bus audit over local JSONL handoff files.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /ops/agent-bus-pack",
+        "purpose": "Agent Coordination Bus Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -751,6 +764,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Tool Governance",
         "producer_endpoint": "POST /tools/governance-pack",
         "artifact_directory": "data/tool_governance_packs",
+    },
+    {
+        "tab_label": "Agent Bus",
+        "producer_endpoint": "POST /ops/agent-bus-pack",
+        "artifact_directory": "data/agent_bus_packs",
     },
 ]
 

@@ -339,6 +339,20 @@ def run_with_http_server() -> dict | None:
         )
         tool_governance_pack_response.raise_for_status()
         result["tool_governance_pack"] = tool_governance_pack_response.json()
+        agent_bus_response = requests.get(
+            f"{BASE}/ops/agent-bus-audit",
+            headers=headers,
+            timeout=60,
+        )
+        agent_bus_response.raise_for_status()
+        result["agent_bus_audit"] = agent_bus_response.json()
+        agent_bus_pack_response = requests.post(
+            f"{BASE}/ops/agent-bus-pack",
+            headers=headers,
+            timeout=60,
+        )
+        agent_bus_pack_response.raise_for_status()
+        result["agent_bus_pack"] = agent_bus_pack_response.json()
         git_readiness_response = requests.get(
             f"{BASE}/git/readiness",
             headers=headers,
@@ -785,6 +799,12 @@ def run_in_process() -> dict:
         tool_governance_pack_response = client.post("/tools/governance-pack", headers={"x-api-key": token})
         tool_governance_pack_response.raise_for_status()
         result["tool_governance_pack"] = tool_governance_pack_response.json()
+        agent_bus_response = client.get("/ops/agent-bus-audit", headers={"x-api-key": token})
+        agent_bus_response.raise_for_status()
+        result["agent_bus_audit"] = agent_bus_response.json()
+        agent_bus_pack_response = client.post("/ops/agent-bus-pack", headers={"x-api-key": token})
+        agent_bus_pack_response.raise_for_status()
+        result["agent_bus_pack"] = agent_bus_pack_response.json()
         git_readiness_response = client.get("/git/readiness", headers={"x-api-key": token})
         git_readiness_response.raise_for_status()
         result["git_readiness"] = git_readiness_response.json()
@@ -962,6 +982,8 @@ def main():
     support_ops_readiness_pack = result["support_ops_readiness_pack"]
     tool_registry = result["tool_registry"]
     tool_governance_pack = result["tool_governance_pack"]
+    agent_bus_audit = result["agent_bus_audit"]
+    agent_bus_pack = result["agent_bus_pack"]
     git_readiness = result["git_readiness"]
     git_push_plan = result["git_push_plan"]
     api_contract_audit = result["api_contract_audit"]
@@ -1162,6 +1184,15 @@ def main():
     )
     print("Tool Governance Pack:", tool_governance_pack["markdown_path"])
     print("Tool Governance JSON:", tool_governance_pack["json_path"])
+    print(
+        "Agent Bus:",
+        agent_bus_audit["readiness_status"],
+        f"score={agent_bus_audit['coordination_score']}",
+        f"messages={agent_bus_audit['summary']['message_count']}",
+        f"malformed={agent_bus_audit['summary']['malformed_message_count']}",
+    )
+    print("Agent Bus Pack:", agent_bus_pack["markdown_path"])
+    print("Agent Bus JSON:", agent_bus_pack["json_path"])
     print("Git readiness:", git_readiness["status"], f"branch={git_readiness['current_branch'] or 'unknown'}")
     print("Git changed files:", git_readiness["summary"]["changed_count"])
     print("Push Plan:", git_push_plan["markdown_path"])
