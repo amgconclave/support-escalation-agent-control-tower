@@ -684,6 +684,16 @@ async def agent_bus_pack(request: Request):
     return await get_container(request).agent_bus.export_pack()
 
 
+@router.get("/observability/trace-eval-lab", dependencies=[Depends(require_api_key)])
+async def observability_trace_eval_lab(request: Request):
+    return await get_container(request).observability_eval.trace_eval_lab()
+
+
+@router.post("/observability/eval-pack", dependencies=[Depends(require_api_key)])
+async def observability_eval_pack(request: Request):
+    return await get_container(request).observability_eval.export_eval_pack()
+
+
 @router.get("/runbooks/coverage-audit", dependencies=[Depends(require_api_key)])
 async def runbook_coverage_audit(request: Request):
     return await get_container(request).runbook_coverage.coverage_audit()

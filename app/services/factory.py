@@ -32,6 +32,7 @@ from app.services.leadership import LeadershipScorecardService
 from app.services.metrics import MetricsService
 from app.services.oncall_handoff import OnCallHandoffService
 from app.services.ops import OpsService
+from app.services.observability_eval import ObservabilityEvalService
 from app.services.outbox import OutboxService
 from app.services.playbooks import PlaybookService
 from app.services.policy_change_simulation import PolicyChangeSimulationService
@@ -435,4 +436,12 @@ class ServiceContainer:
         self.agent_bus = AgentBusCoordinationService(
             self.audit,
             settings.state_file.parent / "agent_bus_packs",
+        )
+        self.observability_eval = ObservabilityEvalService(
+            self.tickets,
+            self.workflow,
+            self.trace,
+            self.audit,
+            Path("sample_data/eval_dataset.json"),
+            settings.state_file.parent / "observability_eval_packs",
         )

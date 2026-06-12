@@ -207,6 +207,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /ops/agent-bus-pack`
   Writes Markdown and JSON under the ignored local agent bus folder, normally `data/agent_bus_packs/`. The pack includes the bus audit, review-gate summary, handoff acceptance criteria, proof commands, and limitations. It does not automate the Codex desktop UI or call GitHub, Azure, OpenAI, Zendesk, Jira, Slack, browser, or network providers.
 
+- `GET /observability/trace-eval-lab`
+  Returns the Trace Eval Lab for local support escalation runs. The response includes trace diagnostics, retrieval grounding, token/cost visibility, baseline-vs-strict eval experiment comparison, control checks, repo-radar patterns, proof commands, and local/mock limitations.
+
+- `POST /observability/eval-pack`
+  Writes Markdown and JSON under the ignored local observability eval folder, normally `data/observability_eval_packs/`. The pack includes trace diagnostics, retrieval diagnostics, experiment comparison, deployment gate, acceptance criteria, proof commands, and limitations. It does not call hosted evaluators, model providers, APM, Zendesk, Jira, Slack, GitHub, or external networks.
+
 - `GET /ops/smoke-matrix`
   Returns the Local Launch Checklist smoke matrix for GitHub reviewers. Each row includes endpoint, purpose, auth requirement, expected status, sample `curl.exe` and PowerShell `Invoke-RestMethod` commands, artifact expectation, and the overall launch readiness summary.
 

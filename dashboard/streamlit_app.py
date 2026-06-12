@@ -86,6 +86,7 @@ tabs = st.tabs(
         "Support Ops Readiness",
         "Tool Governance",
         "Agent Bus",
+        "Trace Eval Lab",
     ]
 )
 
@@ -3489,4 +3490,66 @@ with tabs[53]:
         )
         st.markdown(pack["markdown"])
         with st.expander("Agent Bus Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[54]:
+    left, right = st.columns(2)
+    if left.button("Refresh Trace Eval Lab", type="primary", use_container_width=True):
+        st.session_state["trace_eval_lab"] = api("GET", "/observability/trace-eval-lab")
+    if right.button("Export Trace Eval Lab Pack", use_container_width=True):
+        pack = api("POST", "/observability/eval-pack")
+        st.session_state["trace_eval_lab_pack"] = pack
+        st.session_state["trace_eval_lab"] = pack["pack"]["trace_eval_lab"]
+        st.success(f"Trace Eval Lab Pack exported: {pack['markdown_path']}")
+
+    lab = st.session_state.get("trace_eval_lab") or api("GET", "/observability/trace-eval-lab")
+    st.session_state["trace_eval_lab"] = lab
+    summary = lab["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Observability score", lab["observability_score"])
+    c2.metric("Status", lab["readiness_status"])
+    c3.metric("Trace events", summary["trace_event_count"])
+    c4.metric("Eval scenarios", summary["eval_dataset_size"])
+
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("Retrieval", summary["retrieval_status"])
+    c6.metric("Winner", summary["experiment_winner"])
+    c7.metric("Unsafe auto actions", summary["unsafe_auto_action_count"])
+    c8.metric("External calls", summary["external_call_count"])
+
+    st.subheader("Trace Diagnostics")
+    st.dataframe(lab["trace_diagnostics"], use_container_width=True, hide_index=True)
+
+    st.subheader("Retrieval Diagnostics")
+    st.json(lab["retrieval_diagnostics"])
+
+    st.subheader("Experiment Variants")
+    variants = [
+        {
+            "variant": item["variant"],
+            "routing_accuracy": item["routing_accuracy"],
+            "approval_recall": item["approval_recall"],
+            "approvals": item["approval_required_count"],
+            "unsafe_auto_actions": item["unsafe_auto_action_count"],
+            "external_calls": item["external_call_count"],
+        }
+        for item in lab["experiment_comparison"]["variants"]
+    ]
+    st.dataframe(variants, use_container_width=True, hide_index=True)
+
+    st.subheader("Control Checks")
+    st.dataframe(lab["control_checks"], use_container_width=True, hide_index=True)
+
+    pack = st.session_state.get("trace_eval_lab_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Trace Eval Lab Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(pack["markdown"])
+        with st.expander("Trace Eval Lab Pack JSON"):
             st.json(pack["pack"])

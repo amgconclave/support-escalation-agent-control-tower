@@ -71,6 +71,7 @@ EXPECTED_VIEWS = [
     "Support Ops Readiness",
     "Tool Governance",
     "Agent Bus",
+    "Trace Eval Lab",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -542,6 +543,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /observability/trace-eval-lab",
+        "purpose": "Trace, retrieval, cost, and eval experiment diagnostics for support escalation runs.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /observability/eval-pack",
+        "purpose": "Trace Eval Lab Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -769,6 +782,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Agent Bus",
         "producer_endpoint": "POST /ops/agent-bus-pack",
         "artifact_directory": "data/agent_bus_packs",
+    },
+    {
+        "tab_label": "Trace Eval Lab",
+        "producer_endpoint": "POST /observability/eval-pack",
+        "artifact_directory": "data/observability_eval_packs",
     },
 ]
 

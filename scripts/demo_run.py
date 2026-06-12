@@ -353,6 +353,20 @@ def run_with_http_server() -> dict | None:
         )
         agent_bus_pack_response.raise_for_status()
         result["agent_bus_pack"] = agent_bus_pack_response.json()
+        trace_eval_response = requests.get(
+            f"{BASE}/observability/trace-eval-lab",
+            headers=headers,
+            timeout=60,
+        )
+        trace_eval_response.raise_for_status()
+        result["trace_eval_lab"] = trace_eval_response.json()
+        trace_eval_pack_response = requests.post(
+            f"{BASE}/observability/eval-pack",
+            headers=headers,
+            timeout=60,
+        )
+        trace_eval_pack_response.raise_for_status()
+        result["trace_eval_pack"] = trace_eval_pack_response.json()
         git_readiness_response = requests.get(
             f"{BASE}/git/readiness",
             headers=headers,
@@ -805,6 +819,12 @@ def run_in_process() -> dict:
         agent_bus_pack_response = client.post("/ops/agent-bus-pack", headers={"x-api-key": token})
         agent_bus_pack_response.raise_for_status()
         result["agent_bus_pack"] = agent_bus_pack_response.json()
+        trace_eval_response = client.get("/observability/trace-eval-lab", headers={"x-api-key": token})
+        trace_eval_response.raise_for_status()
+        result["trace_eval_lab"] = trace_eval_response.json()
+        trace_eval_pack_response = client.post("/observability/eval-pack", headers={"x-api-key": token})
+        trace_eval_pack_response.raise_for_status()
+        result["trace_eval_pack"] = trace_eval_pack_response.json()
         git_readiness_response = client.get("/git/readiness", headers={"x-api-key": token})
         git_readiness_response.raise_for_status()
         result["git_readiness"] = git_readiness_response.json()
@@ -984,6 +1004,8 @@ def main():
     tool_governance_pack = result["tool_governance_pack"]
     agent_bus_audit = result["agent_bus_audit"]
     agent_bus_pack = result["agent_bus_pack"]
+    trace_eval_lab = result["trace_eval_lab"]
+    trace_eval_pack = result["trace_eval_pack"]
     git_readiness = result["git_readiness"]
     git_push_plan = result["git_push_plan"]
     api_contract_audit = result["api_contract_audit"]
@@ -1193,6 +1215,15 @@ def main():
     )
     print("Agent Bus Pack:", agent_bus_pack["markdown_path"])
     print("Agent Bus JSON:", agent_bus_pack["json_path"])
+    print(
+        "Trace Eval Lab:",
+        trace_eval_lab["readiness_status"],
+        f"score={trace_eval_lab['observability_score']}",
+        f"events={trace_eval_lab['summary']['trace_event_count']}",
+        f"winner={trace_eval_lab['summary']['experiment_winner']}",
+    )
+    print("Trace Eval Lab Pack:", trace_eval_pack["markdown_path"])
+    print("Trace Eval Lab JSON:", trace_eval_pack["json_path"])
     print("Git readiness:", git_readiness["status"], f"branch={git_readiness['current_branch'] or 'unknown'}")
     print("Git changed files:", git_readiness["summary"]["changed_count"])
     print("Push Plan:", git_push_plan["markdown_path"])

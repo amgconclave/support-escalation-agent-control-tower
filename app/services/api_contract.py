@@ -76,6 +76,11 @@ VERIFY_COMMANDS = [
         r'provider_failover_packs|fallback drill|fail-closed" app dashboard docs README.md tests scripts'
     ),
     (
+        r'rg "observability/trace-eval-lab|observability/eval-pack|Trace Eval Lab|'
+        r'observability_eval_packs|retrieval diagnostics|experiment comparison" '
+        r"app dashboard docs README.md tests scripts"
+    ),
+    (
         r"Get-ChildItem -Recurse -File data\api_contracts -ErrorAction SilentlyContinue "
         r"| Select-Object FullName,Length,LastWriteTime"
     ),
@@ -137,6 +142,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /tools/governance-pack",
     "GET /ops/agent-bus-audit",
     "POST /ops/agent-bus-pack",
+    "GET /observability/trace-eval-lab",
+    "POST /observability/eval-pack",
     "GET /ops/daily-brief",
     "POST /ops/daily-brief-pack",
 ]
@@ -425,6 +432,8 @@ class ApiContractService:
             "POST /tools/governance-pack",
             "GET /ops/agent-bus-audit",
             "POST /ops/agent-bus-pack",
+            "GET /observability/trace-eval-lab",
+            "POST /observability/eval-pack",
         ]
         rows = [
             {

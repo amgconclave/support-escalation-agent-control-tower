@@ -179,6 +179,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Audits local JSONL supervisor/worker/verifier/research/UI bridge handoffs, review gates, run transparency, and UI automation boundaries.",
     },
+    {
+        "name": "Trace Eval Lab Pack",
+        "directory": "data/observability_eval_packs",
+        "producer": "POST /observability/eval-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Analyzes trace health, retrieval grounding, token/cost visibility, and baseline-vs-strict eval experiment comparisons for support escalation runs.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -222,6 +229,7 @@ REVIEWER_PURPOSES = {
     "data/provider_readiness_packs": EXTRA_ARTIFACTS[8]["reviewer_purpose"],
     "data/provider_failover_packs": "Proves optional OpenAI/Azure activation states fall back locally or fail closed without external calls, while preserving human approval and token/cost visibility.",
     "data/agent_bus_packs": "Audits local JSONL supervisor/worker/verifier/research/UI bridge handoffs, review gates, run transparency, and UI automation boundaries.",
+    "data/observability_eval_packs": "Analyzes trace health, retrieval grounding, token/cost visibility, and baseline-vs-strict eval experiment comparisons for support escalation runs.",
     "data/autonomy_governance_packs": EXTRA_ARTIFACTS[9]["reviewer_purpose"],
     "data/workflow_recovery_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
     "data/communication_quality_packs": EXTRA_ARTIFACTS[11]["reviewer_purpose"],

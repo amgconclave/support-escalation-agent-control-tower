@@ -69,6 +69,8 @@ async def run_eval() -> None:
     support_ops_sandbox_pack = await container.support_ops_sandbox.export_sandbox_pack()
     support_ops_readiness = await container.support_ops_readiness.readiness_drill()
     support_ops_readiness_pack = await container.support_ops_readiness.export_readiness_pack()
+    trace_eval_lab = await container.observability_eval.trace_eval_lab()
+    trace_eval_pack = await container.observability_eval.export_eval_pack()
     passed = (
         correct_classification == total
         and correct_routing == total
@@ -97,6 +99,9 @@ async def run_eval() -> None:
         and support_ops_readiness["readiness_score"] >= 90
         and support_ops_readiness["process_mode_coverage"]["coverage_status"] == "pass"
         and support_ops_readiness["summary"]["external_call_count"] == 0
+        and trace_eval_lab["readiness_status"] == "ready"
+        and trace_eval_lab["summary"]["external_call_count"] == 0
+        and trace_eval_lab["summary"]["unsafe_auto_action_count"] == 0
     )
 
     print(f"Number of eval tickets: {total}")
@@ -150,6 +155,10 @@ async def run_eval() -> None:
     print(f"Support Ops Readiness score: {support_ops_readiness['readiness_score']}")
     print(f"Support Ops Readiness modes: {support_ops_readiness['process_mode_coverage']['actual_modes']}")
     print(f"Support Ops Readiness Pack: {support_ops_readiness_pack['markdown_path']}")
+    print(f"Trace Eval Lab status: {trace_eval_lab['readiness_status']}")
+    print(f"Trace Eval Lab score: {trace_eval_lab['observability_score']}")
+    print(f"Trace Eval Lab winner: {trace_eval_lab['summary']['experiment_winner']}")
+    print(f"Trace Eval Lab Pack: {trace_eval_pack['markdown_path']}")
     print(f"Pass/fail summary: {'PASS' if passed else 'FAIL'}")
     if not passed:
         raise SystemExit(1)

@@ -47,6 +47,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Provider Readiness audit for local/mock default posture, optional OpenAI/Azure credential readiness, secret redaction, dashboard wiring, demo/eval output, and Guard Pack export under `data/provider_readiness_packs/`
 - Durable Workflow Recovery audit for persisted checkpoints, resume tokens, HITL recovery readiness, dashboard wiring, demo output, and Recovery Pack export under `data/workflow_recovery_packs/`
 - Agent Communication Bus audit for registered roles, JSONL handoff health, review gates, UI automation boundaries, dashboard wiring, demo output, and Coordination Bus Pack export under `data/agent_bus_packs/`
+- Trace Eval Lab diagnostics for trace health, retrieval grounding, token/cost visibility, local eval dataset comparison, dashboard wiring, demo/eval output, and Eval Pack export under `data/observability_eval_packs/`
 - Dashboard Smoke source wiring for Streamlit views, endpoint references, generated artifact tabs, and UI Verification Pack export under `data/ui_verification/`
 - metrics aggregation
 - auth behavior
@@ -1298,6 +1299,33 @@ Expected:
 - Markdown and JSON files are written under `data/agent_bus_packs/`
 - dashboard includes an `Agent Bus` tab with coordination score, message files, handoff ledger, gates, and pack export controls
 - `scripts/demo_run.py` prints Agent Bus status/score/message count and pack paths
+
+## Trace Eval Lab Eval
+
+Review local trace and eval observability:
+
+```bash
+curl http://localhost:8000/observability/trace-eval-lab \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Export the Trace Eval Lab Pack:
+
+```bash
+curl -X POST http://localhost:8000/observability/eval-pack \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- response includes run trace diagnostics, missing-node checks, checkpoint counts, retrieval grounding, QA confidence, token counts, and estimated cost
+- experiment comparison reads `sample_data/eval_dataset.json` and compares `baseline_local` with `strict_fallback_guarded`
+- both experiment variants report zero external calls and zero unsafe automated escalation actions
+- control checks cover trace events, workflow node coverage, retrieval grounding, eval dataset comparison, HITL safety, and cost visibility
+- Markdown and JSON files are written under `data/observability_eval_packs/`
+- dashboard includes a `Trace Eval Lab` tab with trace diagnostics, retrieval diagnostics, experiment variants, control checks, and pack export controls
+- `scripts/demo_run.py` prints Trace Eval Lab status/score/experiment winner and pack paths
+- `python -m app.evals.run_eval` gates on Trace Eval Lab readiness and unsafe-action count
 
 ## Change Risk and Escalation Replay Eval
 

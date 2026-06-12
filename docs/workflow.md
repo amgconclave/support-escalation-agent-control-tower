@@ -113,6 +113,10 @@ These analytics endpoints do not call Azure, Zendesk, Jira, Slack, or any extern
 
 `POST /ops/agent-bus-pack` writes Markdown and JSON under `data/agent_bus_packs/`. The pack is read-only evidence for agent-role, task-delegation, review-gate, artifact-handoff, task-sandbox, and run-transparency patterns. It does not send or acknowledge bus messages, automate the Codex desktop UI, mutate git state, or call GitHub, Azure, OpenAI, Zendesk, Jira, Slack, browser, or network providers.
 
+`GET /observability/trace-eval-lab` inspects local run traces, workflow checkpoints, retrieval grounding, QA confidence, token/cost provider events, and the bundled eval dataset. It compares a baseline local policy with a stricter fallback-guarded policy so support leaders can see routing accuracy, approval recall, unsafe auto-action count, and external-call count before enabling broader automation.
+
+`POST /observability/eval-pack` writes Markdown and JSON under `data/observability_eval_packs/`. The pack packages trace diagnostics, retrieval diagnostics, experiment comparison, deployment gate, acceptance criteria, and local proof commands. It is deterministic and local-only; it does not call hosted evaluators, model providers, APM, Zendesk, Jira, Slack, GitHub, or external networks.
+
 ## Runbook QA and Operator Readiness Pack
 
 `POST /ops/runbook-qa` evaluates whether a run is complete enough for operator handoff. It checks ticket summary, classification, SLA risk, customer impact, KB citations/context, drafted reply, engineering escalation, approval state, trace ID, outbox dispatches, failure drill result, remediation owners, SLO budget, optimization recommendations, and customer/account health.
