@@ -235,6 +235,7 @@ class ServiceContainer:
             Path("sample_data/kb_articles.json"),
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "runbook_gap_packs",
+            settings.state_file.parent / "runbook_remediation_drafts",
         )
         self.leadership = LeadershipScorecardService(
             self.store,

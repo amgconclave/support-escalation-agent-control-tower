@@ -46,6 +46,7 @@ RUNBOOK_CONFIDENCE_THRESHOLD = 0.45
 RUNBOOK_COVERAGE_ENDPOINTS = [
     "GET /runbooks/coverage-audit",
     "POST /runbooks/gap-pack",
+    "POST /runbooks/remediation-drafts",
     "POST /playbooks/recommend",
     "POST /runs/{run_id}/remediation-checklist",
     "GET /knowledge/quality-audit",
@@ -70,6 +71,8 @@ RUNBOOK_REPO_RADAR_PATTERNS = [
     "artifact handoffs",
     "review gates",
     "run transparency",
+    "human-in-the-loop",
+    "durable remediation checkpoints",
 ]
 
 RUNBOOK_ROLE_PLAYBOOKS = [
@@ -136,6 +139,7 @@ class RunbookCoverageService:
         kb_fixture_path: Path,
         scenarios_path: Path,
         gap_packs_dir: Path,
+        remediation_drafts_dir: Path,
     ):
         self.tickets = tickets
         self.playbooks = playbooks
@@ -143,6 +147,7 @@ class RunbookCoverageService:
         self.kb_fixture_path = kb_fixture_path
         self.scenarios_path = scenarios_path
         self.gap_packs_dir = gap_packs_dir
+        self.remediation_drafts_dir = remediation_drafts_dir
 
     async def coverage_audit(self) -> dict[str, Any]:
         active_tickets = await self.tickets.list()
@@ -246,6 +251,116 @@ class RunbookCoverageService:
             "readiness_status": audit["readiness_status"],
             "coverage_score": audit["coverage_score"],
             "pack": pack,
+            "markdown": markdown,
+        }
+
+    async def export_remediation_drafts(self) -> dict[str, Any]:
+        audit = await self.coverage_audit()
+        generated_at = datetime.now(timezone.utc)
+        draft_id = f"runbook_remediation_{generated_at.strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:6]}"
+        draft_dir = self.remediation_drafts_dir / draft_id
+        json_path = draft_dir / f"{draft_id}.json"
+        markdown_path = draft_dir / f"{draft_id}.md"
+        playbook_draft_path = draft_dir / "playbooks.draft.json"
+        kb_draft_path = draft_dir / "kb_articles.draft.json"
+        proposed_playbooks = [
+            self._proposed_playbook(gap)
+            for gap in audit["runbook_gaps"]
+            if any(reason.startswith("missing_dedicated") for reason in gap["gap_reasons"])
+        ]
+        proposed_kb_articles = [
+            self._proposed_kb_article(gap)
+            for gap in audit["runbook_gaps"]
+            if "missing_kb_article_mapping" in gap["gap_reasons"]
+        ]
+        review_gates = self._remediation_review_gates(
+            audit,
+            proposed_playbooks,
+            proposed_kb_articles,
+        )
+        draft_pack = {
+            "draft_id": draft_id,
+            "generated_at": generated_at.isoformat(),
+            "title": "Runbook Remediation Draft Pack",
+            "status": "awaiting_human_review",
+            "local_mock_only": True,
+            "source_gap_pack_status": audit["readiness_status"],
+            "coverage_score": audit["coverage_score"],
+            "coverage_summary": audit["coverage_summary"],
+            "proposed_playbooks": proposed_playbooks,
+            "proposed_kb_articles": proposed_kb_articles,
+            "review_gates": review_gates,
+            "durable_review_checkpoint": self._durable_review_checkpoint(
+                draft_id,
+                audit,
+                review_gates,
+            ),
+            "patch_manifest": self._patch_manifest(
+                proposed_playbooks,
+                proposed_kb_articles,
+                playbook_draft_path,
+                kb_draft_path,
+            ),
+            "owner_review_queue": self._owner_review_queue(
+                audit["owner_assignments"],
+                audit["runbook_gaps"],
+            ),
+            "run_transparency": {
+                **audit["run_transparency"],
+                "artifact_directory": "data/runbook_remediation_drafts",
+                "source_fixtures_mutated": False,
+                "draft_file_count": 4,
+            },
+            "endpoint_list": RUNBOOK_COVERAGE_ENDPOINTS,
+            "local_commands": RUNBOOK_COVERAGE_COMMANDS,
+            "repo_radar_patterns": [
+                "human-in-the-loop",
+                "governance",
+                "durable workflows",
+                "artifact handoffs",
+            ],
+            "limitations": [
+                *audit["limitations"],
+                "Draft artifacts are review inputs only and do not modify sample_data fixtures.",
+                "A human reviewer must copy accepted draft items into source fixtures in a later change.",
+            ],
+            "artifact_paths": {
+                "remediation_pack_json": str(json_path),
+                "remediation_pack_markdown": str(markdown_path),
+                "playbooks_draft_json": str(playbook_draft_path),
+                "kb_articles_draft_json": str(kb_draft_path),
+            },
+        }
+        markdown = self._remediation_markdown(draft_pack)
+        draft_dir.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(json.dumps(draft_pack, indent=2, default=str), encoding="utf-8")
+        markdown_path.write_text(markdown, encoding="utf-8")
+        playbook_draft_path.write_text(json.dumps(proposed_playbooks, indent=2), encoding="utf-8")
+        kb_draft_path.write_text(json.dumps(proposed_kb_articles, indent=2), encoding="utf-8")
+        await self.audit.record(
+            AuditEvent(
+                actor="runbook-coverage",
+                action="runbook.remediation_drafts_exported",
+                resource_type="runbook_remediation_draft",
+                resource_id=draft_id,
+                metadata={
+                    "markdown_path": str(markdown_path),
+                    "json_path": str(json_path),
+                    "playbook_draft_path": str(playbook_draft_path),
+                    "kb_draft_path": str(kb_draft_path),
+                    "source_fixtures_mutated": False,
+                },
+            )
+        )
+        return {
+            "draft_id": draft_id,
+            "format": "markdown+json+fixture-drafts",
+            "status": draft_pack["status"],
+            "json_path": str(json_path),
+            "markdown_path": str(markdown_path),
+            "playbook_draft_path": str(playbook_draft_path),
+            "kb_draft_path": str(kb_draft_path),
+            "pack": draft_pack,
             "markdown": markdown,
         }
 
@@ -782,6 +897,151 @@ class RunbookCoverageService:
             "general_support": "Support QA Lead",
         }.get(ticket_type, "Support Operations")
 
+    def _proposed_playbook(self, gap: dict[str, Any]) -> dict[str, Any]:
+        ticket_type = gap["ticket_type"]
+        outline = gap["suggested_playbook_outline"]
+        return {
+            "id": f"draft_pb_{ticket_type}",
+            "title": outline["title"],
+            "category": ticket_type,
+            "tags": sorted(RUNBOOK_CATEGORY_TAGS.get(ticket_type, {ticket_type})),
+            "severity": "high" if gap["severity"] == "high" else "medium",
+            "checklist": outline["minimum_checklist"],
+            "owner_roles": outline["owner_roles"],
+            "escalation_policy": (
+                f"Route {ticket_type.replace('_', ' ')} tickets to {gap['owner']} "
+                "when SLA risk, customer impact, or low confidence is present."
+            ),
+            "customer_update_template": (
+                "We are reviewing {ticket_id} with the owning support team and will "
+                "share the next approved update after validating impact and evidence."
+            ),
+            "draft_status": "requires_human_review",
+            "source_gap_id": gap["gap_id"],
+            "acceptance_criteria": gap["acceptance_criteria"],
+        }
+
+    def _proposed_kb_article(self, gap: dict[str, Any]) -> dict[str, Any]:
+        ticket_type = gap["ticket_type"]
+        return {
+            "article_id": f"DRAFT-KB-{ticket_type.upper()}",
+            "title": f"{ticket_type.replace('_', ' ').title()} support evidence checklist",
+            "content": (
+                "Draft source guidance. Confirm customer impact, affected scope, "
+                "approval state, owning team, SLA deadline, and evidence required "
+                "before sending external or engineering-facing updates."
+            ),
+            "tags": sorted(RUNBOOK_CATEGORY_TAGS.get(ticket_type, {ticket_type})),
+            "draft_status": "requires_kb_curator_review",
+            "source_gap_id": gap["gap_id"],
+            "owner": gap["owner"],
+        }
+
+    def _remediation_review_gates(
+        self,
+        audit: dict[str, Any],
+        proposed_playbooks: list[dict[str, Any]],
+        proposed_kb_articles: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        return [
+            self._gate(
+                "human_fixture_review_gate",
+                "Operations Reviewer",
+                False,
+                "Draft fixture changes require human review before sample_data edits.",
+            ),
+            self._gate(
+                "owner_acceptance_gate",
+                "Runbook Program Owner",
+                False,
+                f"{len(proposed_playbooks)} proposed playbooks require owner acceptance.",
+            ),
+            self._gate(
+                "kb_curator_gate",
+                "Knowledge Curator",
+                not proposed_kb_articles,
+                f"{len(proposed_kb_articles)} proposed KB articles require source review.",
+            ),
+            self._gate(
+                "source_mutation_guard",
+                "Operations Reviewer",
+                True,
+                "Export wrote draft artifacts only; source fixtures were not mutated.",
+            ),
+            self._gate(
+                "coverage_retest_gate",
+                "Operations Reviewer",
+                audit["coverage_score"] >= 85,
+                "Re-run coverage audit after accepted fixture changes and require score >= 85.",
+            ),
+        ]
+
+    def _durable_review_checkpoint(
+        self,
+        draft_id: str,
+        audit: dict[str, Any],
+        review_gates: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        failed_gates = [gate["gate_id"] for gate in review_gates if gate["status"] == "fail"]
+        return {
+            "checkpoint_id": f"checkpoint_{draft_id}",
+            "status": "paused_for_human_review" if failed_gates else "ready_to_apply",
+            "source_coverage_score": audit["coverage_score"],
+            "failed_gate_ids": failed_gates,
+            "resume_after": [
+                "Reviewer approves draft playbook and KB content.",
+                "Accepted draft items are copied into sample_data fixtures in a separate change.",
+                "Coverage audit and verification commands pass after fixture changes.",
+            ],
+            "blocked_auto_actions": [
+                "No automatic edits to sample_data/playbooks.json.",
+                "No automatic edits to sample_data/kb_articles.json.",
+                "No external ticket, KB, Slack, Jira, Azure, OpenAI, or GitHub calls.",
+            ],
+        }
+
+    def _patch_manifest(
+        self,
+        proposed_playbooks: list[dict[str, Any]],
+        proposed_kb_articles: list[dict[str, Any]],
+        playbook_draft_path: Path,
+        kb_draft_path: Path,
+    ) -> list[dict[str, Any]]:
+        return [
+            {
+                "source_fixture": "sample_data/playbooks.json",
+                "draft_path": str(playbook_draft_path),
+                "operation": "append_after_human_review",
+                "item_count": len(proposed_playbooks),
+            },
+            {
+                "source_fixture": "sample_data/kb_articles.json",
+                "draft_path": str(kb_draft_path),
+                "operation": "append_after_human_review",
+                "item_count": len(proposed_kb_articles),
+            },
+        ]
+
+    def _owner_review_queue(
+        self,
+        owners: list[dict[str, Any]],
+        gaps: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        rows = []
+        for gap in gaps:
+            owner = next((item for item in owners if item["owner"] == gap["owner"]), {})
+            rows.append(
+                {
+                    "gap_id": gap["gap_id"],
+                    "owner": gap["owner"],
+                    "priority": gap["severity"],
+                    "affected_ticket_count": gap["affected_ticket_count"],
+                    "review_decision": "pending",
+                    "next_action": owner.get("next_action", "Review proposed draft artifact."),
+                }
+            )
+        return rows
+
     def _acceptance_criteria(self) -> list[str]:
         return [
             "Every high-impact ticket type has a dedicated playbook category and owner roles.",
@@ -959,6 +1219,89 @@ class RunbookCoverageService:
                 "",
                 "## Limitations",
                 *limitations,
+                "",
+            ]
+        )
+
+    def _remediation_markdown(self, pack: dict[str, Any]) -> str:
+        playbook_rows = [
+            (
+                f"| `{item['id']}` | {item['category']} | {item['severity']} | "
+                f"{', '.join(item['owner_roles'])} | {item['source_gap_id']} |"
+            )
+            for item in pack["proposed_playbooks"]
+        ] or ["| None | none | none | none | none |"]
+        kb_rows = [
+            f"| `{item['article_id']}` | {item['title']} | {item['owner']} | {item['source_gap_id']} |"
+            for item in pack["proposed_kb_articles"]
+        ] or ["| None | none | none | none |"]
+        gate_rows = [
+            f"| `{gate['gate_id']}` | {gate['owner_role']} | {gate['status']} | {gate['detail']} |"
+            for gate in pack["review_gates"]
+        ]
+        manifest_rows = [
+            (
+                f"| `{item['source_fixture']}` | `{item['draft_path']}` | "
+                f"{item['operation']} | {item['item_count']} |"
+            )
+            for item in pack["patch_manifest"]
+        ]
+        owner_rows = [
+            (
+                f"| `{item['gap_id']}` | {item['owner']} | {item['priority']} | "
+                f"{item['affected_ticket_count']} | {item['review_decision']} |"
+            )
+            for item in pack["owner_review_queue"]
+        ]
+        command_rows = [f"- `{command}`" for command in pack["local_commands"]]
+        limitation_rows = [f"- {item}" for item in pack["limitations"]]
+        checkpoint = pack["durable_review_checkpoint"]
+        return "\n".join(
+            [
+                f"# Runbook Remediation Draft Pack: {pack['draft_id']}",
+                "",
+                "## Summary",
+                f"- Status: {pack['status']}",
+                f"- Source coverage score: {pack['coverage_score']}",
+                f"- Proposed playbooks: {len(pack['proposed_playbooks'])}",
+                f"- Proposed KB articles: {len(pack['proposed_kb_articles'])}",
+                f"- Source fixtures mutated: {pack['run_transparency']['source_fixtures_mutated']}",
+                "",
+                "## Durable Review Checkpoint",
+                f"- Checkpoint: `{checkpoint['checkpoint_id']}`",
+                f"- Status: {checkpoint['status']}",
+                f"- Failed gates: {', '.join(checkpoint['failed_gate_ids']) or 'none'}",
+                "",
+                "## Proposed Playbook Drafts",
+                "| Draft | Category | Severity | Owners | Source Gap |",
+                "| --- | --- | --- | --- | --- |",
+                *playbook_rows,
+                "",
+                "## Proposed KB Article Drafts",
+                "| Draft | Title | Owner | Source Gap |",
+                "| --- | --- | --- | --- |",
+                *kb_rows,
+                "",
+                "## Review Gates",
+                "| Gate | Owner | Status | Detail |",
+                "| --- | --- | --- | --- |",
+                *gate_rows,
+                "",
+                "## Patch Manifest",
+                "| Source Fixture | Draft Path | Operation | Items |",
+                "| --- | --- | --- | ---: |",
+                *manifest_rows,
+                "",
+                "## Owner Review Queue",
+                "| Gap | Owner | Priority | Tickets | Decision |",
+                "| --- | --- | --- | ---: | --- |",
+                *owner_rows,
+                "",
+                "## Local Commands",
+                *command_rows,
+                "",
+                "## Limitations",
+                *limitation_rows,
                 "",
             ]
         )

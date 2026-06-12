@@ -102,6 +102,9 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /runbooks/gap-pack`
   Writes Markdown and JSON under the ignored runbook gap folder, normally `data/runbook_gap_packs/`. The pack includes the ticket coverage map, missing runbook gaps, owner-ready remediation tasks, role playbooks, delegated coverage tasks, review gates, artifact handoffs, run transparency, acceptance criteria, endpoint evidence, local verification commands, JD skills demonstrated, and five interviewer talking points.
 
+- `POST /runbooks/remediation-drafts`
+  Writes a review-gated remediation draft pack under `data/runbook_remediation_drafts/`. The export includes proposed `playbooks.draft.json` and `kb_articles.draft.json` append-only fixture drafts, a durable human-review checkpoint, owner review queue, patch manifest, mutation guard, local commands, endpoint evidence, and limitations. It does not modify `sample_data/playbooks.json` or `sample_data/kb_articles.json`.
+
 - `GET /providers/readiness`
   Returns the Provider Readiness audit for the configured LLM mode. The response includes local/mock default status, active provider class, optional OpenAI/Azure adapter classes, redacted credential presence, provider matrix, fallback policy, production activation backlog, endpoint evidence, local commands, and limitations. It does not call OpenAI, Azure OpenAI, Zendesk, Jira, Slack, GitHub, or external networks.
 
@@ -580,6 +583,9 @@ curl http://localhost:8000/runbooks/coverage-audit \
   -H "x-api-key: demo-control-tower-key"
 
 curl -X POST http://localhost:8000/runbooks/gap-pack \
+  -H "x-api-key: demo-control-tower-key"
+
+curl -X POST http://localhost:8000/runbooks/remediation-drafts \
   -H "x-api-key: demo-control-tower-key"
 ```
 

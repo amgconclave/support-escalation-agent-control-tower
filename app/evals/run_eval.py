@@ -55,6 +55,7 @@ async def run_eval() -> None:
     scenario_summary = scenario_pack["eval_summary"]
     runbook_audit = await container.runbook_coverage.coverage_audit()
     runbook_gap_pack = await container.runbook_coverage.export_gap_pack()
+    runbook_remediation_drafts = await container.runbook_coverage.export_remediation_drafts()
     capacity_forecast = await container.capacity_planning.forecast()
     capacity_plan = await container.capacity_planning.export_staffing_plan()
     provider_readiness = await container.provider_readiness.readiness()
@@ -78,6 +79,9 @@ async def run_eval() -> None:
         and scenario_summary["status"] == "pass"
         and runbook_audit["coverage_score"] >= 50
         and runbook_audit["runbook_gaps"]
+        and runbook_remediation_drafts["status"] == "awaiting_human_review"
+        and runbook_remediation_drafts["pack"]["proposed_playbooks"]
+        and runbook_remediation_drafts["pack"]["run_transparency"]["source_fixtures_mutated"] is False
         and capacity_forecast["demand_summary"]["ticket_count"] >= total
         and capacity_forecast["queue_forecast"]
         and provider_readiness["readiness_status"] == "local_mock_ready"
@@ -132,6 +136,8 @@ async def run_eval() -> None:
         f"failed={runbook_audit['run_transparency']['failed_gate_count']}",
     )
     print(f"Runbook Gap Pack: {runbook_gap_pack['markdown_path']}")
+    print(f"Runbook Remediation Draft Pack: {runbook_remediation_drafts['markdown_path']}")
+    print(f"Runbook Remediation Playbook Drafts: {runbook_remediation_drafts['playbook_draft_path']}")
     print(f"Capacity Forecast score: {capacity_forecast['capacity_score']}")
     print(f"Capacity Forecast gaps: {len(capacity_forecast['staffing_gaps'])}")
     print(f"Capacity Staffing Plan: {capacity_plan['markdown_path']}")

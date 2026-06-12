@@ -31,7 +31,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Escalation Finance Impact estimates for support cost, SLA penalty exposure, engineering effort, ARR at risk, dashboard wiring, demo output, and pack export under `data/finance_impact_packs/`
 - Leadership Scorecard calculation, risk flags, endpoint behavior, and review pack export under `data/leadership_reviews/`
 - Knowledge Quality Auditor coverage score, missing citation detection, conflict detection, workflow retrieval evidence, endpoint behavior, and KB refresh plan export under `data/kb_refresh_plans/`
-- Runbook Coverage audit ticket-to-KB/runbook mapping, missing dedicated runbook gaps, owner assignments, endpoint evidence, and Gap Pack export under `data/runbook_gap_packs/`
+- Runbook Coverage audit ticket-to-KB/runbook mapping, missing dedicated runbook gaps, owner assignments, endpoint evidence, Gap Pack export under `data/runbook_gap_packs/`, and review-gated remediation drafts under `data/runbook_remediation_drafts/`
 - Smoke Matrix endpoint shape and Launch Checklist Markdown/JSON export under `data/launch_checklists/`
 - Portfolio Evidence Index skill coverage and Interview Pack Markdown/JSON export under `data/portfolio_packs/`
 - Release Candidate quality gate coverage and GitHub Publish Pack Markdown/JSON export under `data/release_packs/`

@@ -227,6 +227,12 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "POST /runbooks/remediation-drafts",
+        "purpose": "Runbook remediation fixture draft pack with human-review gates.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "POST /portfolio/interview-pack",
         "purpose": "Portfolio Interview Pack export.",
         "dashboard_reference_required": True,
@@ -684,6 +690,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Runbook Coverage",
         "producer_endpoint": "POST /runbooks/gap-pack",
         "artifact_directory": "data/runbook_gap_packs",
+    },
+    {
+        "tab_label": "Runbook Coverage",
+        "producer_endpoint": "POST /runbooks/remediation-drafts",
+        "artifact_directory": "data/runbook_remediation_drafts",
     },
     {
         "tab_label": "Launch Checklist",

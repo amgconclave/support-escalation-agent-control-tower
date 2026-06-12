@@ -39,6 +39,7 @@ EVIDENCE_ARTIFACT_DIRECTORIES = [
     "leadership_reviews",
     "kb_refresh_plans",
     "runbook_gap_packs",
+    "runbook_remediation_drafts",
     "launch_checklists",
     "portfolio_packs",
     "release_packs",

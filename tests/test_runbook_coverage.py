@@ -88,3 +88,35 @@ def test_runbook_gap_pack_exports_owner_ready_remediation_artifacts(client):
     assert "## Run Transparency" in markdown
     saved = Path(exported["json_path"]).read_text(encoding="utf-8")
     assert "missing_dedicated_incident_runbook" in saved
+
+
+def test_runbook_remediation_drafts_export_review_gated_fixture_drafts(client):
+    headers = _headers(client)
+    playbook_source_before = Path("sample_data/playbooks.json").read_text(encoding="utf-8")
+    kb_source_before = Path("sample_data/kb_articles.json").read_text(encoding="utf-8")
+
+    response = client.post("/runbooks/remediation-drafts", headers=headers)
+    assert response.status_code == 200, response.text
+    exported = response.json()
+    pack = exported["pack"]
+
+    assert exported["status"] == "awaiting_human_review"
+    assert exported["format"] == "markdown+json+fixture-drafts"
+    assert Path(exported["markdown_path"]).exists()
+    assert Path(exported["json_path"]).exists()
+    assert Path(exported["playbook_draft_path"]).exists()
+    assert Path(exported["kb_draft_path"]).exists()
+    assert pack["run_transparency"]["source_fixtures_mutated"] is False
+    assert pack["durable_review_checkpoint"]["status"] == "paused_for_human_review"
+    assert pack["proposed_playbooks"]
+    assert any(item["category"] == "incident" for item in pack["proposed_playbooks"])
+    assert any(gate["gate_id"] == "human_fixture_review_gate" for gate in pack["review_gates"])
+    assert any(item["source_fixture"] == "sample_data/playbooks.json" for item in pack["patch_manifest"])
+    assert "POST /runbooks/remediation-drafts" in pack["endpoint_list"]
+    assert "human-in-the-loop" in pack["repo_radar_patterns"]
+    assert "Runbook Remediation Draft Pack" in exported["markdown"]
+
+    playbook_drafts = Path(exported["playbook_draft_path"]).read_text(encoding="utf-8")
+    assert "draft_pb_incident" in playbook_drafts
+    assert Path("sample_data/playbooks.json").read_text(encoding="utf-8") == playbook_source_before
+    assert Path("sample_data/kb_articles.json").read_text(encoding="utf-8") == kb_source_before

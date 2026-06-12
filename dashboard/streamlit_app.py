@@ -2437,10 +2437,10 @@ with tabs[36]:
             st.json(pack["pack"])
 
 with tabs[37]:
-    left, right = st.columns(2)
+    left, middle, right = st.columns(3)
     if left.button("Refresh Runbook Coverage", type="primary", use_container_width=True):
         st.session_state["runbook_coverage_audit"] = api("GET", "/runbooks/coverage-audit")
-    if right.button("Export Runbook Gap Pack", use_container_width=True):
+    if middle.button("Export Runbook Gap Pack", use_container_width=True):
         pack = api("POST", "/runbooks/gap-pack")
         st.session_state["runbook_gap_pack"] = pack
         st.session_state["runbook_coverage_audit"] = {
@@ -2460,6 +2460,10 @@ with tabs[37]:
             "endpoint_list": pack["pack"]["endpoint_list"],
         }
         st.success(f"Runbook Gap Pack exported: {pack['markdown_path']}")
+    if right.button("Draft Remediation Artifacts", use_container_width=True):
+        remediation = api("POST", "/runbooks/remediation-drafts")
+        st.session_state["runbook_remediation_drafts"] = remediation
+        st.success(f"Runbook remediation drafts exported: {remediation['markdown_path']}")
 
     audit = st.session_state.get("runbook_coverage_audit") or api("GET", "/runbooks/coverage-audit")
     st.session_state["runbook_coverage_audit"] = audit
@@ -2553,6 +2557,30 @@ with tabs[37]:
         st.markdown(pack["markdown"])
         with st.expander("Runbook Gap Pack JSON"):
             st.json(pack["pack"])
+
+    remediation = st.session_state.get("runbook_remediation_drafts")
+    if remediation:
+        st.caption(f"Remediation Markdown: {remediation['markdown_path']}")
+        st.caption(f"Remediation JSON: {remediation['json_path']}")
+        st.caption(f"Playbook Drafts: {remediation['playbook_draft_path']}")
+        st.caption(f"KB Drafts: {remediation['kb_draft_path']}")
+        r1, r2, r3 = st.columns(3)
+        r1.metric("Draft status", remediation["status"])
+        r2.metric("Proposed playbooks", len(remediation["pack"]["proposed_playbooks"]))
+        r3.metric("Proposed KB articles", len(remediation["pack"]["proposed_kb_articles"]))
+        st.subheader("Remediation Review Gates")
+        st.dataframe(remediation["pack"]["review_gates"], use_container_width=True, hide_index=True)
+        st.subheader("Patch Manifest")
+        st.dataframe(remediation["pack"]["patch_manifest"], use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download Runbook Remediation Draft Pack",
+            data=remediation["markdown"],
+            file_name=f"{remediation['draft_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(remediation["markdown"])
+        with st.expander("Runbook Remediation Draft JSON"):
+            st.json(remediation["pack"])
 
 with tabs[38]:
     left, right = st.columns(2)

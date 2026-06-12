@@ -131,6 +131,8 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /runbooks/gap-pack` writes Markdown and JSON under `data/runbook_gap_packs/`. The pack turns missing or partial runbook coverage into owner-ready remediation tasks with affected ticket IDs, suggested playbook outlines, acceptance criteria, local commands, JD skills demonstrated, and interviewer talking points. It remains local/mock only and does not call external KB, Zendesk, Jira, Slack, Azure, OpenAI, or GitHub systems.
 
+`POST /runbooks/remediation-drafts` writes a human-review draft pack under `data/runbook_remediation_drafts/`. It creates proposed append-only `playbooks.draft.json` and `kb_articles.draft.json` files, records a durable review checkpoint, and keeps source fixtures unchanged until a reviewer explicitly accepts the drafts in a later change.
+
 ## Provider Readiness Guard Pack
 
 `GET /providers/readiness` audits the configured LLM provider without calling external networks. It verifies that `LocalMockLlmProvider` remains the active default for CI and demos, reports optional `OpenAIChatProvider` and `AzureOpenAIChatProvider` activation posture, redacts credential presence, checks fallback guardrails, and lists production activation tasks.

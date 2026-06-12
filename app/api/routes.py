@@ -738,6 +738,11 @@ async def runbook_gap_pack(request: Request):
     return await get_container(request).runbook_coverage.export_gap_pack()
 
 
+@router.post("/runbooks/remediation-drafts", dependencies=[Depends(require_api_key)])
+async def runbook_remediation_drafts(request: Request):
+    return await get_container(request).runbook_coverage.export_remediation_drafts()
+
+
 @router.get("/leadership/scorecard", dependencies=[Depends(require_api_key)])
 async def leadership_scorecard(request: Request):
     return await get_container(request).leadership.scorecard()

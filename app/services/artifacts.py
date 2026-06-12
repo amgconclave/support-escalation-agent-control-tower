@@ -207,6 +207,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Aggregates finance, engineering quality, communication quality, support-ops delegation, role signoffs, review gates, and run transparency into an approval-ready escalation decision board.",
     },
+    {
+        "name": "Runbook Remediation Draft Pack",
+        "directory": "data/runbook_remediation_drafts",
+        "producer": "POST /runbooks/remediation-drafts",
+        "formats": ["markdown", "json", "fixture-draft-json"],
+        "reviewer_purpose": "Creates human-reviewed playbook and KB fixture drafts with durable checkpoints and source-mutation guards.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -244,6 +251,7 @@ REVIEWER_PURPOSES = {
     "data/scenario_packs": "Scenario Dataset Eval Coverage Pack proof for classification, SLA, approval, escalation, low-confidence, and failure coverage.",
     "data/finance_impact_packs": EXTRA_ARTIFACTS[3]["reviewer_purpose"],
     "data/runbook_gap_packs": EXTRA_ARTIFACTS[4]["reviewer_purpose"],
+    "data/runbook_remediation_drafts": "Review-gated playbook and KB fixture drafts with durable checkpoints and no source mutation.",
     "data/evidence_packs": EXTRA_ARTIFACTS[5]["reviewer_purpose"],
     "data/capacity_plans": "Support capacity forecast proof with queue load, staffing gaps, owners, and local remediation actions.",
     "data/data_residency_packs": EXTRA_ARTIFACTS[6]["reviewer_purpose"],

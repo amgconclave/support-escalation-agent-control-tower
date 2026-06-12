@@ -160,6 +160,13 @@ def run_with_http_server() -> dict | None:
         )
         runbook_gap_response.raise_for_status()
         result["runbook_gap_pack"] = runbook_gap_response.json()
+        runbook_remediation_response = requests.post(
+            f"{BASE}/runbooks/remediation-drafts",
+            headers=headers,
+            timeout=60,
+        )
+        runbook_remediation_response.raise_for_status()
+        result["runbook_remediation_drafts"] = runbook_remediation_response.json()
         smoke_response = requests.get(
             f"{BASE}/ops/smoke-matrix",
             headers=headers,
@@ -789,6 +796,9 @@ def run_in_process() -> dict:
         runbook_gap_response = client.post("/runbooks/gap-pack", headers={"x-api-key": token})
         runbook_gap_response.raise_for_status()
         result["runbook_gap_pack"] = runbook_gap_response.json()
+        runbook_remediation_response = client.post("/runbooks/remediation-drafts", headers={"x-api-key": token})
+        runbook_remediation_response.raise_for_status()
+        result["runbook_remediation_drafts"] = runbook_remediation_response.json()
         smoke_response = client.get("/ops/smoke-matrix", headers={"x-api-key": token})
         smoke_response.raise_for_status()
         result["smoke_matrix"] = smoke_response.json()
@@ -1071,6 +1081,7 @@ def main():
     kb_plan = result["kb_refresh_plan"]
     runbook_coverage = result["runbook_coverage_audit"]
     runbook_gap_pack = result["runbook_gap_pack"]
+    runbook_remediation_drafts = result["runbook_remediation_drafts"]
     smoke = result["smoke_matrix"]
     checklist = result["launch_checklist"]
     portfolio_evidence = result["portfolio_evidence_index"]
@@ -1211,6 +1222,8 @@ def main():
     )
     print("Runbook Gap Pack:", runbook_gap_pack["markdown_path"])
     print("Runbook Gap JSON:", runbook_gap_pack["json_path"])
+    print("Runbook Remediation Draft Pack:", runbook_remediation_drafts["markdown_path"])
+    print("Runbook Remediation Playbooks:", runbook_remediation_drafts["playbook_draft_path"])
     print(
         "Launch readiness:",
         smoke["readiness_summary"]["status"],

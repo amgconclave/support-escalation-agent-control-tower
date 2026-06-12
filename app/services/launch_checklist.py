@@ -135,6 +135,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Runbook Remediation Draft Pack",
+        "directory": "data/runbook_remediation_drafts",
+        "producer": "POST /runbooks/remediation-drafts",
+        "formats": ["markdown", "json", "fixture-draft-json"],
+    },
+    {
         "name": "Incident narrative",
         "directory": "data/incident_narratives",
         "producer": "POST /incidents/executive-narrative",
