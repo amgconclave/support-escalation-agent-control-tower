@@ -728,6 +728,16 @@ async def observability_eval_pack(request: Request):
     return await get_container(request).observability_eval.export_eval_pack()
 
 
+@router.post("/evals/regression-gate", dependencies=[Depends(require_api_key)])
+async def eval_regression_gate(request: Request):
+    return await get_container(request).eval_regression_gate.gate()
+
+
+@router.post("/evals/regression-pack", dependencies=[Depends(require_api_key)])
+async def eval_regression_pack(request: Request):
+    return await get_container(request).eval_regression_gate.export_pack()
+
+
 @router.get("/runbooks/coverage-audit", dependencies=[Depends(require_api_key)])
 async def runbook_coverage_audit(request: Request):
     return await get_container(request).runbook_coverage.coverage_audit()

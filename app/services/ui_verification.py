@@ -73,6 +73,7 @@ EXPECTED_VIEWS = [
     "Agent Bus",
     "Trace Eval Lab",
     "Escalation Decision Board",
+    "Eval Regression Gate",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -598,6 +599,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "POST /evals/regression-gate",
+        "purpose": "Release-style scenario and trace eval regression gate.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /evals/regression-pack",
+        "purpose": "Eval Regression Gate Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -840,6 +853,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Trace Eval Lab",
         "producer_endpoint": "POST /observability/eval-pack",
         "artifact_directory": "data/observability_eval_packs",
+    },
+    {
+        "tab_label": "Eval Regression Gate",
+        "producer_endpoint": "POST /evals/regression-pack",
+        "artifact_directory": "data/eval_regression_gates",
     },
     {
         "tab_label": "Escalation Decision Board",
@@ -1212,6 +1230,11 @@ class UIVerificationService:
                 "view": "Provider Readiness",
                 "placeholder": "screenshots/provider-failover-drill.png",
                 "what_to_capture": "Failover score, fallback scenarios, fail-closed path, external-call count, and generated pack paths.",
+            },
+            {
+                "view": "Eval Regression Gate",
+                "placeholder": "screenshots/eval-regression-gate.png",
+                "what_to_capture": "Gate score, failed gates, scenario accuracy, observability score, and generated pack paths.",
             },
         ]
 

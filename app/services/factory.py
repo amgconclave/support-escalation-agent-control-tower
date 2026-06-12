@@ -21,6 +21,7 @@ from app.services.daily_ops_brief import ExecutiveDailyOpsBriefService
 from app.services.demo import DemoService
 from app.services.drills import DrillService
 from app.services.evidence_retention import EvidenceRetentionService
+from app.services.eval_regression_gate import EvalRegressionGateService
 from app.services.escalation_decision import EscalationDecisionService
 from app.services.escalation_quality import EscalationQualityService
 from app.services.final_handoff import FinalHandoffService
@@ -453,6 +454,12 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/eval_dataset.json"),
             settings.state_file.parent / "observability_eval_packs",
+        )
+        self.eval_regression_gate = EvalRegressionGateService(
+            self.scenarios,
+            self.observability_eval,
+            self.audit,
+            settings.state_file.parent / "eval_regression_gates",
         )
         self.escalation_decision = EscalationDecisionService(
             self.store,

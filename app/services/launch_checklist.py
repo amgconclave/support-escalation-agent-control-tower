@@ -243,6 +243,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Eval Regression Gate Pack",
+        "directory": "data/eval_regression_gates",
+        "producer": "POST /evals/regression-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Support Capacity Forecast and Staffing Plan",
         "directory": "data/capacity_plans",
         "producer": "POST /capacity/staffing-plan",
@@ -423,6 +429,8 @@ class LaunchChecklistService:
             self._row("POST", "/runtime/demo-pack", True, "Writes the Runtime Demo Server Pack.", True, "data/runtime_packs"),
             self._row("GET", "/scenarios/catalog", True, "Returns the scenario catalog and coverage summary.", False),
             self._row("POST", "/scenarios/eval-pack", True, "Writes the Scenario Dataset Eval Coverage Pack.", True, "data/scenario_packs"),
+            self._row("POST", "/evals/regression-gate", True, "Runs release-style scenario and trace eval regression gates.", False),
+            self._row("POST", "/evals/regression-pack", True, "Writes the Eval Regression Gate Pack.", True, "data/eval_regression_gates"),
             self._row("GET", "/evidence/retention-audit", True, "Returns evidence retention and custody readiness.", False),
             self._row("POST", "/evidence/retention-pack", True, "Writes the Evidence Retention and Chain-of-Custody Pack.", True, "data/evidence_packs"),
             self._row("GET", "/capacity/forecast", True, "Returns local support load and staffing capacity forecast.", False),

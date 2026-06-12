@@ -222,6 +222,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /observability/eval-pack`
   Writes Markdown and JSON under the ignored local observability eval folder, normally `data/observability_eval_packs/`. The pack includes trace diagnostics, retrieval diagnostics, experiment comparison, deployment gate, acceptance criteria, proof commands, and limitations. It does not call hosted evaluators, model providers, APM, Zendesk, Jira, Slack, GitHub, or external networks.
 
+- `POST /evals/regression-gate`
+  Runs the Eval Regression Gate by composing the local scenario eval pack with Trace Eval Lab diagnostics. The response includes release thresholds, benchmark review gates, scenario accuracy, observability score, unsafe-action checks, zero-external-call checks, owner actions, artifact handoffs, run transparency, and local/mock limitations.
+
+- `POST /evals/regression-pack`
+  Writes Markdown and JSON under the ignored local eval regression folder, normally `data/eval_regression_gates/`. The pack includes the gate result, release decision, acceptance criteria, review gates, scenario and trace artifact handoffs, proof commands, and limitations.
+
 - `GET /ops/smoke-matrix`
   Returns the Local Launch Checklist smoke matrix for GitHub reviewers. Each row includes endpoint, purpose, auth requirement, expected status, sample `curl.exe` and PowerShell `Invoke-RestMethod` commands, artifact expectation, and the overall launch readiness summary.
 

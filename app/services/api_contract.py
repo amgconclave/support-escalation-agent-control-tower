@@ -81,6 +81,11 @@ VERIFY_COMMANDS = [
         r"app dashboard docs README.md tests scripts"
     ),
     (
+        r'rg "evals/regression-gate|evals/regression-pack|Eval Regression Gate|'
+        r'eval_regression_gates|benchmark discipline|review gates" '
+        r"app dashboard docs README.md tests scripts"
+    ),
+    (
         r'rg "escalations/decision-board|escalations/decision-pack|Escalation Decision Board|'
         r'escalation_decision_packs|decision gate" app dashboard docs README.md tests scripts'
     ),
@@ -154,6 +159,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /ops/agent-bus-pack",
     "GET /observability/trace-eval-lab",
     "POST /observability/eval-pack",
+    "POST /evals/regression-gate",
+    "POST /evals/regression-pack",
     "GET /escalations/decision-board",
     "POST /escalations/decision-pack",
     "GET /ops/daily-brief",
@@ -448,6 +455,8 @@ class ApiContractService:
             "POST /ops/agent-bus-pack",
             "GET /observability/trace-eval-lab",
             "POST /observability/eval-pack",
+            "POST /evals/regression-gate",
+            "POST /evals/regression-pack",
         ]
         rows = [
             {

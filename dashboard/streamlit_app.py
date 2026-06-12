@@ -88,6 +88,7 @@ tabs = st.tabs(
         "Agent Bus",
         "Trace Eval Lab",
         "Escalation Decision Board",
+        "Eval Regression Gate",
     ]
 )
 
@@ -3748,4 +3749,60 @@ with tabs[55]:
         st.dataframe(pack["pack"]["executive_decision_table"], use_container_width=True, hide_index=True)
         st.markdown(pack["markdown"])
         with st.expander("Escalation Decision Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[56]:
+    left, right = st.columns(2)
+    if left.button("Run Eval Regression Gate", type="primary", use_container_width=True):
+        st.session_state["eval_regression_gate"] = api("POST", "/evals/regression-gate")
+    if right.button("Export Eval Regression Gate Pack", use_container_width=True):
+        pack = api("POST", "/evals/regression-pack")
+        st.session_state["eval_regression_gate_pack"] = pack
+        st.session_state["eval_regression_gate"] = pack["pack"]["eval_regression_gate"]
+        st.success(f"Eval Regression Gate Pack exported: {pack['markdown_path']}")
+
+    gate = st.session_state.get("eval_regression_gate") or api("POST", "/evals/regression-gate")
+    st.session_state["eval_regression_gate"] = gate
+    summary = gate["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Gate score", gate["gate_score"])
+    c2.metric("Status", gate["status"])
+    c3.metric("Failed gates", summary["failed_gate_count"])
+    c4.metric("Scenarios", f"{summary['passed_scenario_count']}/{summary['scenario_count']}")
+
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("Classification", summary["classification_accuracy_percent"])
+    c6.metric("SLA routing", summary["sla_routing_accuracy_percent"])
+    c7.metric("Observability", summary["observability_score"])
+    c8.metric("Unsafe auto actions", summary["unsafe_auto_action_count"])
+
+    st.subheader("Review Gates")
+    st.dataframe(gate["review_gates"], use_container_width=True, hide_index=True)
+
+    st.subheader("Owner Actions")
+    st.dataframe(gate["owner_actions"], use_container_width=True, hide_index=True)
+
+    st.subheader("Artifact Handoffs")
+    st.json(
+        {
+            "scenario": gate["scenario_artifact_handoff"],
+            "trace_eval": gate["trace_eval_handoff"],
+        }
+    )
+
+    st.subheader("Run Transparency")
+    st.json(gate["run_transparency"])
+
+    pack = st.session_state.get("eval_regression_gate_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Eval Regression Gate Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(pack["markdown"])
+        with st.expander("Eval Regression Gate Pack JSON"):
             st.json(pack["pack"])

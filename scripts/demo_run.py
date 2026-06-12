@@ -421,6 +421,20 @@ def run_with_http_server() -> dict | None:
         )
         trace_eval_pack_response.raise_for_status()
         result["trace_eval_pack"] = trace_eval_pack_response.json()
+        eval_regression_gate_response = requests.post(
+            f"{BASE}/evals/regression-gate",
+            headers=headers,
+            timeout=60,
+        )
+        eval_regression_gate_response.raise_for_status()
+        result["eval_regression_gate"] = eval_regression_gate_response.json()
+        eval_regression_pack_response = requests.post(
+            f"{BASE}/evals/regression-pack",
+            headers=headers,
+            timeout=60,
+        )
+        eval_regression_pack_response.raise_for_status()
+        result["eval_regression_pack"] = eval_regression_pack_response.json()
         git_readiness_response = requests.get(
             f"{BASE}/git/readiness",
             headers=headers,
@@ -927,6 +941,12 @@ def run_in_process() -> dict:
         trace_eval_pack_response = client.post("/observability/eval-pack", headers={"x-api-key": token})
         trace_eval_pack_response.raise_for_status()
         result["trace_eval_pack"] = trace_eval_pack_response.json()
+        eval_regression_gate_response = client.post("/evals/regression-gate", headers={"x-api-key": token})
+        eval_regression_gate_response.raise_for_status()
+        result["eval_regression_gate"] = eval_regression_gate_response.json()
+        eval_regression_pack_response = client.post("/evals/regression-pack", headers={"x-api-key": token})
+        eval_regression_pack_response.raise_for_status()
+        result["eval_regression_pack"] = eval_regression_pack_response.json()
         git_readiness_response = client.get("/git/readiness", headers={"x-api-key": token})
         git_readiness_response.raise_for_status()
         result["git_readiness"] = git_readiness_response.json()
@@ -1118,6 +1138,8 @@ def main():
     agent_bus_pack = result["agent_bus_pack"]
     trace_eval_lab = result["trace_eval_lab"]
     trace_eval_pack = result["trace_eval_pack"]
+    eval_regression_gate = result["eval_regression_gate"]
+    eval_regression_pack = result["eval_regression_pack"]
     git_readiness = result["git_readiness"]
     git_push_plan = result["git_push_plan"]
     api_contract_audit = result["api_contract_audit"]
@@ -1357,6 +1379,14 @@ def main():
     )
     print("Trace Eval Lab Pack:", trace_eval_pack["markdown_path"])
     print("Trace Eval Lab JSON:", trace_eval_pack["json_path"])
+    print(
+        "Eval Regression Gate:",
+        eval_regression_gate["status"],
+        f"score={eval_regression_gate['gate_score']}",
+        f"failed_gates={eval_regression_gate['summary']['failed_gate_count']}",
+    )
+    print("Eval Regression Gate Pack:", eval_regression_pack["markdown_path"])
+    print("Eval Regression Gate JSON:", eval_regression_pack["json_path"])
     print("Git readiness:", git_readiness["status"], f"branch={git_readiness['current_branch'] or 'unknown'}")
     print("Git changed files:", git_readiness["summary"]["changed_count"])
     print("Push Plan:", git_push_plan["markdown_path"])
